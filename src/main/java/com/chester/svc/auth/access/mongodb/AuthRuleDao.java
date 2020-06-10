@@ -1,6 +1,6 @@
 package com.chester.svc.auth.access.mongodb;
 
-import com.chester.auth.client.AuthRule;
+import com.chester.auth.client.model.AuthRule;
 import com.chester.cloud.support.mongodb.AccessUtils;
 import com.chester.svc.auth.web.model.req.ReqRule;
 import com.chester.svc.auth.web.model.req.ReqRuleMultiple;

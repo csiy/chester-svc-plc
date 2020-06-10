@@ -1,6 +1,6 @@
 package com.chester.svc.auth.mq;
 
-import com.chester.auth.client.AuthRuleInit;
+import com.chester.auth.client.model.AuthRuleInit;
 import com.chester.svc.auth.access.mongodb.AuthRuleDao;
 import com.chester.util.coll.Lists;
 import com.chester.util.json.JSON;

@@ -1,8 +1,8 @@
 package com.chester.svc.auth.web.controller;
 
-import com.chester.auth.client.AuthRule;
-import com.chester.auth.client.Roles;
-import com.chester.auth.client.UserTokenHolder;
+import com.chester.auth.client.annotation.Roles;
+import com.chester.auth.client.core.UserTokenHolder;
+import com.chester.auth.client.model.AuthRule;
 import com.chester.svc.auth.access.mongodb.AuthRuleDao;
 import com.chester.svc.auth.mq.MqProducer;
 import com.chester.svc.auth.web.model.req.ReqRule;

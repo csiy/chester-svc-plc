@@ -1,7 +1,7 @@
 package com.chester.svc.sys.web.controller;
 
-import com.chester.auth.client.Roles;
-import com.chester.auth.client.UserTokenHolder;
+import com.chester.auth.client.annotation.Roles;
+import com.chester.auth.client.core.UserTokenHolder;
 import com.chester.svc.sys.mongodb.repository.MenuRepository;
 import com.chester.svc.sys.web.model.req.ReqMenu;
 import com.chester.svc.sys.web.model.req.ReqMenuUpdate;

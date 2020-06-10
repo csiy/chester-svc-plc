@@ -1,6 +1,6 @@
 package com.chester.svc.auth.mq;
 
-import com.chester.auth.client.AuthRule;
+import com.chester.auth.client.model.AuthRule;
 import com.chester.util.json.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

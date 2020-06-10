@@ -1,6 +1,8 @@
-package com.chester.svc.sys.mq;
+package com.chester.svc.log.mq;
 
+import com.chester.auth.client.aop.Logs;
 import com.chester.auth.client.model.Menu;
+import com.chester.svc.log.mongodb.repository.LogRepository;
 import com.chester.svc.sys.mongodb.repository.MenuRepository;
 import com.chester.util.coll.Lists;
 import com.chester.util.json.JSON;
@@ -18,21 +20,14 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class SysListener {
+public class LogListener {
 
     @Resource
-    private MenuRepository menuRepository;
+    private LogRepository logRepository;
 
-    @RabbitListener(queuesToDeclare = @Queue("q.sys.menu.init"))
+    @RabbitListener(queuesToDeclare = @Queue("q.logs.request"))
     public void authRuleChange(Message msg) {
-        InputStream sbs = new ByteArrayInputStream(msg.getBody());
-        List<Menu> menus = JSON.parseList(sbs, Menu.class);
-        Lists.each(menus,v->{
-            try{
-                menuRepository.addMenu(v,null);
-            }catch (MongoException e){
-                log.info("MongoException",e);
-            }
-        });
+        Logs logs = JSON.parse(msg.getBody(), Logs.class);
+        logRepository.addLog(logs);
     }
 }

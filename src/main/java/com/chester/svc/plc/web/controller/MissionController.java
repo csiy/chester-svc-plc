@@ -1,6 +1,6 @@
 package com.chester.svc.plc.web.controller;
 
-import com.chester.auth.client.Roles;
+import com.chester.auth.client.annotation.Roles;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

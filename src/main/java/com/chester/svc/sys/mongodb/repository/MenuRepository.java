@@ -1,6 +1,6 @@
 package com.chester.svc.sys.mongodb.repository;
 
-import com.chester.auth.client.Menu;
+import com.chester.auth.client.model.Menu;
 import com.chester.cloud.support.mongodb.AccessUtils;
 import com.chester.svc.sys.mongodb.config.Constant;
 import com.chester.svc.sys.mongodb.config.MongoCollections;
