@@ -1,0 +1,44 @@
+management:
+  endpoint:
+    health:
+      show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+spring:
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: chester
+    password: 123456
+    listener:
+      simple:
+        retry:
+          enabled: true
+    template:
+      retry:
+        enabled: true
+  redis:
+    host: redis
+    password: chester@123456
+  data:
+    mongodb:
+      uri: mongodb://root:123456@mongodb:27017/chester?authSource=admin
+
+logging:
+  path: log/
+  level:
+    io.swagger: DEBUG
+chester:
+  menus:
+    - {menuId: 'sys-root', name: '系统管理',icon: 'mdi-home-account',url: '/sys',sort: 10,type: 'drawer',roles: ['admin'],modify: false}
+    - {menuId: 'sys-user', name: '用户管理',icon: 'mdi-home-account',url: '/sys/users',sort: 1,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
+    - {menuId: 'sys-menu', name: '菜单管理',icon: 'mdi-menu',url: '/sys/menus',sort: 2,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
+    - {menuId: 'sys-role', name: '角色管理',icon: 'mdi-file-account-outline',url: '/sys/roles',sort: 3,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
+    - {menuId: 'sys-rule', name: '路由管理',icon: 'mdi-widgets-outline',url: '/sys/rules',sort: 4,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
+    - {menuId: 'plc-root', name: '生产管理',icon: 'mdi-alpha-r-circle-outline',url: '/plc',sort: 1,type: 'drawer',roles: ['admin']}
+    - {menuId: 'plc-machine',name: '设备管理',icon: 'mdi-apache-kafka',url: '/plc/machines',sort: 1,type: 'drawer',roles: ['admin'],parentIds: ['plc-root']}
+    - {menuId: 'plc-mission', name: '任务管理',icon: 'mdi-screw-machine-flat-top',url: '/plc/missions',sort: 2,type: 'drawer',roles: ['admin'],parentIds: ['plc-root']}
+    - {menuId: 'plc-data', name: '数据监控',icon: 'mdi-database-refresh',url: '/plc/datas',sort: 3,type: 'drawer',roles: ['admin'],parentIds: ['plc-root']}
