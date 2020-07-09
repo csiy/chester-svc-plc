@@ -22,23 +22,24 @@ public class OAuth2ClientDetailsService implements ClientDetailsService {
     private PasswordEncoder passwordEncoder;
 
     @PostConstruct
-    public void init(){
+    public void init() {
         InMemoryClientDetailsServiceBuilder inMemoryClientDetailsServiceBuilder = new InMemoryClientDetailsServiceBuilder();
         inMemoryClientDetailsServiceBuilder
                 .withClient("app")
-                    .secret(passwordEncoder.encode("secret"))
-                    .authorizedGrantTypes("password", "refresh_token")
-                    .scopes("all");
-        try{
+                .secret(passwordEncoder.encode("secret"))
+                .authorizedGrantTypes("password", "refresh_token")
+                .scopes("all");
+        try {
             clientDetailsService = inMemoryClientDetailsServiceBuilder.build();
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
+
     @Override
     public ClientDetails loadClientByClientId(String clientId) throws ClientRegistrationException {
-        if(clientId == null){
+        if (clientId == null) {
             throw new ClientRegistrationException("客户端不存在");
         }
         return clientDetailsService.loadClientByClientId(clientId);

@@ -66,7 +66,8 @@ public class AuthorizationServerConfiguration extends AuthorizationServerConfigu
                 .userDetailsService(userDetailsService)
                 //通过authenticationManager开启密码授权
                 .authenticationManager(authenticationManager)
-                .exceptionTranslator(new UserOAuth2WebResponseExceptionTranslator());;
+                .exceptionTranslator(new UserOAuth2WebResponseExceptionTranslator());
+        ;
     }
 
 }

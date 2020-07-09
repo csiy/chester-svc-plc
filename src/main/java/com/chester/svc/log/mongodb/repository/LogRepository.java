@@ -25,7 +25,7 @@ public class LogRepository {
         this.coll.createIndex(Indexes.descending("startTime"));
     }
 
-    public void addLog(Logs logs){
+    public void addLog(Logs logs) {
         this.coll.insertOne(logs);
     }
 }

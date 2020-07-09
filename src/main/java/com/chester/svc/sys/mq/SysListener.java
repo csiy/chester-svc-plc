@@ -27,11 +27,11 @@ public class SysListener {
     public void authRuleChange(Message msg) {
         InputStream sbs = new ByteArrayInputStream(msg.getBody());
         List<Menu> menus = JSON.parseList(sbs, Menu.class);
-        Lists.each(menus,v->{
-            try{
-                menuRepository.addMenu(v,null);
-            }catch (MongoException e){
-                log.info("MongoException",e);
+        Lists.each(menus, v -> {
+            try {
+                menuRepository.addMenu(v, null);
+            } catch (MongoException e) {
+                log.info("MongoException", e);
             }
         });
     }

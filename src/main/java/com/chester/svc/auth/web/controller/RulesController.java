@@ -35,7 +35,7 @@ public class RulesController {
     @Roles(value = "admin", remark = "批量添加路由权限", modify = false)
     public void pushRule(@RequestBody ReqRuleMultiple ruleMultiple) {
         List<AuthRule> rules = authRuleDao.pushRule(ruleMultiple, UserTokenHolder.getUserId());
-        Lists.each(rules,v->{
+        Lists.each(rules, v -> {
             mqProducer.autRuleChange(v);
         });
     }
@@ -44,7 +44,7 @@ public class RulesController {
     @Roles(value = "admin", remark = "批量删除路由权限", modify = false)
     public void pullRule(@RequestBody ReqRuleMultiple ruleMultiple) {
         List<AuthRule> rules = authRuleDao.pullRule(ruleMultiple, UserTokenHolder.getUserId());
-        Lists.each(rules,v->{
+        Lists.each(rules, v -> {
             mqProducer.autRuleChange(v);
         });
     }

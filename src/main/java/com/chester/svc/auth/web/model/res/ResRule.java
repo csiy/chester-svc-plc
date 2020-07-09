@@ -2,7 +2,6 @@ package com.chester.svc.auth.web.model.res;
 
 import com.chester.data.mongo.annotations._id;
 import lombok.Data;
-import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.bson.types.ObjectId;
 
 import java.util.List;

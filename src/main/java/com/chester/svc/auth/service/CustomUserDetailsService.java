@@ -23,7 +23,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     private AccountDao accountDao;
 
     private List<SimpleGrantedAuthority> transferRoles(List<String> roles, boolean addRoleAuthed) {
-        List<SimpleGrantedAuthority> authorities = Lists.map(roles,SimpleGrantedAuthority::new);
+        List<SimpleGrantedAuthority> authorities = Lists.map(roles, SimpleGrantedAuthority::new);
         if (addRoleAuthed) {
             authorities.add(new SimpleGrantedAuthority("authed"));
         }

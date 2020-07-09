@@ -16,6 +16,7 @@ public class UserOAuth2ExceptionSerializer extends StdSerializer<UserOAuth2Excep
     protected UserOAuth2ExceptionSerializer() {
         super(UserOAuth2Exception.class);
     }
+
     @Override
     public void serialize(UserOAuth2Exception e, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
@@ -25,7 +26,7 @@ public class UserOAuth2ExceptionSerializer extends StdSerializer<UserOAuth2Excep
             message = HtmlUtils.htmlEscape(message);
         }
         generator.writeStringField("message", message);
-        if (e.getAdditionalInformation()!=null) {
+        if (e.getAdditionalInformation() != null) {
             for (Map.Entry<String, String> entry : e.getAdditionalInformation().entrySet()) {
                 String key = entry.getKey();
                 String add = entry.getValue();

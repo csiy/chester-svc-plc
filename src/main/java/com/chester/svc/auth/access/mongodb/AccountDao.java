@@ -24,16 +24,16 @@ public class AccountDao {
         Bson filter = eq("phone", username);
         Bson projection = include("_id", "password", "name", "password", "isDisabled", "roles");
         Account account = this.coll.find(filter).projection(projection).first();
-        if(account==null){
+        if (account == null) {
             try {
                 Long userId = Long.parseLong(username);
                 filter = eq("_id", userId);
                 account = this.coll.find(filter).projection(projection).first();
-            }catch (Exception e){
+            } catch (Exception e) {
                 throw new IllegalArgumentException("请输入正确的账号");
             }
         }
-        if(account==null){
+        if (account == null) {
             throw new IllegalArgumentException("无效的账号");
         }
         return account;

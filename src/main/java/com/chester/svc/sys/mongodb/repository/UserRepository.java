@@ -21,6 +21,7 @@ import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.conversions.Bson;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.Assert;
@@ -28,6 +29,7 @@ import org.springframework.util.Assert;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Repository
@@ -37,6 +39,8 @@ public class UserRepository {
     @Resource
     private PasswordEncoder passwordEncoder;
     private MongoCollection<User> coll;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
     @Resource
     private MongoInt64IdGenerator userGenerator;
 
@@ -76,7 +80,7 @@ public class UserRepository {
         Assert.isNull(getUser(user.getPhone()), "手机号已被注册");
         user.setUserId(userGenerator.generate());
         Long createdBy = user.getCreatedBy() == null ? user.getUserId() : user.getCreatedBy();
-        AccessUtils.prepareEntityBeforeInstall(user, createdBy);
+        AccessUtils.prepareEntityBeforeInstall(user, createdBy, getUserName(createdBy));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         if (!Constant.female.equals(user.getSex())) {
             user.setSex(Constant.man);
@@ -93,7 +97,7 @@ public class UserRepository {
         }
         this.coll.updateOne(
                 Filters.eq(Constant._id, user.getUserId()),
-                AccessUtils.prepareUpdates(updatedBy,
+                AccessUtils.prepareUpdates(updatedBy, getUserName(updatedBy),
                         Updates.set(Constant.name, user.getName()),
                         Updates.set(Constant.phone, user.getPhone()),
                         Updates.set(Constant.roles, user.getRoles())
@@ -123,6 +127,25 @@ public class UserRepository {
         return this.coll.find(filter, ResUser.class).first();
     }
 
+    public String getUserName(Long userId) {
+        if (userId == null) {
+            return null;
+        }
+        String key = "u:n:" + userId;
+        String name = stringRedisTemplate.opsForValue().get(key);
+        if (name != null) {
+            return name;
+        }
+        Bson filter = Filters.and(Filters.eq(Constant._id, userId), Filters.eq(Constant.isDeleted, Boolean.FALSE));
+        ResUser user = this.coll.find(filter, ResUser.class).first();
+        if (user != null) {
+            stringRedisTemplate.opsForValue().set(key, user.getName(), 30, TimeUnit.DAYS);
+            return user.getName();
+        } else {
+            return null;
+        }
+    }
+
     /**
      * 禁用或启用
      *
@@ -132,7 +155,7 @@ public class UserRepository {
     public void switchDisabled(Long userId, Long updatedBy) {
         Bson filter = Filters.eq(Constant._id, userId);
         Boolean isDisabled = Objects.requireNonNull(this.coll.find(filter).first()).getIsDisabled();
-        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy,
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, getUserName(updatedBy),
                 Updates.set(Constant.isDisabled, !isDisabled)
         ));
     }
@@ -145,7 +168,7 @@ public class UserRepository {
      */
     public void deleteUser(Long userId, Long updatedBy) {
         Bson filter = Filters.eq(Constant._id, userId);
-        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy,
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, getUserName(updatedBy),
                 Updates.set(Constant.isDeleted, true)));
     }
 
@@ -157,9 +180,6 @@ public class UserRepository {
      */
     public void updateUserInfo(ReqUpdateUserInfo updateUserInfo, Long updatedBy) {
         List<Bson> list = new ArrayList<>();
-        if (updateUserInfo.getName() != null) {
-            list.add(Updates.set(Constant.name, updateUserInfo.getName()));
-        }
         if (updateUserInfo.getPhoto() != null) {
             list.add(Updates.set(Constant.photo, updateUserInfo.getPhoto()));
         }
@@ -170,7 +190,7 @@ public class UserRepository {
             list.add(Updates.set(Constant.birthday, updateUserInfo.getBirthday()));
         }
         Bson filter = Filters.eq(Constant._id, updatedBy);
-        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, list.toArray(new Bson[]{})));
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, getUserName(updatedBy), list.toArray(new Bson[]{})));
     }
 
     /**
@@ -183,7 +203,7 @@ public class UserRepository {
         Bson filter = Filters.eq(Constant._id, userId);
         String newPassword = (new Random().nextInt(899999) + 100000) + "";
         String pwd = passwordEncoder.encode(newPassword);
-        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy,
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, getUserName(updatedBy),
                 Updates.set(Constant.password, pwd)
         ));
         return newPassword;
