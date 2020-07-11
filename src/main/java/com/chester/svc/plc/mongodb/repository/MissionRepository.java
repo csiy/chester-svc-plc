@@ -22,6 +22,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Repository
 public class MissionRepository {
@@ -43,22 +46,36 @@ public class MissionRepository {
 
     public void addMission(Mission mission,Long createdBy){
         AccessUtils.prepareEntityBeforeInstall(mission, createdBy, userRepository.getUserName(createdBy));
-        mission.setMissionId(ObjectId.get().toHexString());
         mission.setSerialNumber(serialRepository.serialNumber());
         mission.setBatchNumber(serialRepository.batchNumber());
         mission.setVersion(1);
+        mission.setMissionId(getMissionId(mission));
         this.coll.insertOne(mission);
         logsRepository.addLogs(LOG_TYPE,"创建",mission);
     }
 
     public void addMission(Mission mission,Long createdBy,Integer batchNumber){
         AccessUtils.prepareEntityBeforeInstall(mission, createdBy, userRepository.getUserName(createdBy));
-        mission.setMissionId(ObjectId.get().toHexString());
         mission.setSerialNumber(serialRepository.serialNumber());
         mission.setBatchNumber(batchNumber);
         mission.setVersion(1);
+        mission.setMissionId(getMissionId(mission));
         this.coll.insertOne(mission);
         logsRepository.addLogs(LOG_TYPE,"创建",mission);
+    }
+
+    private String getMissionId(Mission mission){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        StringBuilder builder = new StringBuilder();
+        builder.append(sdf.format(mission.getCreatedOn()));
+        builder.append(mission.getBatchNumber());
+        builder.append(mission.getSerialNumber());
+        builder.append(mission.getLineNumber());
+        return builder.toString();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(DateFormat.getDateInstance().format(new Date()));
     }
 
     public void deleteMission(String missionId,Integer version, Long updatedBy){
