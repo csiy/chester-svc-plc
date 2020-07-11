@@ -2,12 +2,15 @@ package com.chester.svc.plc.web.controller;
 
 import com.chester.auth.client.annotation.Roles;
 import com.chester.auth.client.core.UserTokenHolder;
+import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.mongodb.model.Mission;
+import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
 import com.chester.svc.plc.mongodb.repository.SerialRepository;
 import com.chester.svc.plc.web.model.req.ReqPageMission;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -20,16 +23,22 @@ public class MissionController {
     private MissionRepository missionRepository;
     @Resource
     private SerialRepository serialRepository;
+    @Resource
+    private MaterialRepository materialRepository;
 
     @PostMapping
     @Roles(value = "admin,operator", remark = "添加任务")
     public void addMission(@RequestBody Mission mission) {
+        Material material = materialRepository.getMaterial(mission.getMaterialCode(),mission.getAoCode());
+        Assert.notNull(material,"物料号或AO工序号不存在");
         missionRepository.addMission(mission, UserTokenHolder.getUserId());
     }
 
     @PostMapping("/import/{batchNumber}")
     @Roles(value = "admin,operator", remark = "添加任务")
     public void importMission(@RequestBody Mission mission,@PathVariable("batchNumber") Integer batchNumber) {
+        Material material = materialRepository.getMaterial(mission.getMaterialCode(),mission.getAoCode());
+        Assert.notNull(material,"物料号或AO工序号不存在");
         missionRepository.addMission(mission, UserTokenHolder.getUserId(),batchNumber);
     }
 

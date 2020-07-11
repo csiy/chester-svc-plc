@@ -98,6 +98,12 @@ public class MaterialRepository {
         }
     }
 
+    public Material getMaterial(String materialCode,String aoCode){
+        return this.coll.find(
+                Filters.and(Filters.eq("materialCode", materialCode),Filters.eq("aoCode", aoCode))
+        ).first();
+    }
+
     public PageResult<Material> materialPageResult(ReqPageMaterial query, Pagination pagination) {
         Bson sort = Sorts.descending(Constant.createdOn);
         Bson filter = Filters.eq(Constant.isDeleted, Boolean.FALSE);

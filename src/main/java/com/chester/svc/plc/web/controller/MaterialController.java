@@ -30,6 +30,11 @@ public class MaterialController {
         materialRepository.updateMaterial(material,UserTokenHolder.getUserId());
     }
 
+    @GetMapping("/{materialCode}/{aoCode}")
+    public Material getMaterial(@PathVariable("materialCode") String materialCode,@PathVariable("aoCode") String aoCode){
+        return materialRepository.getMaterial(materialCode,aoCode);
+    }
+
     @GetMapping
     @Roles(value = "admin,operator", remark = "查找物料")
     public PageResult<Material> findMaterial(ReqPageMaterial reqPageMaterial, Pagination pagination) {
