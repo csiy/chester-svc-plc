@@ -74,10 +74,6 @@ public class MissionRepository {
         return builder.toString();
     }
 
-    public static void main(String[] args) {
-        System.out.println(DateFormat.getDateInstance().format(new Date()));
-    }
-
     public void deleteMission(String missionId,Integer version, Long updatedBy){
         Bson filter = Filters.and(Filters.eq(Constant._id, missionId), Filters.eq(Constant.version, version));
         Mission before = this.coll.find(Filters.eq(Constant._id, missionId)).first();
