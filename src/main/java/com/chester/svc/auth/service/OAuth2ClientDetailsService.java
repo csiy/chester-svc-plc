@@ -28,6 +28,11 @@ public class OAuth2ClientDetailsService implements ClientDetailsService {
                 .withClient("app")
                 .secret(passwordEncoder.encode("secret"))
                 .authorizedGrantTypes("password", "refresh_token")
+                .scopes("all")
+                .and()
+                .withClient("app-mobile")
+                .secret(passwordEncoder.encode("secret"))
+                .authorizedGrantTypes("password", "refresh_token")
                 .scopes("all");
         try {
             clientDetailsService = inMemoryClientDetailsServiceBuilder.build();
