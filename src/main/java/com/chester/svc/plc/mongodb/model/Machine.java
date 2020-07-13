@@ -25,6 +25,22 @@ public class Machine extends BaseEntity {
     private Document params;
     @ApiModelProperty("版本号")
     private Integer version;
+    @ApiModelProperty("当前盘号")
+    private Integer runtimeDishNumber;
+    @ApiModelProperty("当前盘")
+    private MachineDish runtimeDish;
+    @ApiModelProperty("当前工单")
+    private String runtimeJob;
+    @ApiModelProperty("工单列表")
+    private List<String> jobs;
+    @ApiModelProperty("机器链接状态")
+    private Boolean linkState;
+    @ApiModelProperty("机器运行状态")
+    private Boolean runState;
+    @ApiModelProperty("机器错误状态")
+    private Integer errorCode;
+    @ApiModelProperty("链接超时时间")
+    private Long lostThreshold;
 
     @Data
     @ApiModel("机器盘")

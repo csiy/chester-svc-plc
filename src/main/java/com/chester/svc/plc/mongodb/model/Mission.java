@@ -2,11 +2,12 @@ package com.chester.svc.plc.mongodb.model;
 
 import com.chester.cloud.support.model.BaseEntity;
 import com.chester.data.mongo.annotations._id;
-import com.chester.svc.plc.core.model.TaskStatus;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -29,14 +30,15 @@ public class Mission extends BaseEntity {
     private String machineId;
     @ApiModelProperty("包装数量")
     private Integer count;
-    @ApiModelProperty("任务状态")
-    private TaskStatus status;
-    @ApiModelProperty("完成数量")
-    private Integer finishCount;
-    @ApiModelProperty("任务优先级")
-    private Integer order;
-    @ApiModelProperty("异常信息")
-    private List<String> errorMsg;
+    @ApiModelProperty("转换状态 1未转换，2转换成功，3转换时找不到物料")
+    private Integer transform;
+    @ApiModelProperty("需求日期")
+    private String date;
+    @ApiModelProperty("需求时间")
+    private String time;
+    @ApiModelProperty("排程时间")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm")
+    private Date dateTime;
     @ApiModelProperty("版本号")
     private Integer version;
 }

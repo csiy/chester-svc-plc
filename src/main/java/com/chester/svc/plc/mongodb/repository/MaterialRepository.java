@@ -59,7 +59,8 @@ public class MaterialRepository {
         Bson filter = Filters.and(Filters.eq(Constant._id, materialId), Filters.eq(Constant.version, version));
         Material before = this.coll.find(Filters.eq(Constant._id, materialId)).first();
         UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set(Constant.isDeleted, true)
+                Updates.set(Constant.isDeleted, true),
+                Updates.inc(Constant.version,1)
         ));
         if(result.getModifiedCount()==0){
             throw new IllegalArgumentException("找不到数据或者数据已被修改");
@@ -69,7 +70,11 @@ public class MaterialRepository {
     }
 
     public void updateMaterial(Material material, Long updatedBy){
-        Bson filter = Filters.and(Filters.eq(Constant._id, material.getMaterialId()), Filters.eq(Constant.version, material.getVersion()));
+        Bson filter = Filters.and(
+                Filters.eq(Constant._id, material.getMaterialId()),
+                Filters.eq(Constant.version, material.getVersion()),
+                Filters.eq(Constant.isDeleted, Boolean.FALSE)
+        );
         try{
             Material before = this.coll.find(Filters.eq(Constant._id, material.getMaterialId())).first();
             UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),

@@ -31,6 +31,11 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.mongodb.client.model.Aggregates.match;
+import static com.mongodb.client.model.Aggregates.sample;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Filters.gte;
+
 @Slf4j
 @Repository
 public class UserRepository {
@@ -229,5 +234,18 @@ public class UserRepository {
             filter = Filters.and(Filters.eq(Constant.roles, query.getRole()), filter);
         }
         return MongoPageQuery.builder(coll, ResUser.class).sort(sort).page(pagination).filter(filter).execute();
+    }
+
+    /**
+     * 随机获取一名工人
+     * @return
+     */
+    public ResUser randomUser(){
+        Bson $match = match(and(
+                eq(Constant.isDisabled, Boolean.FALSE),
+                eq(Constant.roles, "operator"),
+                eq(Constant.isDeleted, Boolean.FALSE)));
+        Bson $sample = sample(1);
+        return coll.aggregate(Arrays.asList($match,$sample),ResUser.class).first();
     }
 }

@@ -18,12 +18,6 @@ public class MachineController {
     @Resource
     private MachineRepository machineRepository;
 
-    @PostMapping
-    @Roles(value = "admin,operator", remark = "添加设备")
-    public void addMachine(@RequestBody Machine machine) {
-        machineRepository.addMachine(machine, UserTokenHolder.getUserId());
-    }
-
     @PutMapping
     @Roles(value = "admin,operator", remark = "修改设备")
     public void putMachine(@RequestBody Machine machine) {

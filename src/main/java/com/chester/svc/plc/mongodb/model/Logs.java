@@ -15,6 +15,6 @@ public class Logs extends BaseEntity {
     @ApiModelProperty("修改前")
     private BaseEntity before;
     public enum LogsType{
-        MATERIAL,MACHINE,TASK
+        MATERIAL,MACHINE,TASK,JOB
     }
 }
