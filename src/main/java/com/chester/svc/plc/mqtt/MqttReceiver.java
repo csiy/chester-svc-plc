@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 @Slf4j
@@ -20,19 +22,29 @@ public class MqttReceiver {
     private IMqttClient mqttClient;
     @Resource
     private MachineRepository machineRepository;
+    private static final Map<String,String> subscribeMap = new HashMap<>();
+
+    static {
+        subscribeMap.put("PLC/SUBSCRIBE","PLC/SUBSCRIBE");
+    }
 
     @PostConstruct
     public void init() {
         subscribe("PLC/SUBSCRIBE",subscribe -> {
-            log.info("PLC/SUBSCRIBE : {}",subscribe);
-            log.info("PLC/SUBSCRIBE : {}",new String(subscribe));
             SubscribePayload subscribePayload = JSON.parse(subscribe, SubscribePayload.class);
-            log.info("PLC/SUBSCRIBE : {}",subscribePayload);
             machineRepository.addMachine(subscribePayload.getClientName());
-            subscribe(subscribePayload.getAddress(),info->{
-                machineRepository.linked(subscribePayload.getClientName());
-            });
+            initSubscribe(subscribePayload.getAddress(),subscribePayload.getClientName());
         });
+    }
+
+    private void initSubscribe(String address,String clientName){
+        String exist = subscribeMap.get(address);
+        if(exist==null){
+            subscribeMap.put(address,clientName);
+            subscribe(address,info->{
+                machineRepository.linked(clientName);
+            });
+        }
     }
 
     public void subscribe(String topic, Consumer<byte[]> consumer){
