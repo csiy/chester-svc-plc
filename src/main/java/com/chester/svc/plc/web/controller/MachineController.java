@@ -61,10 +61,15 @@ public class MachineController {
         machineRepository.stopMachine(machineId,version,UserTokenHolder.getUserId());
     }
 
-    @PutMapping("/next/{machineId}/{jobId}/{version}")
-    @Roles(value = "admin,operator", remark = "下一个")
-    public void nextJob(@PathVariable("machineId") String machineId,@PathVariable("jobId")String jobId,@PathVariable("version")Integer version){
-        machineRepository.nextJob(machineId,jobId,version,UserTokenHolder.getUserId());
-    }
+//    @PutMapping("/next/{machineId}/{jobId}/{version}")
+//    @Roles(value = "admin,operator", remark = "下一个")
+//    public void nextJob(@PathVariable("machineId") String machineId,@PathVariable("jobId")String jobId,@PathVariable("version")Integer version){
+//        machineRepository.nextJob(machineId,jobId,version,UserTokenHolder.getUserId());
+//    }
 
+    @PutMapping("/reSort")
+    @Roles(value = "admin,operator", remark = "重排序")
+    public void reSort(@RequestBody Machine machine){
+        machineRepository.reSort(machine.getMachineId(),machine.getJobs(),machine.getVersion(),UserTokenHolder.getUserId());
+    }
 }

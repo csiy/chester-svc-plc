@@ -165,7 +165,8 @@ public class MachineRepository {
     public void pushJobs(String machineId,List<String> jobs){
         if(!Lists.isEmpty(jobs)){
             this.coll.updateOne(Filters.eq(Constant._id, machineId), AccessUtils.prepareUpdates(1L, "系统",
-                    Updates.addEachToSet("jobs", jobs)
+                    Updates.addEachToSet("jobs", jobs),
+                    Updates.inc(Constant.version,1)
             ));
             Machine machine = getMachine(machineId);
             if(machine.getRuntimeJob()==null){
@@ -265,5 +266,22 @@ public class MachineRepository {
         Machine after = this.coll.find(Filters.eq(Constant._id, machineId)).first();
         logsRepository.addLogs(LOG_TYPE,"关闭机器",before,after);
         mqttSender.sendMessage("/PLC/S/C/"+machineId, new SwitchPayload("close"));
+    }
+
+    public void reSort(String machineId,List<String> jobs,Integer version, Long updatedBy){
+        if(!Lists.isEmpty(jobs)){
+            Bson filter = Filters.and(
+                    Filters.eq(Constant._id, machineId),
+                    Filters.eq(Constant.version, version),
+                    Filters.eq(Constant.isDeleted, Boolean.FALSE)
+            );
+            UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
+                    Updates.set("jobs", jobs),
+                    Updates.inc(Constant.version,1)
+            ));
+            if(result.getModifiedCount()==0){
+                throw new IllegalArgumentException("找不到数据或者数据已被修改");
+            }
+        }
     }
 }
