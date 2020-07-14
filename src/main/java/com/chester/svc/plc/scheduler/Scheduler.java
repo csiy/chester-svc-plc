@@ -132,22 +132,11 @@ public class Scheduler {
         });
     }
 
-    @PostConstruct
-    public void testMachine(){
-        for(int i=1;i<20;i++){
-            SubscribePayload payload = new SubscribePayload();
-            payload.setClientName("M0000"+i);
-            payload.setAddress("/PLC/C/S/M0000"+i);
-            mqttSender.sendMessage("/PLC/SUBSCRIBE",payload);
-        }
-    }
-
     //每10秒执行超时处理
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 10000)
     public void testConnect(){
         HeartbeatPayload payload = new HeartbeatPayload();
-        mqttSender.sendMessage("/PLC/C/S/M00001",payload);
-        mqttSender.sendMessage("/PLC/C/S/M000019",payload);
+        mqttSender.sendMessage("/PLC/S/H",payload);
     }
 
 }

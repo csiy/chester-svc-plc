@@ -30,6 +30,9 @@ public class MqttReceiver {
 
     @PostConstruct
     public void init() {
+        subscribe("/PLC/S/H",subscribe -> {
+            log.info("MQTT beat {}",System.currentTimeMillis());
+        });
         subscribe("/PLC/SUBSCRIBE",subscribe -> {
             SubscribePayload subscribePayload = JSON.parse(subscribe, SubscribePayload.class);
             machineRepository.addMachine(subscribePayload.getClientName());
