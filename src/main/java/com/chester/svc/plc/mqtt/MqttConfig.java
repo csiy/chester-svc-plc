@@ -5,11 +5,6 @@ import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
-import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
-
-import javax.annotation.Resource;
-import java.util.UUID;
 
 @Configuration
 @Slf4j
@@ -18,14 +13,31 @@ public class MqttConfig {
     protected final String userName = "plcmos";
     protected final String password = "plcmos@1234";
 
-    @Resource
-    private MqttReceiver mqttReceiver;
-
     @Bean
     public MqttClient getMqttClient(){
         try {
-            MqttClient client = new MqttClient(serverURI,UUID.randomUUID().toString(),new MemoryPersistence());
+            MqttClient client = new MqttClient(serverURI,MqttAsyncClient.generateClientId(),new MemoryPersistence());
             client.connect(getConnectionOptions());
+            client.setCallback(new MqttCallback() {
+                @Override
+                public void connectionLost(Throwable cause) {
+                    try {
+                        client.reconnect();
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                @Override
+                public void messageArrived(String topic, MqttMessage message) throws Exception {
+
+                }
+
+                @Override
+                public void deliveryComplete(IMqttDeliveryToken token) {
+
+                }
+            });
             return client;
         } catch (MqttException e) {
             e.printStackTrace();

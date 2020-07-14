@@ -135,7 +135,7 @@ public class MissionRepository {
         Bson sort = Sorts.ascending("dateTime");
         Bson filter = Filters.and(
                 Filters.lt("dateTime", new Date()),
-                Updates.set(Constant.isDeleted, false),
+                Filters.eq(Constant.isDeleted, false),
                 Filters.eq("transform",1)
                 );
         return this.coll.find(filter).sort(sort).into(new ArrayList<>());

@@ -25,15 +25,15 @@ public class MqttReceiver {
     private static final Map<String,String> subscribeMap = new HashMap<>();
 
     static {
-        subscribeMap.put("PLC/SUBSCRIBE","PLC/SUBSCRIBE");
+        subscribeMap.put("/PLC/SUBSCRIBE","/PLC/SUBSCRIBE");
     }
 
     @PostConstruct
     public void init() {
-        subscribe("PLC/SUBSCRIBE",subscribe -> {
+        subscribe("/PLC/SUBSCRIBE",subscribe -> {
             SubscribePayload subscribePayload = JSON.parse(subscribe, SubscribePayload.class);
             machineRepository.addMachine(subscribePayload.getClientName());
-            initSubscribe(subscribePayload.getAddress(),subscribePayload.getClientName());
+            initSubscribe("/PLC/C/S/"+subscribePayload.getClientName(),subscribePayload.getClientName());
         });
     }
 

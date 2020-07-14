@@ -93,7 +93,7 @@ public class JobRepository {
      * @return
      */
     public PageResult<Job> jobUnSchedulerPageResult(Pagination pagination) {
-        Bson sort = Sorts.descending(Constant.createdOn);
+        Bson sort = Sorts.ascending(Constant.createdOn);
         Bson filter = Filters.and(Filters.eq(Constant.isDeleted, Boolean.FALSE),Filters.eq("machineId", ""));
         return MongoPageQuery.builder(coll, Job.class).sort(sort).page(pagination).filter(filter).execute();
     }
@@ -103,13 +103,22 @@ public class JobRepository {
      * @return
      */
     public List<Job> jobUnScheduler(){
-        Bson sort = Sorts.descending(Constant.createdOn);
+        Bson sort = Sorts.ascending(Constant.createdOn);
         Bson filter = Filters.and(
                 Filters.eq(Constant.isDeleted, Boolean.FALSE),
-                Filters.eq("machineId", ""),
-                Filters.eq("isError", false)
+                Filters.eq("machineId", "")
         );
         return this.coll.find(filter).sort(sort).into(new ArrayList<>());
+    }
+
+    public Job getJob(String jobId){
+        Bson filter = Filters.eq(Constant._id, jobId);
+        return this.coll.find(filter).first();
+    }
+
+    public List<Job> getJobList(List<String> jobIds){
+        Bson filter = Filters.in(Constant._id, jobIds);
+        return this.coll.find(filter).into(new ArrayList<>());
     }
 
     /**
@@ -120,7 +129,7 @@ public class JobRepository {
             Bson filter = Filters.in(Constant._id, jobIds);
             this.coll.updateMany(filter, AccessUtils.prepareUpdates(1L, "系统",
                     Updates.set("machineId", ""),
-                    Updates.set("jobStatus", JobStatus.CREATE),
+                    Updates.set("jobStatus", JobStatus.CREATE.toString()),
                     Updates.inc(Constant.version,1)
             ));
         }
@@ -131,9 +140,11 @@ public class JobRepository {
      */
     public void scheduler(List<String> jobIds,String machineId){
         Bson filter = Filters.in(Constant._id, jobIds);
-        UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(1L, "系统",
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set("machineId", machineId),
-                Updates.set("jobStatus", JobStatus.SCHEDULER),
+                Updates.set("isError",false),
+                Updates.set("errorMessages", new ArrayList<>()),
+                Updates.set("jobStatus", JobStatus.SCHEDULER.toString()),
                 Updates.inc(Constant.version,1)
         ));
     }

@@ -4,4 +4,7 @@ import lombok.Data;
 
 @Data
 public class HeartbeatPayload extends Payload{
+    public HeartbeatPayload(){
+        super("beat");
+    }
 }

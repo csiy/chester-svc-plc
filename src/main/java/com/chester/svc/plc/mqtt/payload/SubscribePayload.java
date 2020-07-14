@@ -6,4 +6,7 @@ import lombok.Data;
 public class SubscribePayload extends Payload{
     private String clientName;
     private String address;
+    public SubscribePayload(){
+        super("subscribe");
+    }
 }
