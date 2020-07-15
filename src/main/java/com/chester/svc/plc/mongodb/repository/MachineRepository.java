@@ -231,13 +231,13 @@ public class MachineRepository {
             }
             Machine after = this.coll.find(Filters.eq(Constant._id, machineId)).first();
             logsRepository.addLogs(LOG_TYPE,"开启机器",before,after);
-            mqttSender.sendMessage("/PLC/S/C/"+machineId, new SwitchPayload("open"));
             Job job = jobRepository.getJob(before.getRuntimeJob());
             DiscPayload.SetDiscList setDiscList = new DiscPayload.SetDiscList();
             setDiscList.setDiscNo(before.getRuntimeDishNumber());
             setDiscList.setTotalB(job.getMission().getCount());
             setDiscList.setTotalOneB(job.getMaterial().getQuantity());
-            mqttSender.sendMessage("/PLC/S/C/"+machineId, new DiscPayload(setDiscList));
+            mqttSender.sendMessage(machineId, new DiscPayload(setDiscList));
+            mqttSender.sendMessage(machineId, new SwitchPayload("open"));
         }
     }
 
@@ -265,7 +265,7 @@ public class MachineRepository {
         }
         Machine after = this.coll.find(Filters.eq(Constant._id, machineId)).first();
         logsRepository.addLogs(LOG_TYPE,"关闭机器",before,after);
-        mqttSender.sendMessage("/PLC/S/C/"+machineId, new SwitchPayload("close"));
+        mqttSender.sendMessage(machineId, new SwitchPayload("close"));
     }
 
     public void reSort(String machineId,List<String> jobs,Integer version, Long updatedBy){

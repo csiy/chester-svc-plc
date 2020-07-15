@@ -11,8 +11,6 @@ import com.chester.svc.plc.mongodb.repository.MachineRepository;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
 import com.chester.svc.plc.mqtt.MqttSender;
-import com.chester.svc.plc.mqtt.payload.HeartbeatPayload;
-import com.chester.svc.plc.mqtt.payload.SubscribePayload;
 import com.chester.svc.sys.mongodb.repository.UserRepository;
 import com.chester.svc.sys.web.model.res.ResUser;
 import com.chester.util.coll.Lists;
@@ -22,7 +20,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +121,7 @@ public class Scheduler {
     }
 
     //每10秒执行超时处理
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 500000)
     public void lostConnect(){
         List<Machine> list = machineRepository.findUnLinked();
         Lists.each(list,v->{
@@ -135,8 +132,7 @@ public class Scheduler {
     //每10秒执行超时处理
     @Scheduled(fixedRate = 10000)
     public void testConnect(){
-        HeartbeatPayload payload = new HeartbeatPayload();
-        mqttSender.sendMessage("/PLC/S/H",payload);
+        mqttSender.sendBeat();
     }
 
 }
