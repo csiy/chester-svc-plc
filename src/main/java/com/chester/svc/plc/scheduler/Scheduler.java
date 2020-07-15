@@ -137,6 +137,5 @@ public class Scheduler {
     @Scheduled(fixedRate = 5000)
     public void testConnect(){
         mqttSender.sendBeat();
-        mqttSender.testMessage("M000019");
     }
 }
