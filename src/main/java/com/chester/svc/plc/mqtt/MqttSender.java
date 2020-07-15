@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
-import static com.chester.svc.plc.mqtt.MqttReceiver.H_B;
-import static com.chester.svc.plc.mqtt.MqttReceiver.S_C;
+import static com.chester.svc.plc.mqtt.MqttReceiver.*;
 
 @Component
 @Slf4j
@@ -22,6 +21,15 @@ public class MqttSender {
     public void sendMessage(String machineId, Payload mqttPayload){
         try {
             mqttClient.publish(S_C+machineId,JSON.stringify(mqttPayload).getBytes(),2,false);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void testMessage(String machineId){
+        try {
+            HeartbeatPayload payload = new HeartbeatPayload();
+            mqttClient.publish(C_S+machineId,JSON.stringify(payload).getBytes(),2,false);
         } catch (MqttException e) {
             e.printStackTrace();
         }

@@ -21,6 +21,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Repository;
 
@@ -29,6 +30,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Repository
 public class MachineRepository {
     @Resource
@@ -165,8 +167,7 @@ public class MachineRepository {
     public void pushJobs(String machineId,List<String> jobs){
         if(!Lists.isEmpty(jobs)){
             this.coll.updateOne(Filters.eq(Constant._id, machineId), AccessUtils.prepareUpdates(1L, "系统",
-                    Updates.addEachToSet("jobs", jobs),
-                    Updates.inc(Constant.version,1)
+                    Updates.addEachToSet("jobs", jobs)
             ));
             Machine machine = getMachine(machineId);
             if(machine.getRuntimeJob()==null){
@@ -187,14 +188,14 @@ public class MachineRepository {
     }
 
     public void unLinked(String machineId){
+        log.info("链接中断释放排程 machineId：{}",machineId);
+        Machine before = this.coll.find(Filters.eq(Constant._id, machineId)).first();
+        jobRepository.releaseScheduler(before.getJobs());
         this.coll.updateOne(Filters.eq(Constant._id, machineId), AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set("linkState", false),
-                Updates.set("runtimeJob", ""),
                 Updates.set("jobs", new ArrayList<>()),
                 Updates.set("runState",false)
         ));
-        Machine before = this.coll.find(Filters.eq(Constant._id, machineId)).first();
-        jobRepository.releaseScheduler(before.getJobs());
     }
 
     public void nextJob(String machineId,String jobId,Integer version, Long updatedBy){

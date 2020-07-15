@@ -2,9 +2,6 @@ package com.chester.svc.plc.mqtt;
 
 import com.chester.svc.plc.mongodb.model.Machine;
 import com.chester.svc.plc.mongodb.repository.MachineRepository;
-import com.chester.svc.plc.mqtt.payload.HeartbeatPayload;
-import com.chester.svc.plc.mqtt.payload.Payload;
-import com.chester.svc.plc.mqtt.payload.ReplyPayload;
 import com.chester.svc.plc.mqtt.payload.SubscribePayload;
 import com.chester.util.coll.Lists;
 import com.chester.util.json.JSON;
@@ -26,6 +23,7 @@ public class MqttReceiver {
     public static final String C_S = "/PLC/C/S/";
     public static final String S_C = "/PLC/S/C/";
     public static final String H_B = "/PLC/S/H";
+    public static final String P_S = "/PLC/SUBSCRIBE";
 
     @Resource
     private IMqttClient mqttClient;
@@ -36,17 +34,15 @@ public class MqttReceiver {
     private static final Map<String,String> subscribeMap = new HashMap<>();
 
     static {
-        subscribeMap.put("/PLC/SUBSCRIBE","/PLC/SUBSCRIBE");
+        subscribeMap.put(P_S,P_S);
     }
 
     @PostConstruct
     public void init() {
 
-        subscribe(H_B,subscribe -> {
-            log.info("MQTT beat {}",System.currentTimeMillis());
-        });
+        subscribe(H_B,subscribe -> {});
 
-        subscribe("/PLC/SUBSCRIBE",subscribe -> {
+        subscribe(P_S,subscribe -> {
             SubscribePayload subscribePayload = JSON.parse(subscribe, SubscribePayload.class);
             machineRepository.addMachine(subscribePayload.getClientName());
             initSubscribe(subscribePayload.getClientName());
@@ -63,9 +59,7 @@ public class MqttReceiver {
         if(exist==null){
             subscribeMap.put(key,clientName);
             subscribe(key,info->{
-                Payload payload = JSON.parse(info, Payload.class);
-                ReplyPayload replyPayload = new ReplyPayload(payload.getMsgType(),"success",payload.getTTL());
-                mqttSender.sendMessage(clientName,replyPayload);
+                log.info("subscribe key {} ,clientName {}",key,clientName);
                 machineRepository.linked(clientName);
             });
         }
@@ -76,14 +70,7 @@ public class MqttReceiver {
             mqttClient.subscribe(topic,0, new IMqttMessageListener() {
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    Payload payload = JSON.parse(message.getPayload(), Payload.class);
-                    if(payload.getMsgType()!=null){
-                        if(payload.getMsgType().equals("reply")){
-
-                        }else{
-                            consumer.accept(message.getPayload());
-                        }
-                    }
+                    consumer.accept(message.getPayload());
                 }
             });
         } catch (MqttException e) {

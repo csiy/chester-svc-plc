@@ -108,11 +108,15 @@ public class Scheduler {
                     if(Lists.isEmpty(machineList)){
                         jobRepository.schedulerError(Lists.map(v, Job::getJobId));
                     }else{
-                        List<List<Job>> lists = batchList(v,machineList.size());
+                        int batchSize = v.size()/machineList.size()==0?1:v.size()/machineList.size();
+                        List<List<Job>> lists = batchList(v,batchSize);
+                        log.info("排程分配 batchSize：{} listSize: {}",batchSize,lists.size());
                         for(int i=0;i<machineList.size();i++){
-                            List<String> jobIds = Lists.map(lists.get(i), Job::getJobId);
-                            machineRepository.pushJobs(machineList.get(i).getMachineId(),jobIds);
-                            jobRepository.scheduler(jobIds,machineList.get(i).getMachineId());
+                            if(lists.size()>i){
+                                List<String> jobIds = Lists.map(lists.get(i), Job::getJobId);
+                                machineRepository.pushJobs(machineList.get(i).getMachineId(),jobIds);
+                                jobRepository.scheduler(jobIds,machineList.get(i).getMachineId());
+                            }
                         }
                     }
                 });
@@ -121,7 +125,7 @@ public class Scheduler {
     }
 
     //每10秒执行超时处理
-    @Scheduled(fixedRate = 500000)
+    @Scheduled(fixedRate = 5000)
     public void lostConnect(){
         List<Machine> list = machineRepository.findUnLinked();
         Lists.each(list,v->{
@@ -130,9 +134,9 @@ public class Scheduler {
     }
 
     //每10秒执行超时处理
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 5000)
     public void testConnect(){
         mqttSender.sendBeat();
+        mqttSender.testMessage("M000019");
     }
-
 }

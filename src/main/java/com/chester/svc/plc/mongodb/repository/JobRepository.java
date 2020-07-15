@@ -21,6 +21,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Repository;
@@ -31,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 @Repository
 public class JobRepository {
     @Resource
@@ -125,6 +127,7 @@ public class JobRepository {
      * 释放排期
      */
     public void releaseScheduler(List<String> jobIds){
+        log.info("重置排程列表 ：{}",jobIds);
         if(!Lists.isEmpty(jobIds)){
             Bson filter = Filters.in(Constant._id, jobIds);
             this.coll.updateMany(filter, AccessUtils.prepareUpdates(1L, "系统",
@@ -140,7 +143,7 @@ public class JobRepository {
      */
     public void scheduler(List<String> jobIds,String machineId){
         Bson filter = Filters.in(Constant._id, jobIds);
-        this.coll.updateOne(filter, AccessUtils.prepareUpdates(1L, "系统",
+        this.coll.updateMany(filter, AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set("machineId", machineId),
                 Updates.set("isError",false),
                 Updates.set("errorMessages", new ArrayList<>()),
