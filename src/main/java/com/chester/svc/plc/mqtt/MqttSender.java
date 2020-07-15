@@ -17,7 +17,7 @@ public class MqttSender {
 
     public void sendMessage(String topic, Payload mqttPayload){
         try {
-            mqttClient.publish(topic,JSON.stringify(mqttPayload).getBytes(),2,true);
+            mqttClient.publish(topic,JSON.stringify(mqttPayload).getBytes(),2,false);
         } catch (MqttException e) {
             e.printStackTrace();
         }
