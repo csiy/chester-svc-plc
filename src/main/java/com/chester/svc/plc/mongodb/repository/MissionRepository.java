@@ -47,13 +47,14 @@ public class MissionRepository {
     }
 
     public void addMission(Mission mission,Long createdBy){
-        addMission(mission,createdBy,serialRepository.batchNumber());
+        beforeAddMission(mission,createdBy);
+        this.coll.insertOne(mission);
+        logsRepository.addLogs(LOG_TYPE,"创建",mission);
     }
 
-    public void addMission(Mission mission,Long createdBy,Integer batchNumber){
+    private Mission beforeAddMission(Mission mission,Long createdBy){
         AccessUtils.prepareEntityBeforeInstall(mission, createdBy, userRepository.getUserName(createdBy));
         mission.setSerialNumber(serialRepository.serialNumber());
-        mission.setBatchNumber(batchNumber);
         mission.setVersion(1);
         mission.setMissionId(getMissionId(mission));
         mission.setTransform(1);
@@ -64,17 +65,14 @@ public class MissionRepository {
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
         mission.setDate(dateFormat.format(mission.getDateTime()));
         mission.setTime(timeFormat.format(mission.getDateTime()));
-        this.coll.insertOne(mission);
-        logsRepository.addLogs(LOG_TYPE,"创建",mission);
+        return mission;
     }
 
     private String getMissionId(Mission mission){
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         StringBuilder builder = new StringBuilder();
         builder.append(sdf.format(mission.getCreatedOn()));
-        builder.append(mission.getBatchNumber());
         builder.append(mission.getSerialNumber());
-        builder.append(mission.getLineNumber());
         return builder.toString();
     }
 
@@ -127,6 +125,9 @@ public class MissionRepository {
         }
         if (query.getAoCode() != null) {
             filter = Filters.and(Filters.eq(Constant.aoCode, query.getAoCode()), filter);
+        }
+        if (query.getTransform() != null) {
+            filter = Filters.and(Filters.eq("transform", query.getTransform()), filter);
         }
         return MongoPageQuery.builder(coll, Mission.class).sort(sort).page(pagination).filter(filter).execute();
     }

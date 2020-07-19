@@ -46,13 +46,15 @@ public class MaterialRepository {
         material.setVersion(1);
         try{
             this.coll.insertOne(material);
+            logsRepository.addLogs(LOG_TYPE, "创建", material);
         }catch (MongoWriteException e){
             if(e.getError().getCode()==11000){
-                throw new IllegalArgumentException("不能存在相同的物料号与AO工序号");
+                Material material1 = getMaterial(material.getMaterialCode(),material.getAoCode());
+                material.setMaterialId(material1.getMaterialId());
+                material.setVersion(material1.getVersion());
+                updateMaterial(material,createdBy);
             }
-            throw e;
         }
-        logsRepository.addLogs(LOG_TYPE, "创建", material);
     }
 
     public void deleteMaterial(String materialId,Integer version, Long updatedBy){

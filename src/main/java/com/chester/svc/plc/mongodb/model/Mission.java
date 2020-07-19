@@ -20,8 +20,6 @@ public class Mission extends BaseEntity {
     private Long serialNumber;
     @ApiModelProperty("行项目号")
     private Integer lineNumber;
-    @ApiModelProperty("批次号")
-    private Integer batchNumber;
     @ApiModelProperty("物料号")
     private String materialCode;
     @ApiModelProperty("ao工序号")

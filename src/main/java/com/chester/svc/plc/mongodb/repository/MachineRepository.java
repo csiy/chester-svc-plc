@@ -117,9 +117,9 @@ public class MachineRepository {
         );
         Machine before = this.coll.find(Filters.eq(Constant._id, machine.getMachineId())).first();
         UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set("runtimeDishNumber", machine.getRuntimeDishNumber()),
+                Updates.set("runtimeDishNumber", machine.getRuntimeDishNumber()-1),
                 Updates.set("jobs", new ArrayList<>()),
-                Updates.set("runtimeDish", machine.getMachineDishList().get(machine.getRuntimeDishNumber())),
+                Updates.set("runtimeDish", machine.getMachineDishList().get(machine.getRuntimeDishNumber()-1)),
                 Updates.inc(Constant.version,1)
         ));
         if(result.getModifiedCount()==0){

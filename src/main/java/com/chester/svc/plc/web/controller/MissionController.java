@@ -39,7 +39,7 @@ public class MissionController {
     public void importMission(@RequestBody Mission mission,@PathVariable("batchNumber") Integer batchNumber) {
         Material material = materialRepository.getMaterial(mission.getMaterialCode(),mission.getAoCode());
         Assert.notNull(material,"物料号或AO工序号不存在");
-        missionRepository.addMission(mission, UserTokenHolder.getUserId(),batchNumber);
+        missionRepository.addMission(mission, UserTokenHolder.getUserId());
     }
 
     @GetMapping("/batchNumber")
