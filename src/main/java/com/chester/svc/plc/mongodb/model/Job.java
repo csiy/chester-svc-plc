@@ -15,14 +15,20 @@ public class Job extends BaseEntity {
     @_id
     @ApiModelProperty("工单Id")
     private String jobId;
+    @ApiModelProperty("物料Id")
+    private String materialId;
     @ApiModelProperty("任务")
     private Mission mission;
     @ApiModelProperty("物料")
     private Material material;
     @ApiModelProperty("机器Id")
     private String machineId;
-    @ApiModelProperty("工单状态")
-    private JobStatus jobStatus;
+    @ApiModelProperty("盘Key")
+    private String dishKey;
+    @ApiModelProperty("工单是否结束")
+    private Boolean isFinish;
+    @ApiModelProperty("当前工单 任务状态 0未执行 1进行中 2任务完成 3任务异常终止")
+    private Integer jobStatus;
     @ApiModelProperty("是否异常")
     private Boolean isError;
     @ApiModelProperty("错误信息")

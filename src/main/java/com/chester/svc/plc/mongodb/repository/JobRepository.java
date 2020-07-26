@@ -9,6 +9,7 @@ import com.chester.svc.plc.mongodb.model.Job;
 import com.chester.svc.plc.mongodb.config.MongoCollections;
 import com.chester.svc.plc.mongodb.model.Job;
 import com.chester.svc.plc.mongodb.model.Logs;
+import com.chester.svc.plc.mongodb.model.Machine;
 import com.chester.svc.plc.web.model.req.ReqPageJob;
 import com.chester.svc.sys.mongodb.repository.UserRepository;
 import com.chester.util.coll.Lists;
@@ -28,9 +29,9 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -42,6 +43,7 @@ public class JobRepository {
     private UserRepository userRepository;
     @Resource
     private LogsRepository logsRepository;
+
     private static final Logs.LogsType LOG_TYPE = Logs.LogsType.JOB;
 
     @PostConstruct
@@ -67,50 +69,20 @@ public class JobRepository {
         logsRepository.addLogs(LOG_TYPE,"删除",before,after);
     }
 
-    public void updateJob(Job job, Long updatedBy){
-        Bson filter = Filters.and(
-                Filters.eq(Constant._id, job.getJobId()),
-                Filters.eq(Constant.version, job.getVersion()),
-                Filters.eq(Constant.isDeleted, Boolean.FALSE),
-                Filters.eq("jobStatus", JobStatus.CREATE)
-                );
-        Job before = this.coll.find(Filters.eq(Constant._id, job.getJobId())).first();
-        UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set("mission", job.getMission()),
-                Updates.set("material", job.getMaterial()),
-                Updates.set("machineId", ""),
-                Updates.set("isError",false),
-                Updates.inc(Constant.version,1)
-        ));
-        if(result.getModifiedCount()==0){
-            throw new IllegalArgumentException("找不到数据或者数据已被修改");
-        }
-        Job after = this.coll.find(Filters.eq(Constant._id, job.getJobId())).first();
-        logsRepository.addLogs(LOG_TYPE,"修改",before,after);
-    }
-
     /**
      * 未排程工单
      * @param pagination
      * @return
      */
-    public PageResult<Job> jobUnSchedulerPageResult(Pagination pagination) {
+    public PageResult<Job> jobUnSchedulerPageResult(List<Machine> list,Pagination pagination) {
         Bson sort = Sorts.ascending(Constant.createdOn);
-        Bson filter = Filters.and(Filters.eq(Constant.isDeleted, Boolean.FALSE),Filters.eq("machineId", ""));
-        return MongoPageQuery.builder(coll, Job.class).sort(sort).page(pagination).filter(filter).execute();
-    }
-
-    /**
-     * 查询所以未排程工单
-     * @return
-     */
-    public List<Job> jobUnScheduler(){
-        Bson sort = Sorts.ascending(Constant.createdOn);
+        List<String> dishKeys = Lists.map(list, Machine::getDishKey);
         Bson filter = Filters.and(
                 Filters.eq(Constant.isDeleted, Boolean.FALSE),
-                Filters.eq("machineId", "")
-        );
-        return this.coll.find(filter).sort(sort).into(new ArrayList<>());
+                Filters.eq(Constant.jobStatus, 0),
+                Filters.not(Filters.in("dishKey", dishKeys))
+                );
+        return MongoPageQuery.builder(coll, Job.class).sort(sort).page(pagination).filter(filter).execute();
     }
 
     public Job getJob(String jobId){
@@ -118,46 +90,58 @@ public class JobRepository {
         return this.coll.find(filter).first();
     }
 
-    public List<Job> getJobList(List<String> jobIds){
-        Bson filter = Filters.in(Constant._id, jobIds);
-        return this.coll.find(filter).into(new ArrayList<>());
-    }
-
     /**
-     * 释放排期
+     * 获取已排程
+     * @param machine
+     * @return
      */
-    public void releaseScheduler(List<String> jobIds){
-        log.info("重置排程列表 ：{}",jobIds);
-        if(!Lists.isEmpty(jobIds)){
-            Bson filter = Filters.in(Constant._id, jobIds);
-            this.coll.updateMany(filter, AccessUtils.prepareUpdates(1L, "系统",
-                    Updates.set("machineId", ""),
-                    Updates.set("jobStatus", JobStatus.CREATE.toString()),
-                    Updates.inc(Constant.version,1)
-            ));
+    public List<Job> getJobList(Machine machine){
+        List<Job> result = new ArrayList<>();
+        if(machine!=null&&machine.getDishKey()!=null&&machine.getLinkState()){
+            String dishKey = machine.getDishKey();
+            String materialId = machine.getRuntimeMaterialId();
+            Bson sort = Sorts.ascending(Constant.createdOn);
+            Bson filter = Filters.and(
+                    Filters.eq(Constant.isDeleted, Boolean.FALSE),
+                    Filters.eq(Constant.jobStatus, 0),
+                    Filters.eq("machineId", ""),
+                    Filters.eq("dishKey", dishKey)
+            );
+            List<Job> list = this.coll.find(filter).sort(sort).into(new ArrayList<>());
+            if(!Lists.isEmpty(list)){
+                Map<String,List<Job>> subJobs = Lists.groupBy(list,Job::getMaterialId);
+                List<String> materials = Lists.map(list,Job::getMaterialId);
+                materials = Lists.stream(materials).distinct().collect(Collectors.toList());
+                if(materialId!=null&&materials.contains(materialId)){
+                    result.addAll(subJobs.get(materialId));
+                    materials.remove(materialId);
+                }
+                for(String key : materials){
+                    result.addAll(subJobs.get(key));
+                }
+            }
         }
+        return result;
     }
 
-    /**
-     * 排程
-     */
-    public void scheduler(List<String> jobIds,String machineId){
-        Bson filter = Filters.in(Constant._id, jobIds);
-        this.coll.updateMany(filter, AccessUtils.prepareUpdates(1L, "系统",
-                Updates.set("machineId", machineId),
-                Updates.set("isError",false),
-                Updates.set("errorMessages", new ArrayList<>()),
-                Updates.set("jobStatus", JobStatus.SCHEDULER.toString()),
-                Updates.inc(Constant.version,1)
+    public void setJobMachine(String jobId,String machineId){
+        this.coll.updateOne(Filters.eq(Constant._id, jobId), AccessUtils.prepareUpdates(1L, "系统",
+                Updates.set("machineId",machineId)
         ));
     }
 
-    public void schedulerError(List<String> jobIds){
-        Bson filter = Filters.in(Constant._id, jobIds);
-        this.coll.updateMany(filter, AccessUtils.prepareUpdates(1L, "系统",
-                Updates.set("isError",true),
-                Updates.set("errorMessages", Arrays.asList("未找到对应盘")),
-                Updates.inc(Constant.version,1)
+    public Job getNextJob(Machine machine){
+        List<Job> list = getJobList(machine);
+        if(list.size()>0){
+            return list.get(0);
+        }
+        return null;
+    }
+
+    public void updateMission(String jobId,Integer missionStatus){
+        this.coll.updateOne(Filters.eq(Constant._id, jobId), AccessUtils.prepareUpdates(1L, "系统",
+                Updates.set("jobStatus",missionStatus),
+                Updates.set("isFinish",missionStatus==1)
         ));
     }
 }

@@ -10,9 +10,9 @@ import com.chester.svc.plc.mongodb.config.MongoCollections;
 import com.chester.svc.plc.mqtt.MqttSender;
 import com.chester.svc.plc.mqtt.payload.DiscPayload;
 import com.chester.svc.plc.mqtt.payload.SwitchPayload;
+import com.chester.svc.plc.utils.PlcUtils;
 import com.chester.svc.plc.web.model.req.ReqPageMachine;
 import com.chester.svc.sys.mongodb.repository.UserRepository;
-import com.chester.util.coll.Lists;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import com.mongodb.client.MongoCollection;
@@ -23,6 +23,7 @@ import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.conversions.Bson;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -44,6 +45,10 @@ public class MachineRepository {
     private JobRepository jobRepository;
     @Resource
     private MqttSender mqttSender;
+    @Resource
+    private MissionRepository missionRepository;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
     private static final Logs.LogsType LOG_TYPE = Logs.LogsType.MACHINE;
 
 
@@ -53,7 +58,7 @@ public class MachineRepository {
     }
 
     public void addMachine(String clientName){
-        Machine machine = this.coll.find(Filters.eq("_id",clientName)).first();
+        Machine machine = this.coll.find(Filters.and(Filters.eq("_id",clientName),Filters.eq(Constant.isDeleted, Boolean.FALSE))).first();
         if(machine==null){
             machine = new Machine();
             AccessUtils.prepareEntityBeforeInstall(machine, 1L, "系统");
@@ -61,9 +66,11 @@ public class MachineRepository {
             machine.setMachineDishList(new ArrayList<>());
             machine.setRuntimeDishNumber(-1);
             machine.setRuntimeDish(null);
+            machine.setRuntimeJobSetStatus(0);
+            machine.setRuntimeJobStatus(0);
+            machine.setDishKey(null);
             machine.setLinkState(true);
             machine.setRunState(false);
-            machine.setJobs(new ArrayList<>());
             machine.setVersion(1);
             machine.setLostThreshold(System.currentTimeMillis()+1000*60);
             this.coll.insertOne(machine);
@@ -71,9 +78,13 @@ public class MachineRepository {
         }
     }
 
+    public Machine getMachine(String machineId){
+        return this.coll.find(Filters.and(Filters.eq("_id",machineId),Filters.eq(Constant.isDeleted, Boolean.FALSE))).first();
+    }
+
     public void deleteMachine(String machineId,Integer version, Long updatedBy){
         Bson filter = Filters.and(Filters.eq(Constant._id, machineId), Filters.eq(Constant.version, version));
-        Machine before = this.coll.find(Filters.eq(Constant._id, machineId)).first();
+        Machine before = getMachine(machineId);
         UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
                 Updates.set(Constant.isDeleted, true),
                 Updates.inc(Constant.version,1)
@@ -91,7 +102,7 @@ public class MachineRepository {
                 Filters.eq(Constant.version, machine.getVersion()),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE)
         );
-        Machine before = this.coll.find(Filters.eq(Constant._id, machine.getMachineId())).first();
+        Machine before = getMachine(machine.getMachineId());
         UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
                 Updates.set("address", machine.getAddress()),
                 Updates.set("machineDishList", machine.getMachineDishList()),
@@ -110,24 +121,29 @@ public class MachineRepository {
      * @param updatedBy
      */
     public void updateRuntimeDish(Machine machine, Long updatedBy){
-        Bson filter = Filters.and(
-                Filters.eq(Constant._id, machine.getMachineId()),
-                Filters.eq(Constant.version, machine.getVersion()),
-                Filters.eq(Constant.isDeleted, Boolean.FALSE)
-        );
-        Machine before = this.coll.find(Filters.eq(Constant._id, machine.getMachineId())).first();
-        UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set("runtimeDishNumber", machine.getRuntimeDishNumber()),
-                Updates.set("jobs", new ArrayList<>()),
-                Updates.set("runtimeDish", machine.getMachineDishList().get(machine.getRuntimeDishNumber()-1)),
-                Updates.inc(Constant.version,1)
-        ));
-        if(result.getModifiedCount()==0){
-            throw new IllegalArgumentException("找不到数据或者数据已被修改");
+        Machine before = getMachine(machine.getMachineId());
+        if(before!=null){
+            if(before.getRunState()&&before.getRuntimeJob()!=null&&before.getRuntimeJobStatus()==1){
+                throw new IllegalArgumentException("当前有任务正在执行，不能修改当前盘状态");
+            }
+            Bson filter = Filters.and(
+                    Filters.eq(Constant._id, machine.getMachineId()),
+                    Filters.eq(Constant.version, machine.getVersion()),
+                    Filters.eq(Constant.isDeleted, Boolean.FALSE)
+            );
+            Machine.MachineDish dish = machine.getMachineDishList().get(machine.getRuntimeDishNumber()-1);
+            UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
+                    Updates.set("runtimeDishNumber", machine.getRuntimeDishNumber()),
+                    Updates.set("runtimeDish",dish),
+                    Updates.set("dishKey", PlcUtils.getDishKey(dish.getDish(),dish.getGears())),
+                    Updates.inc(Constant.version,1)
+            ));
+            if(result.getModifiedCount()==0){
+                throw new IllegalArgumentException("找不到数据或者数据已被修改");
+            }
+            Machine after = this.coll.find(Filters.eq(Constant._id, machine.getMachineId())).first();
+            logsRepository.addLogs(LOG_TYPE,"修改当前盘号",before,after);
         }
-        jobRepository.releaseScheduler(before.getJobs());
-        Machine after = this.coll.find(Filters.eq(Constant._id, machine.getMachineId())).first();
-        logsRepository.addLogs(LOG_TYPE,"修改当前盘号",before,after);
     }
 
     public PageResult<Machine> machinePageResult(ReqPageMachine query, Pagination pagination) {
@@ -139,7 +155,7 @@ public class MachineRepository {
         return MongoPageQuery.builder(coll, Machine.class).sort(sort).page(pagination).filter(filter).execute();
     }
 
-    public List<Machine> findMachines(){
+    public List<Machine> findAliveMachines(){
         Bson filter = Filters.and(
                 Filters.ne("runtimeDishNumber",-1),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE),
@@ -164,22 +180,6 @@ public class MachineRepository {
         return this.coll.find(filter).into(new ArrayList<>());
     }
 
-    public void pushJobs(String machineId,List<String> jobs){
-        if(!Lists.isEmpty(jobs)){
-            this.coll.updateOne(Filters.eq(Constant._id, machineId), AccessUtils.prepareUpdates(1L, "系统",
-                    Updates.addEachToSet("jobs", jobs)
-            ));
-            Machine machine = getMachine(machineId);
-            if(machine.getRuntimeJob()==null){
-                this.coll.updateOne(Filters.eq(Constant._id, machineId), AccessUtils.prepareUpdates(1L, "系统",
-                        Updates.set("runtimeJob", jobs.get(0)),
-                        Updates.pull("jobs", jobs.get(0)),
-                        Updates.set("runState",false)
-                ));
-            }
-        }
-    }
-
     public void linked(String machineId){
         this.coll.updateOne(Filters.eq(Constant._id, machineId), AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set("linkState", true),
@@ -188,101 +188,91 @@ public class MachineRepository {
     }
 
     public void unLinked(String machineId){
-        log.info("链接中断释放排程 machineId：{}",machineId);
-        Machine before = this.coll.find(Filters.eq(Constant._id, machineId)).first();
-        jobRepository.releaseScheduler(before.getJobs());
         this.coll.updateOne(Filters.eq(Constant._id, machineId), AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set("linkState", false),
-                Updates.set("jobs", new ArrayList<>()),
                 Updates.set("runState",false)
         ));
     }
 
-    public void nextJob(String machineId,String jobId,Integer version, Long updatedBy){
-        Bson filter = Filters.and(
-                Filters.eq(Constant._id, machineId),
-                Filters.eq(Constant.version, version),
-                Filters.eq(Constant.isDeleted, Boolean.FALSE)
-        );
-        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set("runtimeJob", jobId),
-                Updates.pull("jobs", jobId),
-                Updates.set("runState",false),
-                Updates.inc(Constant.version,1)
-        ));
-    }
-
-    public Machine getMachine(String machineId){
-        return this.coll.find(Filters.eq("_id",machineId)).first();
-    }
-
-    public void runMachine(String machineId,Integer version, Long updatedBy){
-        Machine before = this.coll.find(Filters.eq(Constant._id, machineId)).first();
-        if(before.getRuntimeJob()!=null){
-            Bson filter = Filters.and(
-                    Filters.eq(Constant._id, machineId),
-                    Filters.eq(Constant.version, version),
-                    Filters.eq(Constant.isDeleted, Boolean.FALSE)
-            );
-            UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                    Updates.set("runState",true)
-            ));
-            if(result.getModifiedCount()==0){
-                throw new IllegalArgumentException("找不到数据或者数据已被修改");
+    public void updateMission(String missionId,Integer missionStatus) throws InterruptedException {
+        if(missionStatus==2){
+            String key = "m:f:"+missionId;
+            String finishMission = stringRedisTemplate.opsForValue().getAndSet(key,missionId);
+            if(finishMission!=null){
+                return;
             }
-            Machine after = this.coll.find(Filters.eq(Constant._id, machineId)).first();
-            logsRepository.addLogs(LOG_TYPE,"开启机器",before,after);
-            Job job = jobRepository.getJob(before.getRuntimeJob());
-            DiscPayload.SetDiscList setDiscList = new DiscPayload.SetDiscList();
-            setDiscList.setDiscNo(before.getRuntimeDishNumber());
-            setDiscList.setTotalB(job.getMission().getCount());
-            setDiscList.setTotalOneB(job.getMaterial().getQuantity());
-            mqttSender.sendMessage(machineId, new DiscPayload(setDiscList));
-            mqttSender.sendMessage(machineId, new SwitchPayload("open"));
+        }
+        Job job = jobRepository.getJob(missionId);
+        this.coll.updateOne(Filters.eq(Constant._id, job.getMachineId()), AccessUtils.prepareUpdates(1L, "系统",
+                Updates.set("runtimeJobStatus",missionStatus)
+        ));
+        jobRepository.updateMission(missionId,missionStatus);
+        missionRepository.updateMission(missionId,missionStatus);
+        if(missionStatus==2){
+            log.info("任务执行完毕 machineId：{}, jobId：{}",job.getMachineId(),missionId);
+            Thread.sleep(3000);
+            stopMachine(job.getMachineId());
+            Job nextJob = jobRepository.getNextJob(getMachine(job.getMachineId()));
+            if(nextJob!=null&&nextJob.getMaterialId().equals(job.getMaterialId())){
+                log.info("自动执行下一个任务 machineId：{}, jobId：{}",job.getMachineId(),nextJob.getJobId());
+                Machine machine = getMachine(job.getMachineId());
+                Thread.sleep(3000);
+                setDish(machine,nextJob);
+                Thread.sleep(3000);
+                runMachine(machine.getMachineId());
+            }
+        }else if(missionStatus==3){
+            log.info("任务异常 machineId：{}, jobId：{}",job.getMachineId(),missionId);
+            Thread.sleep(3000);
+            stopMachine(job.getMachineId());
         }
     }
 
-    public void stopMachine(String machineId,Integer version, Long updatedBy){
-        Bson filter = Filters.and(
-                Filters.eq(Constant._id, machineId),
-                Filters.eq(Constant.version, version),
-                Filters.eq(Constant.isDeleted, Boolean.FALSE)
-        );
-        Machine before = this.coll.find(Filters.eq(Constant._id, machineId)).first();
-        UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set("runtimeJob", null),
-                Updates.set("runState",false)
-        ));
-        if(result.getModifiedCount()==0){
-            throw new IllegalArgumentException("找不到数据或者数据已被修改");
-        }
-        Machine machine = getMachine(machineId);
-        if(!Lists.isEmpty(machine.getJobs())){
-            this.coll.updateOne(Filters.eq(Constant._id, machineId), AccessUtils.prepareUpdates(1L, "系统",
-                    Updates.set("runtimeJob", machine.getJobs().get(0)),
-                    Updates.pull("jobs", machine.getJobs().get(0)),
-                    Updates.set("runState",false)
-            ));
-        }
-        Machine after = this.coll.find(Filters.eq(Constant._id, machineId)).first();
-        logsRepository.addLogs(LOG_TYPE,"关闭机器",before,after);
+    public void runMachine(String machineId){
+        log.info("开启机器");
+        mqttSender.sendMessage(machineId, new SwitchPayload("open"));
+        updateRunStateConfirm(machineId,true);
+    }
+
+    public void stopMachine(String machineId){
+        log.info("停止机器");
         mqttSender.sendMessage(machineId, new SwitchPayload("close"));
+        updateRunStateConfirm(machineId,false);
     }
 
-    public void reSort(String machineId,List<String> jobs,Integer version, Long updatedBy){
-        if(!Lists.isEmpty(jobs)){
-            Bson filter = Filters.and(
-                    Filters.eq(Constant._id, machineId),
-                    Filters.eq(Constant.version, version),
-                    Filters.eq(Constant.isDeleted, Boolean.FALSE)
-            );
-            UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                    Updates.set("jobs", jobs),
-                    Updates.inc(Constant.version,1)
-            ));
-            if(result.getModifiedCount()==0){
-                throw new IllegalArgumentException("找不到数据或者数据已被修改");
-            }
-        }
+    public void setDish(Machine machine,Job job){
+        this.coll.updateOne(Filters.eq(Constant._id, machine.getMachineId()), AccessUtils.prepareUpdates(1L, "系统",
+                Updates.set("runtimeJob", job.getJobId()),
+                Updates.set("runtimeMaterialId",job.getMaterialId()),
+                Updates.set("runtimeJobSetStatus",1)
+        ));
+        jobRepository.setJobMachine(job.getJobId(),machine.getMachineId());
+        DiscPayload.SetDiscList setDiscList = new DiscPayload.SetDiscList();
+        setDiscList.setDiscNo(machine.getRuntimeDishNumber());
+        setDiscList.setTotalB(job.getMission().getCount());
+        setDiscList.setTotalOneB(job.getMaterial().getQuantity());
+        mqttSender.sendMessage(machine.getMachineId(), new DiscPayload(job.getJobId(),setDiscList));
+        updateSetMissionConfirm(machine.getMachineId());
+    }
+
+    public void updateRunStateConfirm(String machineId,Boolean runState){
+        Bson filter = Filters.and(
+                Filters.eq(Constant._id, machineId),
+                Filters.eq(Constant.isDeleted, Boolean.FALSE)
+        );
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(1L, "系统",
+                Updates.set("runState",runState),
+                Updates.set("runtimeJobSetStatus",runState?2:0)
+        ));
+    }
+
+    public void updateSetMissionConfirm(String machineId){
+        Bson filter = Filters.and(
+                Filters.eq(Constant._id, machineId),
+                Filters.eq(Constant.isDeleted, Boolean.FALSE)
+        );
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(1L, "系统",
+                Updates.set("runtimeJobSetStatus",2)
+        ));
     }
 }

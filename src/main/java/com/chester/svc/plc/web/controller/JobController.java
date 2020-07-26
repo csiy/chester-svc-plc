@@ -3,8 +3,8 @@ package com.chester.svc.plc.web.controller;
 import com.chester.auth.client.annotation.Roles;
 import com.chester.auth.client.core.UserTokenHolder;
 import com.chester.svc.plc.mongodb.model.Job;
-import com.chester.svc.plc.mongodb.model.Machine;
 import com.chester.svc.plc.mongodb.repository.JobRepository;
+import com.chester.svc.plc.mongodb.repository.MachineRepository;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +17,13 @@ import java.util.List;
 public class JobController {
     @Resource
     private JobRepository jobRepository;
+    @Resource
+    private MachineRepository machineRepository;
 
     @GetMapping("/unScheduler")
     @Roles(value = "admin,operator", remark = "查询未排程工单")
     public PageResult<Job> getMaterial(Pagination pagination){
-        return jobRepository.jobUnSchedulerPageResult(pagination);
+        return jobRepository.jobUnSchedulerPageResult(machineRepository.findAliveMachines(),pagination);
     }
 
     @GetMapping("/{jobId}")
@@ -30,10 +32,10 @@ public class JobController {
         return jobRepository.getJob(jobId);
     }
 
-    @PostMapping("/jobs")
+    @GetMapping("/jobs/{machineId}")
     @Roles(value = "admin,operator", remark = "获取任务列表")
-    public List<Job> getJob(@RequestBody Machine machine){
-        return jobRepository.getJobList(machine.getJobs());
+    public List<Job> getJobs(@PathVariable("machineId") String machineId){
+        return jobRepository.getJobList(machineRepository.getMachine(machineId));
     }
 
     @DeleteMapping("/{jobId}/{version}")
@@ -42,9 +44,4 @@ public class JobController {
         jobRepository.deleteJob(jobId,version, UserTokenHolder.getUserId());
     }
 
-    @PutMapping
-    @Roles(value = "admin,operator", remark = "修复排程")
-    public void putJob(@RequestBody Job job) {
-        jobRepository.updateJob(job,UserTokenHolder.getUserId());
-    }
 }

@@ -44,12 +44,33 @@ public class MissionRepository {
     public void afterPropertiesSet() {
         this.coll = db.getCollection(MongoCollections.mission, Mission.class);
         this.coll.createIndex(Indexes.ascending("dateTime"));
+        this.coll.createIndex(Indexes.hashed("inputTime"));
     }
 
     public void addMission(Mission mission,Long createdBy){
         beforeAddMission(mission,createdBy);
+        mission.setLineNumber(1);
+        mission.setBatchNumber(serialRepository.batchNumber());
+        mission.setInputTime(getDate(new Date()));
         this.coll.insertOne(mission);
-        logsRepository.addLogs(LOG_TYPE,"创建",mission);
+    }
+
+    public void importMission(List<Mission> missions,Long createdBy){
+        String inputTime = getDate(new Date());
+        Integer batchNumber = serialRepository.batchNumber();
+        for(int i = 0;i<missions.size();i++){
+            Mission mission = missions.get(i);
+            beforeAddMission(mission,createdBy);
+            mission.setInputTime(inputTime);
+            mission.setLineNumber(i+i);
+            mission.setBatchNumber(batchNumber);
+        }
+        this.coll.insertMany(missions);
+    }
+
+    private String getDate(Date date){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return dateFormat.format(date);
     }
 
     private Mission beforeAddMission(Mission mission,Long createdBy){
@@ -57,13 +78,14 @@ public class MissionRepository {
         mission.setSerialNumber(serialRepository.serialNumber());
         mission.setVersion(1);
         mission.setMissionId(getMissionId(mission));
+        mission.setIsFinish(false);
+        mission.setJobStatus(0);
         mission.setTransform(1);
         if(mission.getDateTime()==null){
             mission.setDateTime(new Date());
         }
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-        mission.setDate(dateFormat.format(mission.getDateTime()));
+        mission.setDate(getDate(mission.getDateTime()));
         mission.setTime(timeFormat.format(mission.getDateTime()));
         return mission;
     }
@@ -139,7 +161,7 @@ public class MissionRepository {
                 Filters.eq(Constant.isDeleted, false),
                 Filters.eq("transform",1)
                 );
-        return this.coll.find(filter).sort(sort).into(new ArrayList<>());
+        return this.coll.find(filter).limit(50).sort(sort).into(new ArrayList<>());
     }
 
     public void transformSuccess(List<String> missionIds){
@@ -154,6 +176,13 @@ public class MissionRepository {
         this.coll.updateMany(filter, AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set("transform", 3),
                 Updates.inc(Constant.version,1)
+        ));
+    }
+
+    public void updateMission(String missionId,Integer missionStatus){
+        this.coll.updateOne(Filters.eq(Constant._id, missionId), AccessUtils.prepareUpdates(1L, "系统",
+                Updates.set("jobStatus",missionStatus),
+                Updates.set("isFinish",missionStatus==1)
         ));
     }
 

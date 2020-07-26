@@ -2,6 +2,7 @@ package com.chester.svc.plc.mqtt;
 
 import com.chester.svc.plc.mongodb.model.Machine;
 import com.chester.svc.plc.mongodb.repository.MachineRepository;
+import com.chester.svc.plc.mqtt.payload.ReceiverPayload;
 import com.chester.svc.plc.mqtt.payload.SubscribePayload;
 import com.chester.util.coll.Lists;
 import com.chester.util.json.JSON;
@@ -29,8 +30,6 @@ public class MqttReceiver {
     private IMqttClient mqttClient;
     @Resource
     private MachineRepository machineRepository;
-    @Resource
-    private MqttSender mqttSender;
     private static final Map<String,String> subscribeMap = new HashMap<>();
 
     static {
@@ -39,12 +38,11 @@ public class MqttReceiver {
 
     @PostConstruct
     public void init() {
-
         subscribe(H_B,subscribe -> {});
-
         subscribe(P_S,subscribe -> {
             SubscribePayload subscribePayload = JSON.parse(subscribe, SubscribePayload.class);
             machineRepository.addMachine(subscribePayload.getClientName());
+            log.info("注册 ：{}",JSON.stringify(subscribePayload));
             initSubscribe(subscribePayload.getClientName());
         });
         List<Machine> machines = machineRepository.findAllMachines();
@@ -59,8 +57,28 @@ public class MqttReceiver {
         if(exist==null){
             subscribeMap.put(key,clientName);
             subscribe(key,info->{
-                log.info("subscribe key {} ,clientName {}",key,clientName);
                 machineRepository.linked(clientName);
+                try{
+                    ReceiverPayload receiverPayload = JSON.parse(info, ReceiverPayload.class);
+                    log.info("获取消息：{}",JSON.stringify(receiverPayload));
+                    if(receiverPayload.getMsgType().equals("taskStatus")){
+                        machineRepository.updateMission(receiverPayload.getMissionId(),receiverPayload.getMissionStatus());
+                    }else if(receiverPayload.getMsgType().equals("reply")&&
+                            receiverPayload.getOperation().equals("open")&&
+                            receiverPayload.getOperationResult().equals("success")){
+                        //machineRepository.updateRunStateConfirm(clientName,true);
+                    }else if(receiverPayload.getMsgType().equals("reply")&&
+                            receiverPayload.getOperation().equals("close")&&
+                            receiverPayload.getOperationResult().equals("success")){
+                        //machineRepository.updateRunStateConfirm(clientName,false);
+                    }else if(receiverPayload.getMsgType().equals("reply")&&
+                            receiverPayload.getOperation().equals("setDisc")&&
+                            receiverPayload.getOperationResult().equals("success")){
+                        //machineRepository.updateSetMissionConfirm(clientName);
+                    }
+                }catch (Exception e){
+                    log.info("error：{}",e.getMessage());
+                }
             });
         }
     }

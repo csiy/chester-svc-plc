@@ -20,6 +20,7 @@ public class MqttSender {
 
     public void sendMessage(String machineId, Payload mqttPayload){
         try {
+            log.info("发送消息：{}",JSON.stringify(mqttPayload));
             mqttClient.publish(S_C+machineId,JSON.stringify(mqttPayload).getBytes(),2,false);
         } catch (MqttException e) {
             e.printStackTrace();

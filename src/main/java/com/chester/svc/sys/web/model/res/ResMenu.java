@@ -13,6 +13,7 @@ public class ResMenu {
     private String icon;
     private String url;
     private Integer sort;
+    private String path;
     private String type;
     private Boolean modify;
     private List<String> parentIds;

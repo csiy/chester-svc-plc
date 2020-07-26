@@ -29,10 +29,16 @@ public class Machine extends BaseEntity {
     private Integer runtimeDishNumber;
     @ApiModelProperty("当前盘")
     private MachineDish runtimeDish;
+    @ApiModelProperty("当前盘Key")
+    private String dishKey;
     @ApiModelProperty("当前工单")
     private String runtimeJob;
-    @ApiModelProperty("工单列表")
-    private List<String> jobs;
+    @ApiModelProperty("当前工单参数设置状态")
+    private Integer runtimeJobSetStatus;
+    @ApiModelProperty("当前物料号")
+    private String runtimeMaterialId;
+    @ApiModelProperty("当前工单 任务状态 0 当前无任务 1任务进行中 2 任务完成 3任务异常终止")
+    private Integer runtimeJobStatus;
     @ApiModelProperty("机器链接状态")
     private Boolean linkState;
     @ApiModelProperty("机器运行状态")

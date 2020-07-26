@@ -20,6 +20,10 @@ public class Mission extends BaseEntity {
     private Long serialNumber;
     @ApiModelProperty("行项目号")
     private Integer lineNumber;
+    @ApiModelProperty("导入时间")
+    private String inputTime;
+    @ApiModelProperty("导入批次")
+    private Integer batchNumber;
     @ApiModelProperty("物料号")
     private String materialCode;
     @ApiModelProperty("ao工序号")
@@ -30,6 +34,10 @@ public class Mission extends BaseEntity {
     private Integer count;
     @ApiModelProperty("转换状态 1未转换，2转换成功，3转换时找不到物料")
     private Integer transform;
+    @ApiModelProperty("工单是否结束")
+    private Boolean isFinish;
+    @ApiModelProperty("当前工单 任务状态 0 未执行 1进行中 2 任务完成 3任务异常终止")
+    private Integer jobStatus;
     @ApiModelProperty("需求日期")
     private String date;
     @ApiModelProperty("需求时间")

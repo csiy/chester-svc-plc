@@ -31,6 +31,7 @@ public class MaterialController {
     }
 
     @GetMapping("/{materialCode}/{aoCode}")
+    @Roles(value = "admin,operator", remark = "获取物料")
     public Material getMaterial(@PathVariable("materialCode") String materialCode,@PathVariable("aoCode") String aoCode){
         return materialRepository.getMaterial(materialCode,aoCode);
     }

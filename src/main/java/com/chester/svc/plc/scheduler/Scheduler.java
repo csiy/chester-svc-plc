@@ -11,6 +11,7 @@ import com.chester.svc.plc.mongodb.repository.MachineRepository;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
 import com.chester.svc.plc.mqtt.MqttSender;
+import com.chester.svc.plc.utils.PlcUtils;
 import com.chester.svc.sys.mongodb.repository.UserRepository;
 import com.chester.svc.sys.web.model.res.ResUser;
 import com.chester.util.coll.Lists;
@@ -52,11 +53,15 @@ public class Scheduler {
                 Job job = new Job();
                 Material material = materialRepository.getMaterial(v.getMaterialCode(),v.getAoCode());
                 ResUser resUser = userRepository.randomUser();
+                job.setJobId(v.getMissionId());
                 job.setMaterial(material);
+                job.setMaterialId(material.getMaterialId());
+                job.setDishKey(PlcUtils.getDishKey(material.getDish(),material.getGears()));
                 job.setMission(v);
-                job.setVersion(1);
                 job.setMachineId("");
-                job.setJobStatus(JobStatus.CREATE);
+                job.setVersion(1);
+                job.setJobStatus(0);
+                job.setIsFinish(false);
                 if(resUser!=null){
                     job.setWorkId(resUser.getUserId());
                     job.setWorkName(resUser.getName());
@@ -64,7 +69,6 @@ public class Scheduler {
                 job.setErrorMessages(new ArrayList<>());
                 job.setIsError(false);
                 AccessUtils.prepareEntityBeforeInstall(job, 1L, "系统");
-                job.setJobId(ObjectId.get().toHexString());
                 return job;
             });
             List<Job> successJob = Lists.filter(jobs,v->v.getMaterial()!=null);
@@ -76,50 +80,6 @@ public class Scheduler {
             if(!Lists.isEmpty(successIds)){
                 missionRepository.transformSuccess(successIds);
                 jobRepository.addJobs(successJob);
-            }
-        }
-    }
-
-    private <E> List<List<E>> batchList(List<E> list, int batchSize){
-        List<List<E>> itemMap = new ArrayList<>();
-        itemMap.add(new ArrayList<E>());
-        for(E e : list){
-            List<E> batchList= itemMap.get(itemMap.size()-1);
-            if(batchList.size() == batchSize){//当list满足批次数量，新建一个list存放后面的数据
-                batchList = new ArrayList<E>();
-                itemMap.add(batchList);
-            }
-            batchList.add(e);
-        }
-        return itemMap;
-    }
-
-    //每分钟执行排程任务
-    @Scheduled(fixedRate = 5000)
-    public void schedulerJobs() {
-        List<Job> list = jobRepository.jobUnScheduler();
-        if(!Lists.isEmpty(list)){
-            List<Machine> machines = machineRepository.findMachines();
-            if(!Lists.isEmpty(machines)){
-                Map<String,List<Job>> jobMap = Lists.groupBy(list,v->v.getMaterial().getDish().toString()+v.getMaterial().getGears().toString());
-                Map<String,List<Machine>> machineMap = Lists.groupBy(machines,v->v.getRuntimeDish().getDish().toString()+v.getRuntimeDish().getGears().toString());
-                jobMap.forEach((k,v)->{
-                    List<Machine> machineList = machineMap.get(k);
-                    if(Lists.isEmpty(machineList)){
-                        jobRepository.schedulerError(Lists.map(v, Job::getJobId));
-                    }else{
-                        int batchSize = v.size()/machineList.size()==0?1:v.size()/machineList.size();
-                        List<List<Job>> lists = batchList(v,batchSize);
-                        log.info("排程分配 batchSize：{} listSize: {}",batchSize,lists.size());
-                        for(int i=0;i<machineList.size();i++){
-                            if(lists.size()>i){
-                                List<String> jobIds = Lists.map(lists.get(i), Job::getJobId);
-                                machineRepository.pushJobs(machineList.get(i).getMachineId(),jobIds);
-                                jobRepository.scheduler(jobIds,machineList.get(i).getMachineId());
-                            }
-                        }
-                    }
-                });
             }
         }
     }
@@ -137,5 +97,19 @@ public class Scheduler {
     @Scheduled(fixedRate = 5000)
     public void testConnect(){
         mqttSender.sendBeat();
+    }
+
+    private <E> List<List<E>> batchList(List<E> list, int batchSize){
+        List<List<E>> itemMap = new ArrayList<>();
+        itemMap.add(new ArrayList<E>());
+        for(E e : list){
+            List<E> batchList= itemMap.get(itemMap.size()-1);
+            if(batchList.size() == batchSize){//当list满足批次数量，新建一个list存放后面的数据
+                batchList = new ArrayList<E>();
+                itemMap.add(batchList);
+            }
+            batchList.add(e);
+        }
+        return itemMap;
     }
 }

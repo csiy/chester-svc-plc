@@ -4,11 +4,15 @@ import lombok.Data;
 
 @Data
 public class Payload {
-    private String msgType;
-    private String TTL;
 
+    private String msgType;
+    private String ttl;
+
+    public Payload(){
+
+    }
     public Payload(String msgType){
         this.msgType = msgType;
-        this.TTL = System.currentTimeMillis()+"";
+        this.ttl = System.currentTimeMillis()+"";
     }
 }

@@ -7,10 +7,12 @@ import java.util.List;
 
 @Data
 public class DiscPayload extends Payload{
+    private String missionId;
     private List<SetDiscList> setDiscList = new ArrayList<>();
 
-    public DiscPayload(SetDiscList setDiscList){
+    public DiscPayload(String missionId,SetDiscList setDiscList){
         super("setDisc");
+        this.missionId = missionId;
         this.setDiscList.add(setDiscList);
     }
 

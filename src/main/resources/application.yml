@@ -32,14 +32,14 @@ logging:
     io.swagger: DEBUG
 chester:
   menus:
-    - {menuId: 'sys-root', name: '系统管理',icon: 'mdi-home-account',url: '/sys',sort: 10,type: 'drawer',roles: ['admin'],modify: false}
-    - {menuId: 'sys-user', name: '用户管理',icon: 'mdi-home-account',url: '/sys/users',sort: 1,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
-    - {menuId: 'sys-menu', name: '菜单管理',icon: 'mdi-menu',url: '/sys/menus',sort: 2,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
-    - {menuId: 'sys-role', name: '角色管理',icon: 'mdi-file-account-outline',url: '/sys/roles',sort: 3,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
-    - {menuId: 'sys-rule', name: '路由管理',icon: 'mdi-widgets-outline',url: '/sys/rules',sort: 4,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
-    - {menuId: 'plc-root-data', name: '主数据管理',icon: 'mdi-alpha-r-circle-outline',url: '/plc/data',sort: 1,type: 'drawer',roles: ['admin','operator']}
-    - {menuId: 'plc-machine',name: '设备管理',icon: 'mdi-apache-kafka',url: '/data/machines',sort: 1,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-data']}
-    - {menuId: 'plc-material', name: '物料维护',icon: 'mdi-database-refresh',url: '/data/materials',sort: 3,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-data']}
-    - {menuId: 'plc-root-task', name: '生产管理',icon: 'mdi-alpha-r-circle-outline',url: '/plc/task',sort: 1,type: 'drawer',roles: ['admin','operator']}
-    - {menuId: 'plc-mission', name: '任务管理',icon: 'mdi-screw-machine-flat-top',url: '/task/missions',sort: 2,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-task']}
-    - {menuId: 'plc-job', name: '排程管理',icon: 'mdi-database-refresh',url: '/task/jobs',sort: 4,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-task']}
+    - {menuId: 'sys-root', path: '/sys', name: '系统管理',icon: 'mdi-home-account',url: '/sys',sort: 10,type: 'drawer',roles: ['admin'],modify: false}
+    - {menuId: 'sys-user', path: '/sys/users', name: '用户管理',icon: 'mdi-home-account',url: '/sys/users',sort: 1,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
+    - {menuId: 'sys-menu', path: '/sys/menus', name: '菜单管理',icon: 'mdi-menu',url: '/sys/menus',sort: 2,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
+    - {menuId: 'sys-role', path: '/sys/roles', name: '角色管理',icon: 'mdi-file-account-outline',url: '/sys/roles',sort: 3,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
+    - {menuId: 'sys-rule', path: '/sys/rules', name: '路由管理',icon: 'mdi-widgets-outline',url: '/sys/rules',sort: 4,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
+    - {menuId: 'plc-root-data', path: '/plc/data', name: '主数据管理',icon: 'mdi-alpha-r-circle-outline',url: '/plc/data',sort: 1,type: 'drawer',roles: ['admin','operator']}
+    - {menuId: 'plc-machine', path: '/plc/machines', name: '设备管理',icon: 'mdi-apache-kafka',url: '/data/machines',sort: 1,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-data']}
+    - {menuId: 'plc-material', path: '/plc/materials', name: '物料维护',icon: 'mdi-database-refresh',url: '/data/materials',sort: 3,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-data']}
+    - {menuId: 'plc-root-task', path: '/plc/task', name: '生产管理',icon: 'mdi-alpha-r-circle-outline',url: '/plc/task',sort: 1,type: 'drawer',roles: ['admin','operator']}
+    - {menuId: 'plc-mission', path: '/plc/missions', name: '任务管理',icon: 'mdi-screw-machine-flat-top',url: '/task/missions',sort: 2,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-task']}
+    - {menuId: 'plc-job', path: '/plc/jobs', name: '排程管理',icon: 'mdi-database-refresh',url: '/task/jobs',sort: 4,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-task']}
