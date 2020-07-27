@@ -203,6 +203,9 @@ public class MachineRepository {
             }
         }
         Job job = jobRepository.getJob(missionId);
+        if(job==null){
+            return;
+        }
         this.coll.updateOne(Filters.eq(Constant._id, job.getMachineId()), AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set("runtimeJobStatus",missionStatus)
         ));

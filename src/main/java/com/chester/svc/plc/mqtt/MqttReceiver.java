@@ -60,24 +60,21 @@ public class MqttReceiver {
                 machineRepository.linked(clientName);
                 try{
                     ReceiverPayload receiverPayload = JSON.parse(info, ReceiverPayload.class);
-                    log.info("获取消息：{}",JSON.stringify(receiverPayload));
                     if(receiverPayload.getMsgType().equals("taskStatus")){
+                        log.info("任务状态：{}",JSON.stringify(receiverPayload));
                         machineRepository.updateMission(receiverPayload.getMissionId(),receiverPayload.getMissionStatus());
-                    }else if(receiverPayload.getMsgType().equals("reply")&&
-                            receiverPayload.getOperation().equals("open")&&
-                            receiverPayload.getOperationResult().equals("success")){
-                        //machineRepository.updateRunStateConfirm(clientName,true);
-                    }else if(receiverPayload.getMsgType().equals("reply")&&
-                            receiverPayload.getOperation().equals("close")&&
-                            receiverPayload.getOperationResult().equals("success")){
-                        //machineRepository.updateRunStateConfirm(clientName,false);
-                    }else if(receiverPayload.getMsgType().equals("reply")&&
-                            receiverPayload.getOperation().equals("setDisc")&&
-                            receiverPayload.getOperationResult().equals("success")){
-                        //machineRepository.updateSetMissionConfirm(clientName);
+                    }else if(receiverPayload.getMsgType().equals("reply")){
+                        log.info("操作状态：{}",JSON.stringify(receiverPayload));
+                        if(receiverPayload.getOperation().equals("open")&&receiverPayload.getOperationResult().equals("success")){
+                            //machineRepository.updateRunStateConfirm(clientName,true);
+                        }else if(receiverPayload.getOperation().equals("close")&&receiverPayload.getOperationResult().equals("success")){
+                            //machineRepository.updateRunStateConfirm(clientName,false);
+                        }else if(receiverPayload.getOperation().equals("setDisc")&&receiverPayload.getOperationResult().equals("success")){
+                            //machineRepository.updateSetMissionConfirm(clientName);
+                        }
                     }
                 }catch (Exception e){
-                    log.info("error：{}",e.getMessage());
+                    e.printStackTrace();
                 }
             });
         }
