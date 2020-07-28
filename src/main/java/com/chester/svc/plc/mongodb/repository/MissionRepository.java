@@ -118,7 +118,7 @@ public class MissionRepository {
     public void updateMission(Mission mission, Long updatedBy){
         Bson filter = Filters.and(
                 Filters.eq(Constant._id, mission.getMissionId()),
-                Updates.set(Constant.isDeleted, false),
+                Filters.eq(Constant.isDeleted, false),
                 Filters.eq(Constant.version, mission.getVersion()),
                 Filters.ne("transform",2));
         Mission before = this.coll.find(Filters.eq(Constant._id, mission.getMissionId())).first();
