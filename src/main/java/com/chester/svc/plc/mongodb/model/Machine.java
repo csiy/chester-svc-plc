@@ -36,7 +36,7 @@ public class Machine extends BaseEntity {
     @ApiModelProperty("当前工单参数设置状态")
     private Integer runtimeJobSetStatus;
     @ApiModelProperty("当前物料号")
-    private String runtimeMaterialId;
+    private String runtimeMaterialCode;
     @ApiModelProperty("当前工单 任务状态 0 当前无任务 1任务进行中 2 任务完成 3任务异常终止")
     private Integer runtimeJobStatus;
     @ApiModelProperty("机器链接状态")

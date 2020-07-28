@@ -99,7 +99,7 @@ public class JobRepository {
         List<Job> result = new ArrayList<>();
         if(machine!=null&&machine.getDishKey()!=null&&machine.getLinkState()){
             String dishKey = machine.getDishKey();
-            String materialId = machine.getRuntimeMaterialId();
+            String materialCode = machine.getRuntimeMaterialCode();
             Bson sort = Sorts.ascending(Constant.createdOn);
             Bson filter = Filters.and(
                     Filters.eq(Constant.isDeleted, Boolean.FALSE),
@@ -109,12 +109,12 @@ public class JobRepository {
             );
             List<Job> list = this.coll.find(filter).sort(sort).into(new ArrayList<>());
             if(!Lists.isEmpty(list)){
-                Map<String,List<Job>> subJobs = Lists.groupBy(list,Job::getMaterialId);
-                List<String> materials = Lists.map(list,Job::getMaterialId);
+                Map<String,List<Job>> subJobs = Lists.groupBy(list,v->v.getMaterial().getMaterialCode());
+                List<String> materials = Lists.map(list,v->v.getMaterial().getMaterialCode());
                 materials = Lists.stream(materials).distinct().collect(Collectors.toList());
-                if(materialId!=null&&materials.contains(materialId)){
-                    result.addAll(subJobs.get(materialId));
-                    materials.remove(materialId);
+                if(materialCode!=null&&materials.contains(materialCode)){
+                    result.addAll(subJobs.get(materialCode));
+                    materials.remove(materialCode);
                 }
                 for(String key : materials){
                     result.addAll(subJobs.get(key));

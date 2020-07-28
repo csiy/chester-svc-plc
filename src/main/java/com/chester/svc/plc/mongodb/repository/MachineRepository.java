@@ -216,7 +216,7 @@ public class MachineRepository {
             Thread.sleep(3000);
             stopMachine(job.getMachineId());
             Job nextJob = jobRepository.getNextJob(getMachine(job.getMachineId()));
-            if(nextJob!=null&&nextJob.getMaterialId().equals(job.getMaterialId())){
+            if(nextJob!=null&&nextJob.getMaterial().getMaterialCode().equals(job.getMaterial().getMaterialCode())){
                 log.info("自动执行下一个任务 machineId：{}, jobId：{}",job.getMachineId(),nextJob.getJobId());
                 Machine machine = getMachine(job.getMachineId());
                 Thread.sleep(3000);
@@ -246,7 +246,7 @@ public class MachineRepository {
     public void setDish(Machine machine,Job job){
         this.coll.updateOne(Filters.eq(Constant._id, machine.getMachineId()), AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set("runtimeJob", job.getJobId()),
-                Updates.set("runtimeMaterialId",job.getMaterialId()),
+                Updates.set("runtimeMaterialCode",job.getMaterial().getMaterialCode()),
                 Updates.set("runtimeJobSetStatus",1)
         ));
         jobRepository.setJobMachine(job.getJobId(),machine.getMachineId());
