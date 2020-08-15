@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.util.Date;
-import java.util.List;
 
 @Data
 @ApiModel("包装任务")
@@ -26,6 +25,8 @@ public class Mission extends BaseEntity {
     private Integer batchNumber;
     @ApiModelProperty("物料号")
     private String materialCode;
+    @ApiModelProperty("定额数量")
+    private Integer quantity;
     @ApiModelProperty("ao工序号")
     private String aoCode;
     @ApiModelProperty("机器Id")
@@ -36,7 +37,7 @@ public class Mission extends BaseEntity {
     private Integer transform;
     @ApiModelProperty("工单是否结束")
     private Boolean isFinish;
-    @ApiModelProperty("当前工单 任务状态 0 未执行 1进行中 2 任务完成 3任务异常终止")
+    @ApiModelProperty("当前工单 任务状态 0 未执行 1进行中 2 任务完成 3任务异常终止 4已删除")
     private Integer jobStatus;
     @ApiModelProperty("需求日期")
     private String date;

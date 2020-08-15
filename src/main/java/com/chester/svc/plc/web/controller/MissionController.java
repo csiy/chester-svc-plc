@@ -37,6 +37,7 @@ public class MissionController {
     public void addMission(@RequestBody Mission mission) {
         Material material = materialRepository.getMaterial(mission.getMaterialCode(),mission.getAoCode());
         Assert.notNull(material,"物料号或AO工序号不存在");
+        mission.setQuantity(material.getQuantity());
         missionRepository.addMission(mission, UserTokenHolder.getUserId());
     }
 
@@ -47,6 +48,7 @@ public class MissionController {
             Mission mission = importMission.getMissions().get(i);
             Material material = materialRepository.getMaterial(mission.getMaterialCode(),mission.getAoCode());
             Assert.notNull(material,"物料号或AO工序号不存在");
+            mission.setQuantity(material.getQuantity());
         }
         missionRepository.importMission(importMission.getMissions(), UserTokenHolder.getUserId());
     }

@@ -2,8 +2,6 @@ package com.chester.svc.plc.mongodb.model;
 
 import com.chester.cloud.support.model.BaseEntity;
 import com.chester.data.mongo.annotations._id;
-import com.chester.svc.plc.core.model.DishEnum;
-import com.chester.svc.plc.core.model.GearsEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -20,17 +18,13 @@ public class Machine extends BaseEntity {
     @ApiModelProperty("位置")
     private String address;
     @ApiModelProperty("机器盘")
-    private List<MachineDish> machineDishList;
+    private List<String> diskList;
     @ApiModelProperty("机器单片机参数")
     private Document params;
     @ApiModelProperty("版本号")
     private Integer version;
     @ApiModelProperty("当前盘号")
-    private Integer runtimeDishNumber;
-    @ApiModelProperty("当前盘")
-    private MachineDish runtimeDish;
-    @ApiModelProperty("当前盘Key")
-    private String dishKey;
+    private String disk;
     @ApiModelProperty("当前工单")
     private String runtimeJob;
     @ApiModelProperty("当前工单参数设置状态")
@@ -47,13 +41,4 @@ public class Machine extends BaseEntity {
     private Integer errorCode;
     @ApiModelProperty("链接超时时间")
     private Long lostThreshold;
-
-    @Data
-    @ApiModel("机器盘")
-    public static class MachineDish{
-        @ApiModelProperty("盘号")
-        private DishEnum dish;
-        @ApiModelProperty("挡位")
-        private GearsEnum gears;
-    }
 }

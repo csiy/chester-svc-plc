@@ -2,7 +2,6 @@ package com.chester.svc.plc.mongodb.model;
 
 import com.chester.cloud.support.model.BaseEntity;
 import com.chester.data.mongo.annotations._id;
-import com.chester.svc.plc.core.model.JobStatus;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -23,8 +22,6 @@ public class Job extends BaseEntity {
     private Material material;
     @ApiModelProperty("机器Id")
     private String machineId;
-    @ApiModelProperty("盘Key")
-    private String dishKey;
     @ApiModelProperty("工单是否结束")
     private Boolean isFinish;
     @ApiModelProperty("当前工单 任务状态 0未执行 1进行中 2任务完成 3任务异常终止")

@@ -81,8 +81,7 @@ public class MaterialRepository {
             Material before = this.coll.find(Filters.eq(Constant._id, material.getMaterialId())).first();
             UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
                     Updates.set("materialCode", material.getMaterialCode()),
-                    Updates.set("gears", material.getGears().toString()),
-                    Updates.set("dish", material.getDish().toString()),
+                    Updates.set("disk", material.getDisk()),
                     Updates.set("quantity", material.getQuantity()),
                     Updates.set("aoCode", material.getAoCode()),
                     Updates.set("position", material.getPosition()),

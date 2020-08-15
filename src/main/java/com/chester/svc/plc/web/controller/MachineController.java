@@ -59,11 +59,11 @@ public class MachineController {
     public void setMachine(@PathVariable("machineId") String machineId,@PathVariable("jobId") String jobId){
         Machine machine = machineRepository.getMachine(machineId);
         Assert.notNull(machine,"机器不存在");
-        Assert.notNull(machine.getDishKey(),"请先设置当前盘");
+        Assert.notNull(machine.getDisk(),"请先设置当前盘");
         Job job = jobRepository.getJob(jobId);
         Assert.notNull(job,"排程不存在");
         Assert.isTrue(job.getMachineId().equals("")||job.getJobId().equals(machine.getRuntimeJob()),"任务已被设置");
-        Assert.isTrue(machine.getDishKey().equals(job.getDishKey()),"盘号不一致");
+        Assert.isTrue(machine.getDisk().equals(job.getMaterial().getDisk()),"盘号不一致");
         machineRepository.setDish(machine,job);
     }
 

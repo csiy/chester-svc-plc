@@ -10,7 +10,6 @@ import com.chester.svc.plc.mongodb.config.MongoCollections;
 import com.chester.svc.plc.mqtt.MqttSender;
 import com.chester.svc.plc.mqtt.payload.DiscPayload;
 import com.chester.svc.plc.mqtt.payload.SwitchPayload;
-import com.chester.svc.plc.utils.PlcUtils;
 import com.chester.svc.plc.web.model.req.ReqPageMachine;
 import com.chester.svc.sys.mongodb.repository.UserRepository;
 import com.chester.util.page.PageResult;
@@ -55,6 +54,7 @@ public class MachineRepository {
     @PostConstruct
     public void afterPropertiesSet() {
         this.coll = db.getCollection(MongoCollections.machine, Machine.class);
+        addMachine("M00001");
     }
 
     public void addMachine(String clientName){
@@ -63,12 +63,8 @@ public class MachineRepository {
             machine = new Machine();
             AccessUtils.prepareEntityBeforeInstall(machine, 1L, "系统");
             machine.setMachineId(clientName);
-            machine.setMachineDishList(new ArrayList<>());
-            machine.setRuntimeDishNumber(-1);
-            machine.setRuntimeDish(null);
             machine.setRuntimeJobSetStatus(0);
             machine.setRuntimeJobStatus(0);
-            machine.setDishKey(null);
             machine.setLinkState(true);
             machine.setRunState(false);
             machine.setVersion(1);
@@ -105,7 +101,7 @@ public class MachineRepository {
         Machine before = getMachine(machine.getMachineId());
         UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
                 Updates.set("address", machine.getAddress()),
-                Updates.set("machineDishList", machine.getMachineDishList()),
+                Updates.set("diskList", machine.getDiskList()),
                 Updates.inc(Constant.version,1)
         ));
         if(result.getModifiedCount()==0){
@@ -131,11 +127,8 @@ public class MachineRepository {
                     Filters.eq(Constant.version, machine.getVersion()),
                     Filters.eq(Constant.isDeleted, Boolean.FALSE)
             );
-            Machine.MachineDish dish = machine.getMachineDishList().get(machine.getRuntimeDishNumber()-1);
             UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                    Updates.set("runtimeDishNumber", machine.getRuntimeDishNumber()),
-                    Updates.set("runtimeDish",dish),
-                    Updates.set("dishKey", PlcUtils.getDishKey(dish.getDish(),dish.getGears())),
+                    Updates.set("disk", machine.getDisk()),
                     Updates.inc(Constant.version,1)
             ));
             if(result.getModifiedCount()==0){
@@ -157,7 +150,7 @@ public class MachineRepository {
 
     public List<Machine> findAliveMachines(){
         Bson filter = Filters.and(
-                Filters.ne("runtimeDishNumber",-1),
+                Filters.exists("disk"),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE),
                 Filters.eq("linkState", true)
         );
@@ -251,7 +244,7 @@ public class MachineRepository {
         ));
         jobRepository.setJobMachine(job.getJobId(),machine.getMachineId());
         DiscPayload.SetDiscList setDiscList = new DiscPayload.SetDiscList();
-        setDiscList.setDiscNo(machine.getRuntimeDishNumber());
+        setDiscList.setDiscNo(machine.getDiskList().indexOf(machine.getDisk()));
         setDiscList.setTotalB(job.getMission().getCount());
         setDiscList.setTotalOneB(job.getMaterial().getQuantity());
         mqttSender.sendMessage(machine.getMachineId(), new DiscPayload(job.getJobId(),setDiscList));

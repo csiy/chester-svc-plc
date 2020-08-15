@@ -62,7 +62,7 @@ public class MissionRepository {
             Mission mission = missions.get(i);
             beforeAddMission(mission,createdBy);
             mission.setInputTime(inputTime);
-            mission.setLineNumber(i+i);
+            mission.setLineNumber(i+1);
             mission.setBatchNumber(batchNumber);
         }
         this.coll.insertMany(missions);
@@ -150,6 +150,12 @@ public class MissionRepository {
         }
         if (query.getTransform() != null) {
             filter = Filters.and(Filters.eq("transform", query.getTransform()), filter);
+        }
+        if (query.getJobStatus() != null){
+            filter = Filters.and(Filters.eq("jobStatus", query.getJobStatus()), filter);
+        }
+        if (query.getDate() != null){
+            filter = Filters.and(Filters.eq("date", query.getDate()), filter);
         }
         return MongoPageQuery.builder(coll, Mission.class).sort(sort).page(pagination).filter(filter).execute();
     }

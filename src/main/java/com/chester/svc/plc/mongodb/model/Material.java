@@ -2,8 +2,6 @@ package com.chester.svc.plc.mongodb.model;
 
 import com.chester.cloud.support.model.BaseEntity;
 import com.chester.data.mongo.annotations._id;
-import com.chester.svc.plc.core.model.DishEnum;
-import com.chester.svc.plc.core.model.GearsEnum;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -20,10 +18,8 @@ public class Material extends BaseEntity {
     private String type;
     @ApiModelProperty("物料号")
     private String materialCode;
-    @ApiModelProperty("挡位")
-    private GearsEnum gears;
     @ApiModelProperty("盘号")
-    private DishEnum dish;
+    private String disk;
     @ApiModelProperty("定额数量")
     private Integer quantity;
     @ApiModelProperty("ao工序号")

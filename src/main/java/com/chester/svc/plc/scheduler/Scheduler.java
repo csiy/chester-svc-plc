@@ -1,7 +1,6 @@
 package com.chester.svc.plc.scheduler;
 
 import com.chester.cloud.support.mongodb.AccessUtils;
-import com.chester.svc.plc.core.model.JobStatus;
 import com.chester.svc.plc.mongodb.model.Job;
 import com.chester.svc.plc.mongodb.model.Machine;
 import com.chester.svc.plc.mongodb.model.Material;
@@ -11,12 +10,10 @@ import com.chester.svc.plc.mongodb.repository.MachineRepository;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
 import com.chester.svc.plc.mqtt.MqttSender;
-import com.chester.svc.plc.utils.PlcUtils;
 import com.chester.svc.sys.mongodb.repository.UserRepository;
 import com.chester.svc.sys.web.model.res.ResUser;
 import com.chester.util.coll.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -24,7 +21,6 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Component
 @Slf4j
@@ -56,7 +52,6 @@ public class Scheduler {
                 job.setJobId(v.getMissionId());
                 job.setMaterial(material);
                 job.setMaterialId(material.getMaterialId());
-                job.setDishKey(PlcUtils.getDishKey(material.getDish(),material.getGears()));
                 job.setMission(v);
                 job.setMachineId("");
                 job.setVersion(1);
@@ -99,17 +94,4 @@ public class Scheduler {
         mqttSender.sendBeat();
     }
 
-    private <E> List<List<E>> batchList(List<E> list, int batchSize){
-        List<List<E>> itemMap = new ArrayList<>();
-        itemMap.add(new ArrayList<E>());
-        for(E e : list){
-            List<E> batchList= itemMap.get(itemMap.size()-1);
-            if(batchList.size() == batchSize){//当list满足批次数量，新建一个list存放后面的数据
-                batchList = new ArrayList<E>();
-                itemMap.add(batchList);
-            }
-            batchList.add(e);
-        }
-        return itemMap;
-    }
 }
