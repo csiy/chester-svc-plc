@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Slf4j
 public class MqttConfig {
-    protected final String serverURI = "tcp://39.99.199.83:1883";
+    protected final String serverURI = "tcp://mosquitto:1883";
     protected final String userName = "plcmos";
     protected final String password = "plcmos@1234";
 
