@@ -12,6 +12,7 @@ import com.chester.svc.plc.web.model.req.ReqMaterial;
 import com.chester.svc.plc.web.model.req.ReqPageMission;
 import com.chester.svc.plc.web.model.req.ReqVerifyMaterial;
 import com.chester.svc.plc.web.model.res.ResVerifyMaterial;
+import com.chester.util.coll.Lists;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import org.springframework.util.Assert;
@@ -80,7 +81,13 @@ public class MissionController {
     @GetMapping
     @Roles(value = "admin,operator", remark = "查找任务")
     public PageResult<Mission> findMission(ReqPageMission query, Pagination page) {
-        return missionRepository.missionPageResult(query,page);
+        PageResult<Mission> result = missionRepository.missionPageResult(query,page);
+        Lists.each(result.getItems(),v->{
+            Material material = materialRepository.getMaterial(v.getMaterialCode(),v.getAoCode());
+            v.setQuantity(material.getQuantity());
+            v.setPosition(material.getPosition());
+        });
+        return result;
     }
 
     @DeleteMapping("/{missionId}/{version}")

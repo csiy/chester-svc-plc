@@ -27,6 +27,8 @@ public class Mission extends BaseEntity {
     private String materialCode;
     @ApiModelProperty("定额数量")
     private Integer quantity;
+    @ApiModelProperty("生产站位")
+    private String position;
     @ApiModelProperty("ao工序号")
     private String aoCode;
     @ApiModelProperty("机器Id")
