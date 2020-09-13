@@ -12,6 +12,7 @@ import com.chester.svc.plc.mqtt.payload.DiscPayload;
 import com.chester.svc.plc.mqtt.payload.SwitchPayload;
 import com.chester.svc.plc.web.model.req.ReqPageMachine;
 import com.chester.svc.sys.mongodb.repository.UserRepository;
+import com.chester.util.json.JSON;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import com.mongodb.client.MongoCollection;
@@ -243,7 +244,8 @@ public class MachineRepository {
         ));
         jobRepository.setJobMachine(job.getJobId(),machine.getMachineId());
         DiscPayload.SetDiscList setDiscList = new DiscPayload.SetDiscList();
-        setDiscList.setDiscNo(machine.getDiskList().indexOf(machine.getDisk()));
+        setDiscList.setDiscNo(machine.getDiskList().indexOf(machine.getDisk())+1);
+        log.info("set disc diskList:{},disk:{},discNo:{}", JSON.stringify(machine.getDiskList()),machine.getDisk(),setDiscList.getDiscNo());
         setDiscList.setTotalB(job.getMission().getCount());
         setDiscList.setTotalOneB(job.getMaterial().getQuantity());
         mqttSender.sendMessage(machine.getMachineId(), new DiscPayload(job.getJobId(),setDiscList));
