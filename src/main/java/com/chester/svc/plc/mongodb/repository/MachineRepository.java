@@ -11,7 +11,7 @@ import com.chester.svc.plc.mqtt.MqttSender;
 import com.chester.svc.plc.mqtt.payload.DiscPayload;
 import com.chester.svc.plc.mqtt.payload.SwitchPayload;
 import com.chester.svc.plc.web.model.req.ReqPageMachine;
-import com.chester.svc.sys.mongodb.repository.UserRepository;
+import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.util.json.JSON;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;

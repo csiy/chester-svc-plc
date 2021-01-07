@@ -2,8 +2,8 @@ package com.chester.svc.sys.web.controller;
 
 import com.chester.svc.auth.client.annotation.Roles;
 import com.chester.svc.auth.client.core.UserTokenHolder;
-import com.chester.svc.sys.mongodb.model.User;
-import com.chester.svc.sys.mongodb.repository.UserRepository;
+import com.chester.svc.sys.db.model.User;
+import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.svc.sys.web.model.req.ReqQueryUser;
 import com.chester.svc.sys.web.model.req.ReqUpdateUserInfo;
 import com.chester.svc.sys.web.model.res.ResInit;

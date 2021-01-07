@@ -1,9 +1,9 @@
 package com.chester.svc.auth.web.controller;
 
-import com.chester.svc.auth.access.mongodb.AuthRuleDao;
+import com.chester.svc.auth.db.repository.AuthRuleDao;
 import com.chester.svc.auth.client.annotation.Roles;
 import com.chester.svc.auth.client.core.UserTokenHolder;
-import com.chester.svc.auth.client.model.AuthRule;
+import com.chester.svc.auth.db.model.AuthRule;
 import com.chester.svc.auth.web.model.req.ReqRule;
 import com.chester.svc.auth.web.model.req.ReqRuleMultiple;
 import lombok.extern.slf4j.Slf4j;

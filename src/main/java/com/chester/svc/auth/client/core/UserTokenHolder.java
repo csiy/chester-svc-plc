@@ -18,8 +18,6 @@ public class UserTokenHolder {
 
     /**
      * 获取用户ID
-     *
-     * @return
      */
     public static Long getUserId() {
         String principal = getPrincipal();

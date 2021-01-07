@@ -1,6 +1,6 @@
-package com.chester.svc.sys.mongodb.repository;
+package com.chester.svc.sys.db.repository;
 
-import com.chester.svc.sys.mongodb.model.Menu;
+import com.chester.svc.sys.db.model.Menu;
 import com.chester.svc.sys.web.model.req.ReqMenu;
 import com.chester.svc.sys.web.model.req.ReqMenuUpdate;
 import com.chester.svc.sys.web.model.res.ResMenu;

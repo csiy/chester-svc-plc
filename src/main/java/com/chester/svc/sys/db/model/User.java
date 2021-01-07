@@ -1,11 +1,10 @@
-package com.chester.svc.sys.mongodb.model;
+package com.chester.svc.sys.db.model;
 
 import com.chester.svc.support.model.BaseEntity;
 import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 用户数据模型

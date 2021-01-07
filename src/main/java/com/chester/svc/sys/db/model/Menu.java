@@ -1,4 +1,4 @@
-package com.chester.svc.sys.mongodb.model;
+package com.chester.svc.sys.db.model;
 
 import com.chester.svc.support.model.BaseEntity;
 import lombok.Data;

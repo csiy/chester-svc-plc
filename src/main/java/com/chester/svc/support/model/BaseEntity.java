@@ -21,9 +21,9 @@ import java.util.Date;
 public abstract class BaseEntity implements java.io.Serializable {
 
     @CreatedBy
-    private String createdBy;
+    private Long createdBy;
     @LastModifiedBy
-    private String updatedBy;
+    private Long updatedBy;
 
     @CreatedDate
     @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")

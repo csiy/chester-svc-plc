@@ -2,7 +2,7 @@ package com.chester.svc.sys.web.controller;
 
 import com.chester.svc.auth.client.annotation.Roles;
 import com.chester.svc.auth.client.core.UserTokenHolder;
-import com.chester.svc.sys.mongodb.repository.MenuRepository;
+import com.chester.svc.sys.db.repository.MenuRepository;
 import com.chester.svc.sys.web.model.req.ReqMenu;
 import com.chester.svc.sys.web.model.req.ReqMenuUpdate;
 import com.chester.svc.sys.web.model.res.ResMenu;
@@ -31,17 +31,7 @@ public class MenuController {
     @Roles(value = "authed", remark = "获取用户菜单树", modify = false)
     public TreeNode<ResMenu> getMenus() {
         List<ResMenu> list = menuRepository.findMenu(UserTokenHolder.getRoles());
-        ListTreeSource<String, ResMenu> treeSource = new ListTreeSource<String, ResMenu>(list, ResMenu::getMenuId, v -> {
-            if (!Lists.isEmpty(v.getParentIds())) {
-                return v.getParentIds().get(v.getParentIds().size() - 1);
-            }
-            return "root";
-        }, ResMenu::getSort);
-        return TreeBuilder.build(treeSource, v -> {
-            ResMenu rootMenu = new ResMenu();
-            rootMenu.setMenuId("root");
-            return rootMenu;
-        });
+        return getNode(list);
     }
 
     @PutMapping
@@ -54,17 +44,7 @@ public class MenuController {
     @Roles(value = "admin", remark = "获取可设置的用户菜单树", modify = false)
     public TreeNode<ResMenu> getModifyMenus() {
         List<ResMenu> list = find();
-        ListTreeSource<String, ResMenu> treeSource = new ListTreeSource<>(list, ResMenu::getMenuId, v -> {
-            if (!Lists.isEmpty(v.getParentIds())) {
-                return v.getParentIds().get(v.getParentIds().size() - 1);
-            }
-            return "root";
-        }, ResMenu::getSort);
-        return TreeBuilder.build(treeSource, v -> {
-            ResMenu rootMenu = new ResMenu();
-            rootMenu.setMenuId("root");
-            return rootMenu;
-        });
+        return getNode(list);
     }
 
     @PutMapping("/pull")
@@ -79,4 +59,17 @@ public class MenuController {
         menuRepository.pushMenu(menu, UserTokenHolder.getUserId());
     }
 
+    private TreeNode<ResMenu> getNode(List<ResMenu> list) {
+        ListTreeSource<String, ResMenu> treeSource = new ListTreeSource<>(list, ResMenu::getMenuId, v -> {
+            if (!Lists.isEmpty(v.getParentIds())) {
+                return v.getParentIds().get(v.getParentIds().size() - 1);
+            }
+            return "root";
+        }, ResMenu::getSort);
+        return TreeBuilder.build(treeSource, v -> {
+            ResMenu rootMenu = new ResMenu();
+            rootMenu.setMenuId("root");
+            return rootMenu;
+        });
+    }
 }

@@ -1,7 +1,7 @@
 package com.chester.svc.auth.service;
 
 import com.chester.svc.auth.access.entity.Account;
-import com.chester.svc.auth.access.mongodb.AccountDao;
+import com.chester.svc.auth.db.repository.AuthRuleDao;
 import com.chester.util.coll.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,7 +20,7 @@ import java.util.List;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Resource
-    private AccountDao accountDao;
+    private AuthRuleDao authRuleDao;
 
     private List<SimpleGrantedAuthority> transferRoles(List<String> roles, boolean addRoleAuthed) {
         List<SimpleGrantedAuthority> authorities = Lists.map(roles, SimpleGrantedAuthority::new);
@@ -32,7 +32,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Account account = this.accountDao.getAccountByPhoneOrId(username);
+        Account account = authRuleDao.getAccountByPhoneOrId(username);
         boolean enabled = !Boolean.TRUE.equals(account.getIsDisabled());
         List<? extends GrantedAuthority> authorities = this.transferRoles(account.getRoles(), true);
         return new User(String.valueOf(account.getUserId()), account.getPassword(), enabled, true, true, true, authorities);

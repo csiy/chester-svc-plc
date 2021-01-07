@@ -1,4 +1,4 @@
-package com.chester.svc.sys.mongodb.model;
+package com.chester.svc.sys.db.model;
 
 import com.chester.svc.support.model.BaseEntity;
 import lombok.Data;
@@ -11,9 +11,8 @@ import javax.persistence.*;
 public class Role extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ruleId;
-    private String path;
-    private String roles;
+    private Long roleId;
+    private String name;
     private String remark;
-    private Boolean modify = true;
+    private Boolean modify = false;
 }

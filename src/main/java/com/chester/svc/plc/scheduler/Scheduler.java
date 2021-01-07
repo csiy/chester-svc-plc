@@ -9,7 +9,7 @@ import com.chester.svc.plc.mongodb.repository.MachineRepository;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
 import com.chester.svc.plc.mqtt.MqttSender;
-import com.chester.svc.sys.mongodb.repository.UserRepository;
+import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.svc.sys.web.model.res.ResUser;
 import com.chester.util.coll.Lists;
 import lombok.extern.slf4j.Slf4j;

@@ -4,8 +4,6 @@ import com.chester.cloud.support.model.BaseEntity;
 import com.chester.cloud.support.mongodb.AccessUtils;
 import com.chester.svc.plc.mongodb.model.Logs;
 import com.chester.svc.plc.mongodb.config.MongoCollections;
-import com.chester.svc.plc.mongodb.model.Mission;
-import com.chester.svc.sys.mongodb.repository.UserRepository;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.types.ObjectId;

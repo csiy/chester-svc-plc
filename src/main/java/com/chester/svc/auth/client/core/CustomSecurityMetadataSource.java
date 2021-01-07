@@ -1,6 +1,6 @@
 package com.chester.svc.auth.client.core;
 
-import com.chester.svc.auth.client.model.AuthRule;
+import com.chester.svc.auth.db.model.AuthRule;
 import com.chester.util.coll.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.ConfigAttribute;
@@ -11,20 +11,17 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.util.*;
 
 @Slf4j
 @Component
 public class CustomSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
-    private Map<AuthRule, Collection<ConfigAttribute>> metadataSource = new HashMap<>();
+    private final Map<AuthRule, Collection<ConfigAttribute>> metadataSource = new HashMap<>();
 
-    private void setSource(AuthRule rule){
-        if(metadataSource!=null){
-            Collection<ConfigAttribute> configAttributes = new ArrayList<>(Lists.map(rule.getRoles(), this::createdConfigAttribute));
-            metadataSource.put(rule,configAttributes);
-        }
+    public void setSource(AuthRule rule){
+        Collection<ConfigAttribute> configAttributes = new ArrayList<>(Lists.map(rule.getRoles().split(","), this::createdConfigAttribute));
+        metadataSource.put(rule,configAttributes);
     }
 
     private ConfigAttribute createdConfigAttribute(String config){

@@ -7,7 +7,7 @@ import com.chester.svc.plc.mongodb.model.Job;
 import com.chester.svc.plc.mongodb.config.MongoCollections;
 import com.chester.svc.plc.mongodb.model.Logs;
 import com.chester.svc.plc.mongodb.model.Machine;
-import com.chester.svc.sys.mongodb.repository.UserRepository;
+import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.util.coll.Lists;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
@@ -24,7 +24,6 @@ import org.springframework.stereotype.Repository;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j

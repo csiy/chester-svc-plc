@@ -7,7 +7,7 @@ import com.chester.svc.plc.mongodb.model.Logs;
 import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.web.model.req.ReqPageMaterial;
 import com.chester.svc.plc.mongodb.config.Constant;
-import com.chester.svc.sys.mongodb.repository.UserRepository;
+import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import com.mongodb.MongoWriteException;

@@ -7,7 +7,7 @@ import com.chester.svc.plc.mongodb.model.Logs;
 import com.chester.svc.plc.mongodb.model.Mission;
 import com.chester.svc.plc.mongodb.config.MongoCollections;
 import com.chester.svc.plc.web.model.req.ReqPageMission;
-import com.chester.svc.sys.mongodb.repository.UserRepository;
+import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import com.mongodb.client.MongoCollection;
