@@ -1,39 +1,40 @@
 package com.chester.svc.plc.mongodb.model;
 
 import com.chester.svc.support.model.BaseEntity;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import java.util.List;
+import javax.persistence.*;
 
 @Data
-@ApiModel("工单")
+@EqualsAndHashCode(callSuper = true)
+@Entity
+@Table(name = "plc_job")
 public class Job extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty("工单Id")
-    private String jobId;
-    @ApiModelProperty("物料Id")
-    private String materialId;
+    private Long jobId;
+    @ApiModelProperty("key")
+    private String key;
+    @OneToOne
     @ApiModelProperty("任务")
     private Mission mission;
+    @ManyToOne
+    @ApiModelProperty("机器")
+    private Machine machine;
+    @ManyToOne
     @ApiModelProperty("物料")
     private Material material;
-    @ApiModelProperty("机器Id")
-    private String machineId;
     @ApiModelProperty("工单是否结束")
     private Boolean isFinish;
-    @ApiModelProperty("当前工单 任务状态 0未执行 1进行中 2任务完成 3任务异常终止")
+    @ApiModelProperty("当前工单 任务状态 0未执行 1进行中 2任务完成 3任务异常终止")
     private Integer jobStatus;
     @ApiModelProperty("是否异常")
     private Boolean isError;
     @ApiModelProperty("错误信息")
-    private List<String> errorMessages;
+    private String errorMessage;
     @ApiModelProperty("完成数量")
     private Integer finishCount;
-    @ApiModelProperty("指派工人ID")
-    private Long workId;
-    @ApiModelProperty("指派工人名称")
-    private String workName;
-    @ApiModelProperty("版本号")
-    private Integer version;
 }

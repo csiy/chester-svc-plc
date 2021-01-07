@@ -6,7 +6,6 @@ import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.mongodb.model.Mission;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
-import com.chester.svc.plc.mongodb.repository.SerialRepository;
 import com.chester.svc.plc.web.model.req.ReqImportMission;
 import com.chester.svc.plc.web.model.req.ReqMaterial;
 import com.chester.svc.plc.web.model.req.ReqPageMission;
@@ -28,8 +27,6 @@ public class MissionController {
 
     @Resource
     private MissionRepository missionRepository;
-    @Resource
-    private SerialRepository serialRepository;
     @Resource
     private MaterialRepository materialRepository;
 

@@ -97,10 +97,4 @@ public class UserRepository {
         return null;
     }
 
-    /**
-     * 随机获取一名工人
-     */
-    public ResUser randomUser(){
-        return null;
-    }
 }

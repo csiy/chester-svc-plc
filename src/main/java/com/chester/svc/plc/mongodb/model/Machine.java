@@ -4,21 +4,26 @@ import com.chester.svc.support.model.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-import javax.swing.text.Document;
-import java.util.List;
+import javax.persistence.*;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("机器")
+@Entity
+@Table(name = "plc_machine")
 public class Machine extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty("机器Id")
-    private String machineId;
+    private Long machineId;
+    @ApiModelProperty("key")
+    private String key;
     @ApiModelProperty("位置")
     private String address;
     @ApiModelProperty("机器盘")
-    private List<String> diskList;
-    @ApiModelProperty("机器单片机参数")
-    private Document params;
+    private String diskList;
     @ApiModelProperty("版本号")
     private Integer version;
     @ApiModelProperty("当前盘号")

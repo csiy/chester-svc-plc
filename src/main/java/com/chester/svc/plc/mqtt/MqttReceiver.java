@@ -1,7 +1,9 @@
 package com.chester.svc.plc.mqtt;
 
 import com.chester.svc.plc.mongodb.model.Machine;
+import com.chester.svc.plc.mongodb.repository.JobRepository;
 import com.chester.svc.plc.mongodb.repository.MachineRepository;
+import com.chester.svc.plc.mongodb.repository.MissionRepository;
 import com.chester.svc.plc.mqtt.payload.ReceiverPayload;
 import com.chester.svc.plc.mqtt.payload.SubscribePayload;
 import com.chester.util.coll.Lists;
@@ -30,6 +32,10 @@ public class MqttReceiver {
     private IMqttClient mqttClient;
     @Resource
     private MachineRepository machineRepository;
+    @Resource
+    private JobRepository jobRepository;
+    @Resource
+    private MissionRepository missionRepository;
     private static final Map<String,String> subscribeMap = new HashMap<>();
 
     static {
@@ -47,7 +53,7 @@ public class MqttReceiver {
         });
         List<Machine> machines = machineRepository.findAllMachines();
         Lists.each(machines,v->{
-            initSubscribe(v.getMachineId());
+            initSubscribe(v.getKey());
         });
     }
 
@@ -55,23 +61,17 @@ public class MqttReceiver {
         String key = C_S+clientName;
         String exist = subscribeMap.get(key);
         if(exist==null){
-            subscribeMap.put(key,clientName);
+            subscribeMap.put(key,clientName.toString());
             subscribe(key,info->{
                 machineRepository.linked(clientName);
                 try{
                     ReceiverPayload receiverPayload = JSON.parse(info, ReceiverPayload.class);
                     if(receiverPayload.getMsgType().equals("taskStatus")){
-                        log.info("任务状态：{}",JSON.stringify(receiverPayload));
+                        Long missionId = receiverPayload.getMissionId();
+                        Integer missionStatus = receiverPayload.getMissionStatus();
+                        jobRepository.updateMission(missionId,missionStatus);
+                        missionRepository.updateMission(missionId,missionStatus);
                         machineRepository.updateMission(receiverPayload.getMissionId(),receiverPayload.getMissionStatus());
-                    }else if(receiverPayload.getMsgType().equals("reply")){
-                        log.info("操作状态：{}",JSON.stringify(receiverPayload));
-                        if(receiverPayload.getOperation().equals("open")&&receiverPayload.getOperationResult().equals("success")){
-                            //machineRepository.updateRunStateConfirm(clientName,true);
-                        }else if(receiverPayload.getOperation().equals("close")&&receiverPayload.getOperationResult().equals("success")){
-                            //machineRepository.updateRunStateConfirm(clientName,false);
-                        }else if(receiverPayload.getOperation().equals("setDisc")&&receiverPayload.getOperationResult().equals("success")){
-                            //machineRepository.updateSetMissionConfirm(clientName);
-                        }
                     }
                 }catch (Exception e){
                     e.printStackTrace();

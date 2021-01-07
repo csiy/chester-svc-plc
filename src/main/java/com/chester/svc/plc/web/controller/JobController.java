@@ -34,7 +34,7 @@ public class JobController {
 
     @GetMapping("/jobs/{machineId}")
     @Roles(value = "admin,operator", remark = "获取任务列表")
-    public List<Job> getJobs(@PathVariable("machineId") String machineId){
+    public List<Job> getJobs(@PathVariable("machineId") Long machineId){
         return jobRepository.getJobList(machineRepository.getMachine(machineId));
     }
 

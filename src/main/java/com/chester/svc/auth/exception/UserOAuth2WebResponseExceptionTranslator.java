@@ -12,16 +12,14 @@ import org.springframework.security.oauth2.provider.error.WebResponseExceptionTr
 import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 
-import java.io.IOException;
-
 /**
  * 资源服务器异常自定义捕获
  */
 public class UserOAuth2WebResponseExceptionTranslator implements WebResponseExceptionTranslator<OAuth2Exception> {
-    private ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
+    private final ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 
     @Override
-    public ResponseEntity<OAuth2Exception> translate(Exception e) throws Exception {
+    public ResponseEntity<OAuth2Exception> translate(Exception e) {
         e.printStackTrace();
         Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(e);
         Exception ase = (OAuth2Exception) this.throwableAnalyzer.getFirstThrowableOfType(OAuth2Exception.class, causeChain);
@@ -47,7 +45,7 @@ public class UserOAuth2WebResponseExceptionTranslator implements WebResponseExce
         return this.handleOAuth2Exception(new ServerErrorException("服务器内部异常", e));
     }
 
-    private ResponseEntity<OAuth2Exception> handleOAuth2Exception(OAuth2Exception e) throws IOException {
+    private ResponseEntity<OAuth2Exception> handleOAuth2Exception(OAuth2Exception e) {
         int status = e.getHttpErrorCode();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Cache-Control", "no-store");
@@ -56,8 +54,7 @@ public class UserOAuth2WebResponseExceptionTranslator implements WebResponseExce
             headers.set("WWW-Authenticate", String.format("%s %s", "Bearer", e.getSummary()));
         }
         UserOAuth2Exception exception = new UserOAuth2Exception(e.getMessage(), e);
-        ResponseEntity<OAuth2Exception> response = new ResponseEntity(exception, headers, HttpStatus.valueOf(status));
-        return response;
+        return new ResponseEntity<>(exception, headers, HttpStatus.valueOf(status));
     }
 
 

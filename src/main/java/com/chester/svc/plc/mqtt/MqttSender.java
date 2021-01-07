@@ -18,7 +18,7 @@ public class MqttSender {
     @Resource
     private IMqttClient mqttClient;
 
-    public void sendMessage(String machineId, Payload mqttPayload){
+    public void sendMessage(Long machineId, Payload mqttPayload){
         try {
             log.info("发送消息：{}",JSON.stringify(mqttPayload));
             mqttClient.publish(S_C+machineId,JSON.stringify(mqttPayload).getBytes(),2,false);
@@ -27,7 +27,7 @@ public class MqttSender {
         }
     }
 
-    public void testMessage(String machineId){
+    public void testMessage(Long machineId){
         try {
             HeartbeatPayload payload = new HeartbeatPayload();
             mqttClient.publish(C_S+machineId,JSON.stringify(payload).getBytes(),2,false);

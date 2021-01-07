@@ -4,12 +4,22 @@ import com.chester.svc.support.model.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import javax.persistence.*;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("包装数据模板")
+@Entity
+@Table(name = "plc_material")
 public class Material extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty("Id")
-    private String materialId;
+    private Long materialId;
+    @ApiModelProperty("key")
+    private String key;
     @ApiModelProperty("物料名称")
     private String materialName;
     @ApiModelProperty("类型")
@@ -32,6 +42,4 @@ public class Material extends BaseEntity {
     private String store;
     @ApiModelProperty("存储BIN位")
     private String bin;
-    @ApiModelProperty("版本号")
-    private Integer version;
 }

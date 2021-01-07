@@ -2,6 +2,7 @@ package com.chester.svc.sys.db.model;
 
 import com.chester.svc.support.model.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -10,6 +11,7 @@ import java.util.Date;
  * 用户数据模型
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "plc_user")
 public class User extends BaseEntity {

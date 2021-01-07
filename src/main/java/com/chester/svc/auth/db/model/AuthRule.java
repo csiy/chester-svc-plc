@@ -2,10 +2,12 @@ package com.chester.svc.auth.db.model;
 
 import com.chester.svc.support.model.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import javax.persistence.*;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "plc_rule")
 public class AuthRule extends BaseEntity {

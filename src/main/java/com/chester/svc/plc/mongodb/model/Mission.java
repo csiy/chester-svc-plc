@@ -5,14 +5,23 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+import javax.persistence.*;
 import java.util.Date;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
+@Entity
+@Table(name = "plc_mission")
 @ApiModel("包装任务")
 public class Mission extends BaseEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty("任务Id")
-    private String missionId;
+    private Long missionId;
+    @ApiModelProperty("key")
+    private String key;
     @ApiModelProperty("流水号")
     private Long serialNumber;
     @ApiModelProperty("行项目号")

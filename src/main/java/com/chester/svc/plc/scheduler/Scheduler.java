@@ -47,26 +47,17 @@ public class Scheduler {
             List<Job> jobs = Lists.map(list,v->{
                 Job job = new Job();
                 Material material = materialRepository.getMaterial(v.getMaterialCode(),v.getAoCode());
-                ResUser resUser = userRepository.randomUser();
                 job.setJobId(v.getMissionId());
                 job.setMaterial(material);
-                job.setMaterialId(material.getMaterialId());
                 job.setMission(v);
-                job.setMachineId("");
-                job.setVersion(1);
                 job.setJobStatus(0);
                 job.setIsFinish(false);
-                if(resUser!=null){
-                    job.setWorkId(resUser.getUserId());
-                    job.setWorkName(resUser.getName());
-                }
-                job.setErrorMessages(new ArrayList<>());
                 job.setIsError(false);
                 return job;
             });
             List<Job> successJob = Lists.filter(jobs,v->v.getMaterial()!=null);
-            List<String> errorIds = Lists.map(Lists.filter(jobs,v->v.getMaterial()==null),v->v.getMission().getMissionId());
-            List<String> successIds = Lists.map(successJob,v->v.getMission().getMissionId());
+            List<Long> errorIds = Lists.map(Lists.filter(jobs,v->v.getMaterial()==null),v->v.getMission().getMissionId());
+            List<Long> successIds = Lists.map(successJob,v->v.getMission().getMissionId());
             if(!Lists.isEmpty(errorIds)){
                 missionRepository.transformError(errorIds);
             }
@@ -82,7 +73,7 @@ public class Scheduler {
     public void lostConnect(){
         List<Machine> list = machineRepository.findUnLinked();
         Lists.each(list,v->{
-            machineRepository.unLinked(v.getMachineId());
+            machineRepository.unLinked(v.getKey());
         });
     }
 

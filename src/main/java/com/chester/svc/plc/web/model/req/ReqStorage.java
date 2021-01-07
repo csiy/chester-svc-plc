@@ -4,8 +4,10 @@ import com.chester.svc.support.model.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel("物料存储")
 public class ReqStorage extends BaseEntity {
     @ApiModelProperty("存储区域")
