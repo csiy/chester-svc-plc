@@ -1,7 +1,7 @@
 package com.chester.svc.plc.web.controller;
 
-import com.chester.auth.client.annotation.Roles;
-import com.chester.auth.client.core.UserTokenHolder;
+import com.chester.svc.auth.client.annotation.Roles;
+import com.chester.svc.auth.client.core.UserTokenHolder;
 import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.mongodb.model.Mission;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;

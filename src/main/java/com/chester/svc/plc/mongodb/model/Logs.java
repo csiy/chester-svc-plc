@@ -1,6 +1,6 @@
 package com.chester.svc.plc.mongodb.model;
 
-import com.chester.cloud.support.model.BaseEntity;
+import com.chester.svc.support.model.BaseEntity;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 

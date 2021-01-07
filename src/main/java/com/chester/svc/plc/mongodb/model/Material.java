@@ -1,7 +1,6 @@
 package com.chester.svc.plc.mongodb.model;
 
-import com.chester.cloud.support.model.BaseEntity;
-import com.chester.data.mongo.annotations._id;
+import com.chester.svc.support.model.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -9,7 +8,6 @@ import lombok.Data;
 @Data
 @ApiModel("包装数据模板")
 public class Material extends BaseEntity {
-    @_id
     @ApiModelProperty("Id")
     private String materialId;
     @ApiModelProperty("物料名称")

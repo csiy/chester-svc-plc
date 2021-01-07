@@ -1,7 +1,6 @@
 package com.chester.svc.plc.mongodb.model;
 
-import com.chester.cloud.support.model.BaseEntity;
-import com.chester.data.mongo.annotations._id;
+import com.chester.svc.support.model.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -12,7 +11,6 @@ import java.util.Date;
 @Data
 @ApiModel("包装任务")
 public class Mission extends BaseEntity {
-    @_id
     @ApiModelProperty("任务Id")
     private String missionId;
     @ApiModelProperty("流水号")

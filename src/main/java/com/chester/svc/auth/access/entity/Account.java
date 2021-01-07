@@ -2,14 +2,12 @@ package com.chester.svc.auth.access.entity;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.util.List;
 
 @Data
 public class Account {
 
-    @BsonProperty("_id")
     @ApiModelProperty("用户ID")
     private Long userId;
     @ApiModelProperty("用户名")

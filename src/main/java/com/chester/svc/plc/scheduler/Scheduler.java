@@ -1,6 +1,5 @@
 package com.chester.svc.plc.scheduler;
 
-import com.chester.cloud.support.mongodb.AccessUtils;
 import com.chester.svc.plc.mongodb.model.Job;
 import com.chester.svc.plc.mongodb.model.Machine;
 import com.chester.svc.plc.mongodb.model.Material;
@@ -63,7 +62,6 @@ public class Scheduler {
                 }
                 job.setErrorMessages(new ArrayList<>());
                 job.setIsError(false);
-                AccessUtils.prepareEntityBeforeInstall(job, 1L, "系统");
                 return job;
             });
             List<Job> successJob = Lists.filter(jobs,v->v.getMaterial()!=null);

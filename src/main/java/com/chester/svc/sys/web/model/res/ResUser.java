@@ -3,7 +3,6 @@ package com.chester.svc.sys.web.model.res;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.util.Date;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.List;
 @Data
 @ApiModel("用户信息")
 public class ResUser {
-    @BsonProperty("_id")
     @ApiModelProperty("用户ID")
     private Long userId;
     @ApiModelProperty("用户名")

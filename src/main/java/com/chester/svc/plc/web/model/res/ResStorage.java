@@ -1,15 +1,13 @@
 package com.chester.svc.plc.web.model.res;
 
-import com.chester.cloud.support.model.BaseEntity;
+import com.chester.svc.support.model.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
-import org.bson.codecs.pojo.annotations.BsonProperty;
 
 @Data
 @ApiModel("货架")
 public class ResStorage extends BaseEntity {
-    @BsonProperty("_id")
     @ApiModelProperty("存储Id")
     private String storageId;
     @ApiModelProperty("存储区域")

@@ -1,7 +1,6 @@
 package com.chester.svc.plc.mongodb.model;
 
-import com.chester.cloud.support.model.BaseEntity;
-import com.chester.data.mongo.annotations._id;
+import com.chester.svc.support.model.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -12,7 +11,6 @@ import java.util.List;
 @Data
 @ApiModel("机器")
 public class Machine extends BaseEntity {
-    @_id
     @ApiModelProperty("机器Id")
     private String machineId;
     @ApiModelProperty("位置")
@@ -31,7 +29,7 @@ public class Machine extends BaseEntity {
     private Integer runtimeJobSetStatus;
     @ApiModelProperty("当前物料号")
     private String runtimeMaterialCode;
-    @ApiModelProperty("当前工单 任务状态 0 当前无任务 1任务进行中 2 任务完成 3任务异常终止")
+    @ApiModelProperty("当前工单 任务状态 0 当前无任务 1任务进行中 2 任务完成 3任务异常终止")
     private Integer runtimeJobStatus;
     @ApiModelProperty("机器链接状态")
     private Boolean linkState;

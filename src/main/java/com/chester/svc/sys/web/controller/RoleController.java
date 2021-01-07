@@ -1,7 +1,7 @@
 package com.chester.svc.sys.web.controller;
 
-import com.chester.auth.client.annotation.Roles;
-import com.chester.auth.client.core.UserTokenHolder;
+import com.chester.svc.auth.client.annotation.Roles;
+import com.chester.svc.auth.client.core.UserTokenHolder;
 import com.chester.svc.sys.mongodb.model.Role;
 import com.chester.svc.sys.mongodb.repository.RoleRepository;
 import com.chester.svc.sys.web.model.res.ResRole;

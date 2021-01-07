@@ -7,24 +7,32 @@ management:
       exposure:
         include: '*'
 spring:
-  rabbitmq:
-    host: rabbitmq
-    port: 5672
-    username: chester
-    password: 123456
-    listener:
-      simple:
-        retry:
-          enabled: true
-    template:
-      retry:
-        enabled: true
-  redis:
-    host: redis
-    password: chester@123456
-  data:
-    mongodb:
-      uri: mongodb://root:123456@mongodb:27017/chester?authSource=admin
+  datasource:
+    url: jdbc:h2:file:~/h2/quickstart;AUTO_SERVER=TRUE;DB_CLOSE_DELAY=-1
+    platform: h2
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+    schema:
+      - classpath:sql/schema.sql
+      - classpath:sql/data.sql
+    initialization-mode: EMBEDDED
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        use_sql_comments: true
+        format_sql: true
+  h2:
+    console:
+      enabled: true
+      path: /h2
+      settings:
+        web-allow-others: true
+
 
 logging:
   path: log/

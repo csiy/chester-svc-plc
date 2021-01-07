@@ -7,13 +7,18 @@ import javax.persistence.*;
 
 @Data
 @Entity
-@Table(name = "plc_role")
-public class Role extends BaseEntity {
+@Table(name = "plc_menu")
+public class Menu extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ruleId;
+    private Long menuId;
+    private String name;
+    private String icon;
+    private String url;
     private String path;
-    private String roles;
-    private String remark;
+    private Integer sort;
+    private String type;
     private Boolean modify = true;
+    private String parentIds;
+    private String roles;
 }

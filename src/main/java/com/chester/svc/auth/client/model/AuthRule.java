@@ -1,19 +1,21 @@
-package com.chester.svc.sys.mongodb.model;
+package com.chester.svc.auth.client.model;
 
 import com.chester.svc.support.model.BaseEntity;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
 @Table(name = "plc_role")
-public class Role extends BaseEntity {
+public class AuthRule extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long ruleId;
-    private String path;
-    private String roles;
-    private String remark;
-    private Boolean modify = true;
+    String path;
+    List<String> roles;
+    String type;
+    String remark;
+    Boolean modify = true;
 }

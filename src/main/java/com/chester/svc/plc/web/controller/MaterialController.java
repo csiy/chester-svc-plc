@@ -1,7 +1,7 @@
 package com.chester.svc.plc.web.controller;
 
-import com.chester.auth.client.annotation.Roles;
-import com.chester.auth.client.core.UserTokenHolder;
+import com.chester.svc.auth.client.annotation.Roles;
+import com.chester.svc.auth.client.core.UserTokenHolder;
 import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.web.model.req.ReqPageMaterial;
@@ -21,7 +21,7 @@ public class MaterialController {
     @PostMapping
     @Roles(value = "admin,operator", remark = "添加物料")
     public void addMaterial(@RequestBody Material material) {
-        materialRepository.addMaterial(material,UserTokenHolder.getUserId());
+        materialRepository.addMaterial(material, UserTokenHolder.getUserId());
     }
 
     @PutMapping

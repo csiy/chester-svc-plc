@@ -1,7 +1,6 @@
 package com.chester.svc.plc.mongodb.model;
 
-import com.chester.cloud.support.model.BaseEntity;
-import com.chester.data.mongo.annotations._id;
+import com.chester.svc.support.model.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -11,7 +10,6 @@ import java.util.List;
 @Data
 @ApiModel("工单")
 public class Job extends BaseEntity {
-    @_id
     @ApiModelProperty("工单Id")
     private String jobId;
     @ApiModelProperty("物料Id")
