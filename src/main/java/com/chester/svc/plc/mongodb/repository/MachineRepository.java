@@ -1,11 +1,7 @@
 package com.chester.svc.plc.mongodb.repository;
 
-import com.chester.svc.plc.mongodb.config.Constant;
 import com.chester.svc.plc.mongodb.model.Job;
 import com.chester.svc.plc.mongodb.model.Machine;
-import com.chester.svc.plc.mqtt.MqttSender;
-import com.chester.svc.plc.mqtt.payload.DiscPayload;
-import com.chester.svc.plc.mqtt.payload.SwitchPayload;
 import com.chester.svc.plc.web.model.req.ReqPageMachine;
 import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.util.json.JSON;
@@ -15,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -25,8 +20,6 @@ public class MachineRepository {
     private UserRepository userRepository;
     @Resource
     private JobRepository jobRepository;
-    @Resource
-    private MqttSender mqttSender;
     @Resource
     private MissionRepository missionRepository;
 
@@ -83,24 +76,16 @@ public class MachineRepository {
 
     public void runMachine(Long machineId){
         log.info("开启机器");
-        mqttSender.sendMessage(machineId, new SwitchPayload("open"));
         updateRunStateConfirm(machineId,true);
     }
 
     public void stopMachine(Long machineId){
         log.info("停止机器");
-        mqttSender.sendMessage(machineId, new SwitchPayload("close"));
         updateRunStateConfirm(machineId,false);
     }
 
     public void setDish(Machine machine,Job job){
         jobRepository.setJobMachine(job.getJobId(),machine.getMachineId());
-        DiscPayload.SetDiscList setDiscList = new DiscPayload.SetDiscList();
-        setDiscList.setDiscNo(machine.getDiskList().indexOf(machine.getDisk())+1);
-        log.info("set disc diskList:{},disk:{},discNo:{}", JSON.stringify(machine.getDiskList()),machine.getDisk(),setDiscList.getDiscNo());
-        setDiscList.setTotalB(job.getMission().getCount());
-        setDiscList.setTotalOneB(job.getMaterial().getQuantity());
-        mqttSender.sendMessage(machine.getMachineId(), new DiscPayload(job.getJobId(),setDiscList));
         updateSetMissionConfirm(machine.getMachineId());
     }
 

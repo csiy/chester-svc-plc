@@ -1,21 +1,8 @@
 package com.chester.svc.sys.db.repository;
 
 import com.chester.svc.sys.db.model.Role;
-import com.chester.svc.sys.web.model.res.ResRole;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+public interface RoleRepository extends JpaRepository<Role,Long> {
 
-@Repository
-public class RoleRepository {
-
-    public void addRole(Role role, Long createdBy) {
-    }
-
-    public void deleteRole(Long roleId, Long updatedBy) {
-    }
-
-    public List<ResRole> findRoles() {
-        return null;
-    }
 }

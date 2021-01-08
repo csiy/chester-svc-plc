@@ -10,6 +10,7 @@ import com.chester.svc.sys.web.model.res.ResInit;
 import com.chester.svc.sys.web.model.res.ResUser;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -30,7 +31,6 @@ public class UserController {
         ResInit init = new ResInit();
         ResUser user = userRepository.getUser(UserTokenHolder.getUserId());
         init.setUser(user);
-
         init.setMenus(menuController.getMenus());
         init.setRoles(roleController.getRoles());
         return init;
@@ -46,13 +46,21 @@ public class UserController {
     @Roles(value = "admin", remark = "添加用户", modify = false)
     public void addUser(@RequestBody User user) {
         user.setCreatedBy(UserTokenHolder.getUserId());
-        userRepository.add(user);
+        userRepository.save(user);
     }
 
     @PutMapping("/major")
     @Roles(value = "admin", remark = "修改用户权限，手机，姓名", modify = false)
     public void updateUser(@RequestBody User user) {
-        userRepository.update(user, UserTokenHolder.getUserId());
+        if(!StringUtils.isEmpty(user.getName())){
+            userRepository.modifyName(user.getName(), UserTokenHolder.getUserId());
+        }
+        if(!StringUtils.isEmpty(user.getPhone())){
+            userRepository.modifyPhone(user.getPhone(), UserTokenHolder.getUserId());
+        }
+        if(!StringUtils.isEmpty(user.getRoles())){
+            userRepository.modifyRoles(user.getRoles(), UserTokenHolder.getUserId());
+        }
     }
 
     @PutMapping("/password")

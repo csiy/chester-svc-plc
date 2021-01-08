@@ -29,6 +29,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
+        http.headers().frameOptions().sameOrigin();
         http.authorizeRequests().anyRequest().authenticated()
         .withObjectPostProcessor(new ObjectPostProcessor<FilterSecurityInterceptor>() {
             public <T extends FilterSecurityInterceptor> T postProcess(T fsi) {

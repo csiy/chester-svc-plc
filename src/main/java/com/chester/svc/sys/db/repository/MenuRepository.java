@@ -4,49 +4,22 @@ import com.chester.svc.sys.db.model.Menu;
 import com.chester.svc.sys.web.model.req.ReqMenu;
 import com.chester.svc.sys.web.model.req.ReqMenuUpdate;
 import com.chester.svc.sys.web.model.res.ResMenu;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.util.List;
 
-@Repository
+public interface MenuRepository extends JpaRepository<Menu, Long> {
 
-@Data
-@Slf4j
-public class MenuRepository {
-    @Resource
-    private UserRepository userRepository;
+    void addMenu(Menu menu, Long createdBy);
 
-    @PostConstruct
-    public void afterPropertiesSet() {
+    void updateMenu(ReqMenuUpdate menu, Long updatedBy);
 
-    }
+    void pullMenu(ReqMenu menu, Long updatedBy);
 
-    public void addMenu(Menu menu, Long createdBy) {
+    void pushMenu(ReqMenu menu, Long updatedBy);
 
-    }
+    List<ResMenu> findMenu();
 
-    public void updateMenu(ReqMenuUpdate menu, Long updatedBy) {
-
-    }
-
-    public void pullMenu(ReqMenu menu, Long updatedBy) {
-
-    }
-
-    public void pushMenu(ReqMenu menu, Long updatedBy) {
-
-    }
-
-    public List<ResMenu> findMenu() {
-        return null;
-    }
-
-    public List<ResMenu> findMenu(List<String> roles) {
-        return null;
-    }
+    List<ResMenu> findMenu(List<String> roles);
 
 }

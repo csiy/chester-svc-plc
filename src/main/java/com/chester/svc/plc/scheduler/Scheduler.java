@@ -8,9 +8,7 @@ import com.chester.svc.plc.mongodb.repository.JobRepository;
 import com.chester.svc.plc.mongodb.repository.MachineRepository;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
-import com.chester.svc.plc.mqtt.MqttSender;
 import com.chester.svc.sys.db.repository.UserRepository;
-import com.chester.svc.sys.web.model.res.ResUser;
 import com.chester.util.coll.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -18,7 +16,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -34,10 +31,6 @@ public class Scheduler {
     private MaterialRepository materialRepository;
     @Resource
     private JobRepository jobRepository;
-    @Resource
-    private UserRepository userRepository;
-    @Resource
-    private MqttSender mqttSender;
 
     //每分钟执行计划单转化任务
     @Scheduled(fixedRate = 5000)
@@ -75,12 +68,6 @@ public class Scheduler {
         Lists.each(list,v->{
             machineRepository.unLinked(v.getKey());
         });
-    }
-
-    //每10秒执行超时处理
-    @Scheduled(fixedRate = 5000)
-    public void testConnect(){
-        mqttSender.sendBeat();
     }
 
 }
