@@ -1,10 +1,8 @@
 package com.chester.svc.sys.web.controller;
 
 import com.chester.svc.auth.client.annotation.Roles;
-import com.chester.svc.auth.client.core.UserTokenHolder;
 import com.chester.svc.sys.db.model.Role;
 import com.chester.svc.sys.db.repository.RoleRepository;
-import com.chester.svc.sys.web.model.res.ResRole;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;

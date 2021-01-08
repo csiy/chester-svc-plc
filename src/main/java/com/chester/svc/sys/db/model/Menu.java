@@ -14,6 +14,7 @@ public class Menu extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long menuId;
+    private String key;
     private String name;
     private String icon;
     private String url;

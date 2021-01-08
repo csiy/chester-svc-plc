@@ -35,5 +35,4 @@ public abstract class BaseEntity implements java.io.Serializable {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updatedOn;
 
-    private Boolean isDeleted = false;
 }

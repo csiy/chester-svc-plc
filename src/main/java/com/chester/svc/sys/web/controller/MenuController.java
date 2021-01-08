@@ -2,6 +2,7 @@ package com.chester.svc.sys.web.controller;
 
 import com.chester.svc.auth.client.annotation.Roles;
 import com.chester.svc.auth.client.core.UserTokenHolder;
+import com.chester.svc.sys.db.model.Menu;
 import com.chester.svc.sys.db.repository.MenuRepository;
 import com.chester.svc.sys.web.model.req.ReqMenu;
 import com.chester.svc.sys.web.model.req.ReqMenuUpdate;
@@ -23,13 +24,13 @@ public class MenuController {
 
     @GetMapping
     @Roles(value = "admin", remark = "获取所有菜单列表", modify = false)
-    public List<ResMenu> find() {
-        return menuRepository.findMenu();
+    public List<Menu> find() {
+        return menuRepository.findAll();
     }
 
     @GetMapping("/user")
     @Roles(value = "authed", remark = "获取用户菜单树", modify = false)
-    public TreeNode<ResMenu> getMenus() {
+    public TreeNode<Menu> getMenus() {
         List<ResMenu> list = menuRepository.findMenu(UserTokenHolder.getRoles());
         return getNode(list);
     }
@@ -42,8 +43,8 @@ public class MenuController {
 
     @GetMapping("/modify")
     @Roles(value = "admin", remark = "获取可设置的用户菜单树", modify = false)
-    public TreeNode<ResMenu> getModifyMenus() {
-        List<ResMenu> list = find();
+    public TreeNode<Menu> getModifyMenus() {
+        List<Menu> list = find();
         return getNode(list);
     }
 
@@ -59,16 +60,16 @@ public class MenuController {
         menuRepository.pushMenu(menu, UserTokenHolder.getUserId());
     }
 
-    private TreeNode<ResMenu> getNode(List<ResMenu> list) {
-        ListTreeSource<String, ResMenu> treeSource = new ListTreeSource<>(list, ResMenu::getMenuId, v -> {
-            if (!Lists.isEmpty(v.getParentIds())) {
-                return v.getParentIds().get(v.getParentIds().size() - 1);
+    private TreeNode<Menu> getNode(List<Menu> list) {
+        ListTreeSource<String, Menu> treeSource = new ListTreeSource<>(list, Menu::getKey, v -> {
+            if (v.getParentIds()!=null) {
+                return v.getParentIds();
             }
             return "root";
-        }, ResMenu::getSort);
+        }, Menu::getSort);
         return TreeBuilder.build(treeSource, v -> {
-            ResMenu rootMenu = new ResMenu();
-            rootMenu.setMenuId("root");
+            Menu rootMenu = new Menu();
+            rootMenu.setKey("root");
             return rootMenu;
         });
     }

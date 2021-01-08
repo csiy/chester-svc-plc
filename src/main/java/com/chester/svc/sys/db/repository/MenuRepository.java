@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface MenuRepository extends JpaRepository<Menu, Long> {
 
-    void addMenu(Menu menu, Long createdBy);
 
     void updateMenu(ReqMenuUpdate menu, Long updatedBy);
 

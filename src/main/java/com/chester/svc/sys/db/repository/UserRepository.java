@@ -2,58 +2,53 @@ package com.chester.svc.sys.db.repository;
 
 import com.chester.svc.sys.db.model.User;
 import com.chester.svc.sys.web.model.req.ReqQueryUser;
-import com.chester.svc.sys.web.model.req.ReqUpdateUserInfo;
 import com.chester.svc.sys.web.model.res.ResUser;
-import com.chester.util.page.PageResult;
-import com.chester.util.page.Pagination;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
-public interface UserRepository extends JpaRepository<User,Long> {
+import java.util.Date;
 
-    void update(User user, Long updatedBy);
+public interface UserRepository extends JpaRepository<User,Long> {
 
     @Modifying
     @Query("update User u set u.roles = ?1 where u.userId = ?2")
-    int modifyRoles(String  roles, Long id);
+    void modifyRoles(String  roles, Long id);
 
     @Modifying
     @Query("update User u set u.name = ?1 where u.userId = ?2")
-    int modifyName(String  name, Long id);
+    void modifyName(String  name, Long id);
 
     @Modifying
     @Query("update User u set u.phone = ?1 where u.userId = ?2")
-    int modifyPhone(String  phone, Long id);
+    void modifyPhone(String  phone, Long id);
 
-    /**
-     * 获取用户信息
-     */
-    ResUser getUser(Long userId);
+    @Modifying
+    @Query("update User u set u.password = ?1 where u.userId = ?2")
+    void modifyPassword(String  password, Long id);
 
-    /**
-     * 禁用或启用
-     */
-    void switchDisabled(Long userId, Long updatedBy);
+    @Modifying
+    @Query("update User u set u.sex = ?1 where u.userId = ?2")
+    void modifySex(String  sex, Long id);
 
-    /**
-     * 删除用户
-     */
-    void deleteUser(Long userId, Long updatedBy);
+    @Modifying
+    @Query("update User u set u.birthday = ?1 where u.userId = ?2")
+    void modifyBirthday(Date birthday, Long id);
 
-    /**
-     * 更新用户信息
-     */
-    void updateUserInfo(ReqUpdateUserInfo updateUserInfo, Long updatedBy);
+    @Modifying
+    @Query("update User u set u.photo = ?1 where u.userId = ?2")
+    void modifyPhoto(String photo, Long id);
 
-    /**
-     * 重置密码
-     */
-    String reSetPassword(Long userId, Long updatedBy);
+    @Modifying
+    @Query("update User u set u.isDisabled = ?1 where u.userId = ?2")
+    void modifyDisabled(Boolean isDisabled ,Long id);
 
     /**
      * 用户分页查询
      */
-    PageResult<ResUser> find(ReqQueryUser query, Pagination pagination);
+    @Query("select u from User u where if(?1 !='',u.name = ?1,1=1) or u.phone = ?2 and u.roles like CONCAT(?3,'%')")
+    Page<ResUser> find(String name,String phone,String role, Pageable pageable);
 
 }
