@@ -1,4 +1,4 @@
-package com.chester.svc.plc.mongodb.model;
+package com.chester.svc.plc.db.model;
 
 import com.chester.svc.support.model.BaseEntity;
 import io.swagger.annotations.ApiModelProperty;

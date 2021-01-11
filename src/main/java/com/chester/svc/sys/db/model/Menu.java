@@ -1,15 +1,20 @@
 package com.chester.svc.sys.db.model;
 
 import com.chester.svc.support.model.BaseEntity;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "plc_menu")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Menu extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,8 +25,8 @@ public class Menu extends BaseEntity {
     private String url;
     private String path;
     private Integer sort;
-    private String type;
     private Boolean modify = true;
     private String parentIds;
-    private String roles;
+    @OneToMany
+    private List<Role> roles;
 }

@@ -1,4 +1,4 @@
-package com.chester.svc.plc.mongodb.config;
+package com.chester.svc.plc.db.config;
 
 public interface Constant {
     String _id = "_id";

@@ -2,9 +2,9 @@ package com.chester.svc.plc.web.controller;
 
 import com.chester.svc.auth.client.annotation.Roles;
 import com.chester.svc.auth.client.core.UserTokenHolder;
-import com.chester.svc.plc.mongodb.model.Job;
-import com.chester.svc.plc.mongodb.repository.JobRepository;
-import com.chester.svc.plc.mongodb.repository.MachineRepository;
+import com.chester.svc.plc.db.model.Job;
+import com.chester.svc.plc.db.repository.JobRepository;
+import com.chester.svc.plc.db.repository.MachineRepository;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import org.springframework.web.bind.annotation.*;

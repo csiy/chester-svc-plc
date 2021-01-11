@@ -6,7 +6,6 @@ import java.util.List;
 
 @Data
 public class ReqMenuUpdate {
-    private List<String> parentIds;
-    private List<String> roles;
-    private String menuId;
+    private List<Long> roles;
+    private Long menuId;
 }

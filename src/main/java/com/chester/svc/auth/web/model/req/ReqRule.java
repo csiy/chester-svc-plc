@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class ReqRule {
-    Integer ruleId;
+    Long ruleId;
     List<String> roles;
 }

@@ -3,10 +3,10 @@ package com.chester.svc.sys.web.controller;
 import com.chester.svc.auth.client.annotation.Roles;
 import com.chester.svc.auth.client.core.UserTokenHolder;
 import com.chester.svc.sys.db.model.Menu;
+import com.chester.svc.sys.db.model.Role;
 import com.chester.svc.sys.db.repository.MenuRepository;
 import com.chester.svc.sys.web.model.req.ReqMenu;
 import com.chester.svc.sys.web.model.req.ReqMenuUpdate;
-import com.chester.svc.sys.web.model.res.ResMenu;
 import com.chester.util.coll.Lists;
 import com.chester.util.tree.ListTreeSource;
 import com.chester.util.tree.TreeBuilder;
@@ -31,14 +31,20 @@ public class MenuController {
     @GetMapping("/user")
     @Roles(value = "authed", remark = "获取用户菜单树", modify = false)
     public TreeNode<Menu> getMenus() {
-        List<ResMenu> list = menuRepository.findMenu(UserTokenHolder.getRoles());
+        List<Menu> list = menuRepository.findByRolesIn(UserTokenHolder.getRoles());
         return getNode(list);
     }
 
     @PutMapping
     @Roles(value = "admin", remark = "设置菜单角色", modify = false)
     public void updateMenu(@RequestBody ReqMenuUpdate menu) {
-        menuRepository.updateMenu(menu, UserTokenHolder.getUserId());
+        Menu _menu = menuRepository.getOne(menu.getMenuId());
+        _menu.setRoles(Lists.map(menu.getRoles(), v -> {
+            Role role = new Role();
+            role.setRoleId(v);
+            return role;
+        }));
+        menuRepository.save(_menu);
     }
 
     @GetMapping("/modify")
@@ -51,18 +57,30 @@ public class MenuController {
     @PutMapping("/pull")
     @Roles(value = "admin", remark = "删除一个角色的某个菜单", modify = false)
     public void pullMenu(@RequestBody ReqMenu menu) {
-        menuRepository.pullMenu(menu, UserTokenHolder.getUserId());
+        Lists.each(menu.getMenuIds(), v -> {
+            Menu _menu = menuRepository.getOne(v);
+            Role role = new Role();
+            role.setRoleId(menu.getRole());
+            _menu.getRoles().remove(role);
+            menuRepository.save(_menu);
+        });
     }
 
     @PutMapping("/push")
     @Roles(value = "admin", remark = "添加一个角色的某个菜单", modify = false)
     public void pushMenu(@RequestBody ReqMenu menu) {
-        menuRepository.pushMenu(menu, UserTokenHolder.getUserId());
+        Lists.each(menu.getMenuIds(), v -> {
+            Menu _menu = menuRepository.getOne(v);
+            Role role = new Role();
+            role.setRoleId(menu.getRole());
+            _menu.getRoles().add(role);
+            menuRepository.save(_menu);
+        });
     }
 
     private TreeNode<Menu> getNode(List<Menu> list) {
         ListTreeSource<String, Menu> treeSource = new ListTreeSource<>(list, Menu::getKey, v -> {
-            if (v.getParentIds()!=null) {
+            if (v.getParentIds() != null) {
                 return v.getParentIds();
             }
             return "root";

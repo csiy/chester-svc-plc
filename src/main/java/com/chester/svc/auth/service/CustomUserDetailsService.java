@@ -1,7 +1,7 @@
 package com.chester.svc.auth.service;
 
-import com.chester.svc.auth.access.entity.Account;
-import com.chester.svc.auth.db.repository.AuthRuleDao;
+import com.chester.svc.sys.db.model.Role;
+import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.util.coll.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,10 +20,10 @@ import java.util.List;
 public class CustomUserDetailsService implements UserDetailsService {
 
     @Resource
-    private AuthRuleDao authRuleDao;
+    private UserRepository userRepository;
 
-    private List<SimpleGrantedAuthority> transferRoles(List<String> roles, boolean addRoleAuthed) {
-        List<SimpleGrantedAuthority> authorities = Lists.map(roles, SimpleGrantedAuthority::new);
+    private List<SimpleGrantedAuthority> transferRoles(List<Role> roles, boolean addRoleAuthed) {
+        List<SimpleGrantedAuthority> authorities = Lists.map(Lists.map(roles,Role::getName), SimpleGrantedAuthority::new);
         if (addRoleAuthed) {
             authorities.add(new SimpleGrantedAuthority("authed"));
         }
@@ -31,10 +31,14 @@ public class CustomUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Account account = authRuleDao.getAccountByPhoneOrId(username);
-        boolean enabled = !Boolean.TRUE.equals(account.getIsDisabled());
-        List<? extends GrantedAuthority> authorities = this.transferRoles(account.getRoles(), true);
-        return new User(String.valueOf(account.getUserId()), account.getPassword(), enabled, true, true, true, authorities);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException{
+        com.chester.svc.sys.db.model.User account = userRepository.getByKeyOrPhone(username,username);
+        if(account!=null){
+            boolean enabled = !Boolean.TRUE.equals(account.getIsDisabled());
+            List<? extends GrantedAuthority> authorities = this.transferRoles(account.getRoles(), true);
+            return new User(String.valueOf(account.getUserId()), account.getPassword(), enabled, true, true, true, authorities);
+        }else{
+            throw new UsernameNotFoundException("用户不存在");
+        }
     }
 }

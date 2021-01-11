@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class ReqMenu {
-    private String role;
-    private List<String> menuIds;
+    private Long role;
+    private List<Long> menuIds;
 }

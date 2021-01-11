@@ -1,6 +1,6 @@
 package com.chester.svc.plc.web.model.req;
 
-import com.chester.svc.plc.mongodb.model.Mission;
+import com.chester.svc.plc.db.model.Mission;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

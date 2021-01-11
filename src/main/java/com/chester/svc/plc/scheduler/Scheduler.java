@@ -1,14 +1,13 @@
 package com.chester.svc.plc.scheduler;
 
-import com.chester.svc.plc.mongodb.model.Job;
-import com.chester.svc.plc.mongodb.model.Machine;
-import com.chester.svc.plc.mongodb.model.Material;
-import com.chester.svc.plc.mongodb.model.Mission;
-import com.chester.svc.plc.mongodb.repository.JobRepository;
-import com.chester.svc.plc.mongodb.repository.MachineRepository;
-import com.chester.svc.plc.mongodb.repository.MaterialRepository;
-import com.chester.svc.plc.mongodb.repository.MissionRepository;
-import com.chester.svc.sys.db.repository.UserRepository;
+import com.chester.svc.plc.db.model.Job;
+import com.chester.svc.plc.db.model.Machine;
+import com.chester.svc.plc.db.model.Material;
+import com.chester.svc.plc.db.model.Mission;
+import com.chester.svc.plc.db.repository.JobRepository;
+import com.chester.svc.plc.db.repository.MachineRepository;
+import com.chester.svc.plc.db.repository.MaterialRepository;
+import com.chester.svc.plc.db.repository.MissionRepository;
 import com.chester.util.coll.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;

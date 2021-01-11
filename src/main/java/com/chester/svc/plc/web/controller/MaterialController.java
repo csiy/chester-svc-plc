@@ -2,8 +2,8 @@ package com.chester.svc.plc.web.controller;
 
 import com.chester.svc.auth.client.annotation.Roles;
 import com.chester.svc.auth.client.core.UserTokenHolder;
-import com.chester.svc.plc.mongodb.model.Material;
-import com.chester.svc.plc.mongodb.repository.MaterialRepository;
+import com.chester.svc.plc.db.model.Material;
+import com.chester.svc.plc.db.repository.MaterialRepository;
 import com.chester.svc.plc.web.model.req.ReqPageMaterial;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;

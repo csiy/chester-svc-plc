@@ -1,6 +1,6 @@
-package com.chester.svc.plc.mongodb.repository;
+package com.chester.svc.plc.db.repository;
 
-import com.chester.svc.plc.mongodb.model.Material;
+import com.chester.svc.plc.db.model.Material;
 import com.chester.svc.plc.web.model.req.ReqPageMaterial;
 import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.util.page.PageResult;

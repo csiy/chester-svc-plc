@@ -7,7 +7,6 @@ import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.svc.sys.web.model.req.ReqUpdateUserInfo;
 import com.chester.svc.sys.web.model.res.ResInit;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,9 +43,7 @@ public class UserController {
     @GetMapping("/pages")
     @Roles(value = "admin", remark = "获取用户分页数据", modify = false)
     public Page<User> findUser(User query, PageRequest pageable) {
-        ExampleMatcher matcher = ExampleMatcher.matching()
-                .withMatcher("roles", ExampleMatcher.GenericPropertyMatchers.contains());
-        Example<User> example = Example.of(query,matcher);
+        Example<User> example = Example.of(query);
         return userRepository.findAll(example,pageable);
     }
 
@@ -59,16 +56,17 @@ public class UserController {
     @PutMapping("/major")
     @Roles(value = "admin", remark = "修改用户权限，手机，姓名", modify = false)
     public void updateUser(@RequestBody User user) {
-        Long userId = user.getUserId();
+        User _user = userRepository.getOne(user.getUserId());
         if(!StringUtils.isEmpty(user.getName())){
-            userRepository.modifyName(user.getName(), userId);
+            _user.setName(user.getName());
         }
         if(!StringUtils.isEmpty(user.getPhone())){
-            userRepository.modifyPhone(user.getPhone(), userId);
+            _user.setPhone(user.getPhone());
         }
         if(!StringUtils.isEmpty(user.getRoles())){
-            userRepository.modifyRoles(user.getRoles(), userId);
+            _user.setRoles(user.getRoles());
         }
+        userRepository.save(_user);
     }
 
     @PutMapping("/password")
@@ -76,7 +74,9 @@ public class UserController {
     public String reSetPassword(@RequestBody User user) {
         String newPassword = (new Random().nextInt(899999) + 100000) + "";
         String pwd = passwordEncoder.encode(newPassword);
-        userRepository.modifyPassword(pwd, user.getUserId());
+        User _user = userRepository.getOne(user.getUserId());
+        _user.setPassword(pwd);
+        userRepository.save(_user);
         return newPassword;
     }
 
@@ -84,15 +84,17 @@ public class UserController {
     @Roles(value = "authed", remark = "修改用户基本信息", modify = false)
     public User updateUser(@RequestBody ReqUpdateUserInfo user) {
         Long userId = UserTokenHolder.getUserId();
+        User _user = userRepository.getOne(Objects.requireNonNull(userId));
         if(!StringUtils.isEmpty(user.getSex())){
-            userRepository.modifySex(user.getSex(), userId);
+            _user.setSex(user.getSex());
         }
         if(!StringUtils.isEmpty(user.getPhoto())){
-            userRepository.modifyPhoto(user.getPhoto(), userId);
+            _user.setPhoto(user.getPhoto());
         }
         if(!StringUtils.isEmpty(user.getBirthday())){
-            userRepository.modifyBirthday(user.getBirthday(), userId);
+            _user.setBirthday(user.getBirthday());
         }
+        userRepository.save(_user);
         return userRepository.getOne(Objects.requireNonNull(userId));
     }
 
@@ -100,7 +102,8 @@ public class UserController {
     @Roles(value = "admin", remark = "启用或禁用用户", modify = false)
     public void switchDisabled(@RequestBody User user) {
         User _user = userRepository.getOne(user.getUserId());
-        userRepository.modifyDisabled(!_user.getIsDisabled(), user.getUserId());
+        _user.setIsDisabled(!_user.getIsDisabled());
+        userRepository.save(_user);
     }
 
     @DeleteMapping("/remove")

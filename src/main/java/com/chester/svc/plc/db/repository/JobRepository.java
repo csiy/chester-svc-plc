@@ -1,7 +1,7 @@
-package com.chester.svc.plc.mongodb.repository;
+package com.chester.svc.plc.db.repository;
 
-import com.chester.svc.plc.mongodb.model.Job;
-import com.chester.svc.plc.mongodb.model.Machine;
+import com.chester.svc.plc.db.model.Job;
+import com.chester.svc.plc.db.model.Machine;
 import com.chester.svc.sys.db.repository.UserRepository;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;

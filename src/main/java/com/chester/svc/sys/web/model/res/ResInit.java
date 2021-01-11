@@ -1,5 +1,6 @@
 package com.chester.svc.sys.web.model.res;
 
+import com.chester.svc.sys.db.model.Menu;
 import com.chester.svc.sys.db.model.Role;
 import com.chester.svc.sys.db.model.User;
 import com.chester.util.tree.TreeNode;
@@ -11,5 +12,5 @@ import java.util.List;
 public class ResInit {
     private User user;
     private List<Role> roles;
-    private TreeNode<ResMenu> menus;
+    private TreeNode<Menu> menus;
 }

@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class ReqRuleMultiple {
-    List<Integer> ruleIds;
+    List<Long> ruleIds;
     String role;
 }
