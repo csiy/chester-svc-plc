@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import javax.persistence.*;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(exclude={"path","type"}, callSuper = false)
 @Entity
 @Table(name = "plc_rule")
 public class AuthRule extends BaseEntity {
@@ -19,4 +19,5 @@ public class AuthRule extends BaseEntity {
     private String type;
     private String remark;
     private Boolean modify = true;
+
 }

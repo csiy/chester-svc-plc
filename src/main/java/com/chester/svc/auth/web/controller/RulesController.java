@@ -1,6 +1,7 @@
 package com.chester.svc.auth.web.controller;
 
 import com.chester.svc.auth.client.annotation.Roles;
+import com.chester.svc.auth.client.core.CustomSecurityMetadataSource;
 import com.chester.svc.auth.client.core.UserTokenHolder;
 import com.chester.svc.auth.db.model.AuthRule;
 import com.chester.svc.auth.db.repository.AuthRuleDao;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 public class RulesController {
     @Resource
     private AuthRuleDao authRuleDao;
+    @Resource
+    private CustomSecurityMetadataSource customSecurityMetadataSource;
 
     @PutMapping
     @Roles(value = "admin", remark = "设置路由权限", modify = false)
@@ -28,6 +31,7 @@ public class RulesController {
         AuthRule rule = authRuleDao.getOne(reqRule.getRuleId());
         rule.setRoles(String.join(",",reqRule.getRoles()));
         authRuleDao.save(rule);
+        customSecurityMetadataSource.setSource(rule);
     }
 
     @PutMapping("/push")
@@ -38,6 +42,7 @@ public class RulesController {
             v.setRoles(v.getRoles()+","+ruleMultiple.getRole());
         });
         authRuleDao.saveAll(rules);
+        customSecurityMetadataSource.setSource(rules);
     }
 
     @PutMapping("/pull")
@@ -50,6 +55,7 @@ public class RulesController {
             v.setRoles(role);
         });
         authRuleDao.saveAll(rules);
+        customSecurityMetadataSource.setSource(rules);
     }
 
     @GetMapping

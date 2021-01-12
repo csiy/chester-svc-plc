@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @ApiModel("物料存储")
 public class ReqStorage extends BaseEntity {
     @ApiModelProperty("存储区域")

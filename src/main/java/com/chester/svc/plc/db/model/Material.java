@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import javax.persistence.*;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @ApiModel("包装数据模板")
 @Entity
 @Table(name = "plc_material")

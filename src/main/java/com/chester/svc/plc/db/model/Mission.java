@@ -10,7 +10,7 @@ import lombok.EqualsAndHashCode;
 import javax.persistence.*;
 import java.util.Date;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Data
 @Entity
 @Table(name = "plc_mission")

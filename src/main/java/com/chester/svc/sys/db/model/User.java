@@ -14,7 +14,7 @@ import java.util.List;
  * 用户数据模型
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "plc_user")
 @AllArgsConstructor
@@ -30,7 +30,7 @@ public class User extends BaseEntity {
     private String photo;//头像
     private String phone;//手机号
     private String password;//密码
-    @OneToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;//角色列表
     private Boolean isDisabled = false;
 }

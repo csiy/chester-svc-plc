@@ -10,7 +10,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = false)
 @Entity
 @Table(name = "plc_menu")
 @AllArgsConstructor
@@ -27,6 +27,6 @@ public class Menu extends BaseEntity {
     private Integer sort;
     private Boolean modify = true;
     private String parentIds;
-    @OneToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Role> roles;
 }

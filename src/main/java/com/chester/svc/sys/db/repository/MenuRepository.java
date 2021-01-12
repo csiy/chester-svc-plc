@@ -7,6 +7,4 @@ import java.util.List;
 
 public interface MenuRepository extends JpaRepository<Menu, Long> {
 
-    List<Menu> findByRolesIn(List<String> roles);
-
 }

@@ -17,7 +17,11 @@ import java.util.*;
 @Component
 public class CustomSecurityMetadataSource implements FilterInvocationSecurityMetadataSource {
 
-    private final Map<AuthRule, Collection<ConfigAttribute>> metadataSource = new HashMap<>();
+    private static final Map<AuthRule, Collection<ConfigAttribute>> metadataSource = new HashMap<>();
+
+    public void setSource(List<AuthRule> rules){
+        Lists.each(rules, this::setSource);
+    }
 
     public void setSource(AuthRule rule){
         Collection<ConfigAttribute> configAttributes = new ArrayList<>(Lists.map(rule.getRoles().split(","), this::createdConfigAttribute));

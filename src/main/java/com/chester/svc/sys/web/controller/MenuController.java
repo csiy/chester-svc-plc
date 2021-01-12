@@ -31,7 +31,17 @@ public class MenuController {
     @GetMapping("/user")
     @Roles(value = "authed", remark = "获取用户菜单树", modify = false)
     public TreeNode<Menu> getMenus() {
-        List<Menu> list = menuRepository.findByRolesIn(UserTokenHolder.getRoles());
+        List<String> roles = UserTokenHolder.getRoles();
+        List<Menu> list = menuRepository.findAll();
+        list = Lists.filter(list,v->{
+           String _roles = String.join(",",roles);
+           for(Role role:v.getRoles()){
+               if(_roles.contains(role.getName())){
+                   return true;
+               }
+           }
+           return false;
+        });
         return getNode(list);
     }
 
