@@ -1,12 +1,14 @@
 package com.chester.svc.sys.web.controller;
 
-import com.chester.svc.auth.client.annotation.Roles;
-import com.chester.svc.auth.client.core.UserTokenHolder;
+import com.chester.svc.sys.annotation.Roles;
 import com.chester.svc.sys.db.model.User;
 import com.chester.svc.sys.db.repository.UserRepository;
+import com.chester.svc.sys.util.UserUtils;
+import com.chester.svc.sys.web.model.req.ReqPage;
 import com.chester.svc.sys.web.model.req.ReqUpdateUserInfo;
 import com.chester.svc.sys.web.model.res.ResInit;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,18 +35,22 @@ public class UserController {
     @Roles(value = "authed", remark = "获取用户信息", modify = false)
     public ResInit getUser() {
         ResInit init = new ResInit();
-        User user = userRepository.getOne(Objects.requireNonNull(UserTokenHolder.getUserId()));
+        User user = userRepository.getOne(Objects.requireNonNull(UserUtils.getUserId()));
         init.setUser(user);
         init.setMenus(menuController.getMenus());
         init.setRoles(roleController.getRoles());
         return init;
     }
 
-    @GetMapping("/pages")
+    @PostMapping("/pages")
     @Roles(value = "admin", remark = "获取用户分页数据", modify = false)
-    public Page<User> findUser(User query, PageRequest pageable) {
-        Example<User> example = Example.of(query);
-        return userRepository.findAll(example,pageable);
+    public Page<User> findUser(@RequestBody User query, ReqPage page) {
+        ExampleMatcher matcher = ExampleMatcher.matching() //构建对象
+                .withMatcher("name", ExampleMatcher.GenericPropertyMatchers.contains()) //姓名采用“开始匹配”的方式查询
+                .withMatcher("phone", ExampleMatcher.GenericPropertyMatchers.contains()) //姓名采用“开始匹配”的方式查询
+                .withMatcher("roles", ExampleMatcher.GenericPropertyMatchers.contains());
+        Example<User> example = Example.of(query, matcher);
+        return userRepository.findAll(example, PageRequest.of(page.getCurPage() - 1, page.getPageSize()));
     }
 
     @PostMapping("/user")
@@ -57,13 +63,13 @@ public class UserController {
     @Roles(value = "admin", remark = "修改用户权限，手机，姓名", modify = false)
     public void updateUser(@RequestBody User user) {
         User _user = userRepository.getOne(user.getUserId());
-        if(!StringUtils.isEmpty(user.getName())){
+        if (!StringUtils.isEmpty(user.getName())) {
             _user.setName(user.getName());
         }
-        if(!StringUtils.isEmpty(user.getPhone())){
+        if (!StringUtils.isEmpty(user.getPhone())) {
             _user.setPhone(user.getPhone());
         }
-        if(!StringUtils.isEmpty(user.getRoles())){
+        if (!StringUtils.isEmpty(user.getRoles())) {
             _user.setRoles(user.getRoles());
         }
         userRepository.save(_user);
@@ -83,15 +89,15 @@ public class UserController {
     @PutMapping("/info")
     @Roles(value = "authed", remark = "修改用户基本信息", modify = false)
     public User updateUser(@RequestBody ReqUpdateUserInfo user) {
-        Long userId = UserTokenHolder.getUserId();
+        Long userId = UserUtils.getUserId();
         User _user = userRepository.getOne(Objects.requireNonNull(userId));
-        if(!StringUtils.isEmpty(user.getSex())){
+        if (!StringUtils.isEmpty(user.getSex())) {
             _user.setSex(user.getSex());
         }
-        if(!StringUtils.isEmpty(user.getPhoto())){
+        if (!StringUtils.isEmpty(user.getPhoto())) {
             _user.setPhoto(user.getPhoto());
         }
-        if(!StringUtils.isEmpty(user.getBirthday())){
+        if (!StringUtils.isEmpty(user.getBirthday())) {
             _user.setBirthday(user.getBirthday());
         }
         userRepository.save(_user);

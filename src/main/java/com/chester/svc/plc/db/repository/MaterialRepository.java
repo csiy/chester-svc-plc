@@ -19,15 +19,15 @@ public class MaterialRepository {
 
     }
 
-    public void deleteMaterial(String materialId,Integer version, Long updatedBy){
+    public void deleteMaterial(String materialId, Integer version, Long updatedBy) {
 
     }
 
-    public void updateMaterial(Material material, Long updatedBy){
+    public void updateMaterial(Material material, Long updatedBy) {
 
     }
 
-    public Material getMaterial(String materialCode,String aoCode){
+    public Material getMaterial(String materialCode, String aoCode) {
         return null;
     }
 

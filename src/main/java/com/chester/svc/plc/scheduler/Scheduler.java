@@ -35,10 +35,10 @@ public class Scheduler {
     @Scheduled(fixedRate = 5000)
     public void schedulerTransform() {
         List<Mission> list = missionRepository.findUnTransformMission();
-        if(!Lists.isEmpty(list)){
-            List<Job> jobs = Lists.map(list,v->{
+        if (!Lists.isEmpty(list)) {
+            List<Job> jobs = Lists.map(list, v -> {
                 Job job = new Job();
-                Material material = materialRepository.getMaterial(v.getMaterialCode(),v.getAoCode());
+                Material material = materialRepository.getMaterial(v.getMaterialCode(), v.getAoCode());
                 job.setJobId(v.getMissionId());
                 job.setMaterial(material);
                 job.setMission(v);
@@ -47,13 +47,13 @@ public class Scheduler {
                 job.setIsError(false);
                 return job;
             });
-            List<Job> successJob = Lists.filter(jobs,v->v.getMaterial()!=null);
-            List<Long> errorIds = Lists.map(Lists.filter(jobs,v->v.getMaterial()==null),v->v.getMission().getMissionId());
-            List<Long> successIds = Lists.map(successJob,v->v.getMission().getMissionId());
-            if(!Lists.isEmpty(errorIds)){
+            List<Job> successJob = Lists.filter(jobs, v -> v.getMaterial() != null);
+            List<Long> errorIds = Lists.map(Lists.filter(jobs, v -> v.getMaterial() == null), v -> v.getMission().getMissionId());
+            List<Long> successIds = Lists.map(successJob, v -> v.getMission().getMissionId());
+            if (!Lists.isEmpty(errorIds)) {
                 missionRepository.transformError(errorIds);
             }
-            if(!Lists.isEmpty(successIds)){
+            if (!Lists.isEmpty(successIds)) {
                 missionRepository.transformSuccess(successIds);
                 jobRepository.addJobs(successJob);
             }
@@ -62,9 +62,9 @@ public class Scheduler {
 
     //每10秒执行超时处理
     @Scheduled(fixedRate = 5000)
-    public void lostConnect(){
+    public void lostConnect() {
         List<Machine> list = machineRepository.findUnLinked();
-        Lists.each(list,v->{
+        Lists.each(list, v -> {
             machineRepository.unLinked(v.getKey());
         });
     }

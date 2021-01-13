@@ -1,26 +1,35 @@
 package com.chester.svc.sys.web.controller;
 
-import com.chester.svc.auth.client.annotation.Roles;
-import com.chester.svc.auth.client.core.UserTokenHolder;
+import com.chester.svc.sys.annotation.Roles;
 import com.chester.svc.sys.db.model.Menu;
 import com.chester.svc.sys.db.model.Role;
+import com.chester.svc.sys.db.model.User;
 import com.chester.svc.sys.db.repository.MenuRepository;
-import com.chester.svc.sys.web.model.req.ReqMenu;
-import com.chester.svc.sys.web.model.req.ReqMenuUpdate;
+import com.chester.svc.sys.db.repository.UserRepository;
+import com.chester.svc.sys.util.UserUtils;
 import com.chester.util.coll.Lists;
 import com.chester.util.tree.ListTreeSource;
 import com.chester.util.tree.TreeBuilder;
 import com.chester.util.tree.TreeNode;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("/sys/menus")
 public class MenuController {
     @Resource
     private MenuRepository menuRepository;
+    @Resource
+    private UserRepository userRepository;
 
     @GetMapping
     @Roles(value = "admin", remark = "获取所有菜单列表", modify = false)
@@ -31,30 +40,15 @@ public class MenuController {
     @GetMapping("/user")
     @Roles(value = "authed", remark = "获取用户菜单树", modify = false)
     public TreeNode<Menu> getMenus() {
-        List<String> roles = UserTokenHolder.getRoles();
-        List<Menu> list = menuRepository.findAll();
-        list = Lists.filter(list,v->{
-           String _roles = String.join(",",roles);
-           for(Role role:v.getRoles()){
-               if(_roles.contains(role.getName())){
-                   return true;
-               }
-           }
-           return false;
-        });
-        return getNode(list);
-    }
-
-    @PutMapping
-    @Roles(value = "admin", remark = "设置菜单角色", modify = false)
-    public void updateMenu(@RequestBody ReqMenuUpdate menu) {
-        Menu _menu = menuRepository.getOne(menu.getMenuId());
-        _menu.setRoles(Lists.map(menu.getRoles(), v -> {
-            Role role = new Role();
-            role.setRoleId(v);
-            return role;
-        }));
-        menuRepository.save(_menu);
+        User user = userRepository.getOne(Objects.requireNonNull(UserUtils.getUserId()));
+        List<Menu> list = new ArrayList<>();
+        List<Role> roles = Stream.of(user.getRoles().toArray(new Role[]{})).collect(Collectors.toList());
+        for (Set<Menu> _list : Lists.map(roles, Role::getMenus)) {
+            list.addAll(_list);
+        }
+        List<Menu> _list = Lists.filter(find(), v -> v.getParentIds() == null);
+        list.addAll(_list);
+        return getNode(list.stream().distinct().collect(Collectors.toList()));
     }
 
     @GetMapping("/modify")
@@ -62,30 +56,6 @@ public class MenuController {
     public TreeNode<Menu> getModifyMenus() {
         List<Menu> list = find();
         return getNode(list);
-    }
-
-    @PutMapping("/pull")
-    @Roles(value = "admin", remark = "删除一个角色的某个菜单", modify = false)
-    public void pullMenu(@RequestBody ReqMenu menu) {
-        Lists.each(menu.getMenuIds(), v -> {
-            Menu _menu = menuRepository.getOne(v);
-            Role role = new Role();
-            role.setRoleId(menu.getRole());
-            _menu.getRoles().remove(role);
-            menuRepository.save(_menu);
-        });
-    }
-
-    @PutMapping("/push")
-    @Roles(value = "admin", remark = "添加一个角色的某个菜单", modify = false)
-    public void pushMenu(@RequestBody ReqMenu menu) {
-        Lists.each(menu.getMenuIds(), v -> {
-            Menu _menu = menuRepository.getOne(v);
-            Role role = new Role();
-            role.setRoleId(menu.getRole());
-            _menu.getRoles().add(role);
-            menuRepository.save(_menu);
-        });
     }
 
     private TreeNode<Menu> getNode(List<Menu> list) {

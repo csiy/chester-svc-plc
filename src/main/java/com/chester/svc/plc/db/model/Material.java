@@ -1,6 +1,6 @@
 package com.chester.svc.plc.db.model;
 
-import com.chester.svc.support.model.BaseEntity;
+import com.chester.svc.sys.db.model.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

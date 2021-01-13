@@ -1,7 +1,5 @@
 package com.chester.svc.plc.web.controller;
 
-import com.chester.svc.auth.client.annotation.Roles;
-import com.chester.svc.auth.client.core.UserTokenHolder;
 import com.chester.svc.plc.db.model.Material;
 import com.chester.svc.plc.db.model.Mission;
 import com.chester.svc.plc.db.repository.MaterialRepository;
@@ -11,6 +9,8 @@ import com.chester.svc.plc.web.model.req.ReqMaterial;
 import com.chester.svc.plc.web.model.req.ReqPageMission;
 import com.chester.svc.plc.web.model.req.ReqVerifyMaterial;
 import com.chester.svc.plc.web.model.res.ResVerifyMaterial;
+import com.chester.svc.sys.annotation.Roles;
+import com.chester.svc.sys.util.UserUtils;
 import com.chester.util.coll.Lists;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
@@ -33,32 +33,32 @@ public class MissionController {
     @PostMapping
     @Roles(value = "admin,operator", remark = "添加任务")
     public void addMission(@RequestBody Mission mission) {
-        Material material = materialRepository.getMaterial(mission.getMaterialCode(),mission.getAoCode());
-        Assert.notNull(material,"物料号或AO工序号不存在");
+        Material material = materialRepository.getMaterial(mission.getMaterialCode(), mission.getAoCode());
+        Assert.notNull(material, "物料号或AO工序号不存在");
         mission.setQuantity(material.getQuantity());
-        missionRepository.addMission(mission, UserTokenHolder.getUserId());
+        missionRepository.addMission(mission, UserUtils.getUserId());
     }
 
     @PostMapping("/import")
     @Roles(value = "admin,operator", remark = "导入任务")
     public void importMission(@RequestBody ReqImportMission importMission) {
-        for(int i = 0;i<importMission.getMissions().size();i++){
+        for (int i = 0; i < importMission.getMissions().size(); i++) {
             Mission mission = importMission.getMissions().get(i);
-            Material material = materialRepository.getMaterial(mission.getMaterialCode(),mission.getAoCode());
-            Assert.notNull(material,"物料号或AO工序号不存在");
+            Material material = materialRepository.getMaterial(mission.getMaterialCode(), mission.getAoCode());
+            Assert.notNull(material, "物料号或AO工序号不存在");
             mission.setQuantity(material.getQuantity());
         }
-        missionRepository.importMission(importMission.getMissions(), UserTokenHolder.getUserId());
+        missionRepository.importMission(importMission.getMissions(), UserUtils.getUserId());
     }
 
     @PostMapping("/verify")
     @Roles(value = "admin,operator", remark = "校验任务")
-    public List<ResVerifyMaterial> verifyMaterial(@RequestBody ReqVerifyMaterial verifyMaterial){
+    public List<ResVerifyMaterial> verifyMaterial(@RequestBody ReqVerifyMaterial verifyMaterial) {
         List<ResVerifyMaterial> result = new ArrayList<>();
-        for(int i = 0;i<verifyMaterial.getMaterials().size();i++){
+        for (int i = 0; i < verifyMaterial.getMaterials().size(); i++) {
             ReqMaterial mission = verifyMaterial.getMaterials().get(i);
-            Material material = materialRepository.getMaterial(mission.getMaterialCode(),mission.getAoCode());
-            if(material!=null){
+            Material material = materialRepository.getMaterial(mission.getMaterialCode(), mission.getAoCode());
+            if (material != null) {
                 ResVerifyMaterial verify = new ResVerifyMaterial();
                 verify.setAoCode(mission.getAoCode());
                 verify.setMaterialCode(mission.getMaterialCode());
@@ -72,15 +72,15 @@ public class MissionController {
     @PutMapping
     @Roles(value = "admin,operator", remark = "修改任务")
     public void putMission(@RequestBody Mission mission) {
-        missionRepository.updateMission(mission, UserTokenHolder.getUserId());
+        missionRepository.updateMission(mission, UserUtils.getUserId());
     }
 
     @GetMapping
     @Roles(value = "admin,operator", remark = "查找任务")
     public PageResult<Mission> findMission(ReqPageMission query, Pagination page) {
-        PageResult<Mission> result = missionRepository.missionPageResult(query,page);
-        Lists.each(result.getItems(),v->{
-            Material material = materialRepository.getMaterial(v.getMaterialCode(),v.getAoCode());
+        PageResult<Mission> result = missionRepository.missionPageResult(query, page);
+        Lists.each(result.getItems(), v -> {
+            Material material = materialRepository.getMaterial(v.getMaterialCode(), v.getAoCode());
             v.setQuantity(material.getQuantity());
             v.setPosition(material.getPosition());
         });
@@ -89,8 +89,8 @@ public class MissionController {
 
     @DeleteMapping("/{missionId}/{version}")
     @Roles(value = "admin,operator", remark = "删除任务")
-    public void deleteMission(@PathVariable("missionId") String missionId,@PathVariable("version")Integer version) {
-        missionRepository.deleteMission(missionId,version,UserTokenHolder.getUserId());
+    public void deleteMission(@PathVariable("missionId") String missionId, @PathVariable("version") Integer version) {
+        missionRepository.deleteMission(missionId, version, UserUtils.getUserId());
     }
 
 }

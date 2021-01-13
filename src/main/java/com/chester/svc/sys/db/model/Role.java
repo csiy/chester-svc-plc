@@ -1,12 +1,12 @@
 package com.chester.svc.sys.db.model;
 
-import com.chester.svc.support.model.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -21,4 +21,8 @@ public class Role extends BaseEntity {
     private String name;
     private String remark;
     private Boolean modify = false;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Menu> menus;
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Set<Rule> rules;
 }

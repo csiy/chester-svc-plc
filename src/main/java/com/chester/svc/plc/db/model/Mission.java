@@ -1,6 +1,6 @@
 package com.chester.svc.plc.db.model;
 
-import com.chester.svc.support.model.BaseEntity;
+import com.chester.svc.sys.db.model.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -46,14 +46,14 @@ public class Mission extends BaseEntity {
     private Integer transform;
     @ApiModelProperty("工单是否结束")
     private Boolean isFinish;
-    @ApiModelProperty("当前工单 任务状态 0 未执行 1进行中 2 任务完成 3任务异常终止 4已删除")
+    @ApiModelProperty("当前工单 任务状态 0 未执行 1进行中 2 任务完成 3任务异常终止 4已删除")
     private Integer jobStatus;
     @ApiModelProperty("需求日期")
     private String date;
     @ApiModelProperty("需求时间")
     private String time;
     @ApiModelProperty("排程时间")
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private Date dateTime;
     @ApiModelProperty("版本号")
     private Integer version;
