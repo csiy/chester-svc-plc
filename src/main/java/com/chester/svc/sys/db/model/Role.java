@@ -11,7 +11,7 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Entity
-@Table(name = "plc_role")
+@Table(name = "sys_role")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Role extends BaseEntity {

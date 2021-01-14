@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Data
 @EqualsAndHashCode(exclude = {"path", "type"}, callSuper = false)
 @Entity
-@Table(name = "plc_rule")
+@Table(name = "sys_rule")
 public class Rule extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

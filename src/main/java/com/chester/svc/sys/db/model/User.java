@@ -15,7 +15,7 @@ import java.util.Set;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Entity
-@Table(name = "plc_user")
+@Table(name = "sys_user")
 @AllArgsConstructor
 @NoArgsConstructor
 public class User extends BaseEntity {

@@ -21,30 +21,27 @@ public class MaterialController {
     @PostMapping
     @Roles(value = "admin,operator", remark = "添加物料")
     public void addMaterial(@RequestBody Material material) {
-        materialRepository.addMaterial(material, UserUtils.getUserId());
     }
 
     @PutMapping
     @Roles(value = "admin,operator", remark = "修改物料")
     public void putMaterial(@RequestBody Material material) {
-        materialRepository.updateMaterial(material, UserUtils.getUserId());
     }
 
     @GetMapping("/{materialCode}/{aoCode}")
     @Roles(value = "admin,operator", remark = "获取物料")
     public Material getMaterial(@PathVariable("materialCode") String materialCode, @PathVariable("aoCode") String aoCode) {
-        return materialRepository.getMaterial(materialCode, aoCode);
+        return null;
     }
 
     @GetMapping
     @Roles(value = "admin,operator", remark = "查找物料")
     public PageResult<Material> findMaterial(ReqPageMaterial reqPageMaterial, Pagination pagination) {
-        return materialRepository.materialPageResult(reqPageMaterial, pagination);
+        return null;
     }
 
     @DeleteMapping("/{materialId}/{version}")
     @Roles(value = "admin,operator", remark = "删除物料")
     public void deleteMaterial(@PathVariable("materialId") String materialId, @PathVariable("version") Integer version) {
-        materialRepository.deleteMaterial(materialId, version, UserUtils.getUserId());
     }
 }

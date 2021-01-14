@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/plc/missions")
@@ -33,22 +34,22 @@ public class MissionController {
     @PostMapping
     @Roles(value = "admin,operator", remark = "添加任务")
     public void addMission(@RequestBody Mission mission) {
-        Material material = materialRepository.getMaterial(mission.getMaterialCode(), mission.getAoCode());
-        Assert.notNull(material, "物料号或AO工序号不存在");
-        mission.setQuantity(material.getQuantity());
-        missionRepository.addMission(mission, UserUtils.getUserId());
+        missionRepository.save(mission);
     }
 
     @PostMapping("/import")
     @Roles(value = "admin,operator", remark = "导入任务")
     public void importMission(@RequestBody ReqImportMission importMission) {
-        for (int i = 0; i < importMission.getMissions().size(); i++) {
-            Mission mission = importMission.getMissions().get(i);
-            Material material = materialRepository.getMaterial(mission.getMaterialCode(), mission.getAoCode());
+        List<String> keys = Lists.map(importMission.getMissions(),v->v.getAoCode()+","+v.getMaterialCode());
+        keys = keys.stream().distinct().collect(Collectors.toList());
+        for (String key : keys) {
+            String[] codes = key.split(",");
+            String aoCode = codes[0];
+            String materialCode = codes[1];
+            Material material = materialRepository.getByMaterialCodeAndAoCode(materialCode, aoCode);
             Assert.notNull(material, "物料号或AO工序号不存在");
-            mission.setQuantity(material.getQuantity());
         }
-        missionRepository.importMission(importMission.getMissions(), UserUtils.getUserId());
+        missionRepository.saveAll(importMission.getMissions());
     }
 
     @PostMapping("/verify")
@@ -57,7 +58,7 @@ public class MissionController {
         List<ResVerifyMaterial> result = new ArrayList<>();
         for (int i = 0; i < verifyMaterial.getMaterials().size(); i++) {
             ReqMaterial mission = verifyMaterial.getMaterials().get(i);
-            Material material = materialRepository.getMaterial(mission.getMaterialCode(), mission.getAoCode());
+            Material material = materialRepository.getByMaterialCodeAndAoCode(mission.getMaterialCode(), mission.getAoCode());
             if (material != null) {
                 ResVerifyMaterial verify = new ResVerifyMaterial();
                 verify.setAoCode(mission.getAoCode());
@@ -72,25 +73,18 @@ public class MissionController {
     @PutMapping
     @Roles(value = "admin,operator", remark = "修改任务")
     public void putMission(@RequestBody Mission mission) {
-        missionRepository.updateMission(mission, UserUtils.getUserId());
+        missionRepository.save(mission);
     }
 
     @GetMapping
     @Roles(value = "admin,operator", remark = "查找任务")
     public PageResult<Mission> findMission(ReqPageMission query, Pagination page) {
-        PageResult<Mission> result = missionRepository.missionPageResult(query, page);
-        Lists.each(result.getItems(), v -> {
-            Material material = materialRepository.getMaterial(v.getMaterialCode(), v.getAoCode());
-            v.setQuantity(material.getQuantity());
-            v.setPosition(material.getPosition());
-        });
-        return result;
+        return null;
     }
 
     @DeleteMapping("/{missionId}/{version}")
     @Roles(value = "admin,operator", remark = "删除任务")
     public void deleteMission(@PathVariable("missionId") String missionId, @PathVariable("version") Integer version) {
-        missionRepository.deleteMission(missionId, version, UserUtils.getUserId());
     }
 
 }

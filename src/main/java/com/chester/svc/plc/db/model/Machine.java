@@ -19,8 +19,8 @@ public class Machine extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty("机器Id")
     private Long machineId;
-    @ApiModelProperty("key")
-    private String key;
+    @ApiModelProperty("机器编码")
+    private String machineCode;
     @ApiModelProperty("位置")
     private String address;
     @ElementCollection
@@ -30,4 +30,10 @@ public class Machine extends BaseEntity {
     private Boolean linkState;
     @ApiModelProperty("链接超时时间")
     private Long lostThreshold;
+    @ManyToOne
+    @ApiModelProperty("当前任务")
+    private Mission mission1;
+    @ManyToOne
+    @ApiModelProperty("当前任务")
+    private Mission mission2;
 }

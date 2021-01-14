@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Entity
-@Table(name = "plc_menu")
+@Table(name = "sys_menu")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Menu extends BaseEntity {
