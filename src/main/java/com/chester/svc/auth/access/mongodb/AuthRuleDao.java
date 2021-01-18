@@ -24,7 +24,7 @@ import java.util.List;
 @Repository
 public class AuthRuleDao {
 
-    private static final String collectionName = "auth.rules";
+    private static final String collectionName = "auth.rules2";
     private MongoCollection<AuthRule> coll;
     @Resource
     private UserRepository userRepository;
