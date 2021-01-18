@@ -44,7 +44,7 @@ public class MaterialController {
 
     @DeleteMapping("/{materialId}/{version}")
     @Roles(value = "admin,operator", remark = "删除物料")
-    public void deleteMaterial(@PathVariable("materialId") String materialId,@PathVariable("version")Integer version) {
-        materialRepository.deleteMaterial(materialId,version,UserTokenHolder.getUserId());
+    public void deleteMaterial(@PathVariable("materialId") String materialId) {
+        materialRepository.deleteMaterial(materialId,UserTokenHolder.getUserId());
     }
 }

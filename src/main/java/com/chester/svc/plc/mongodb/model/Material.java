@@ -12,10 +12,6 @@ public class Material extends BaseEntity {
     @_id
     @ApiModelProperty("Id")
     private String materialId;
-    @ApiModelProperty("物料名称")
-    private String materialName;
-    @ApiModelProperty("类型")
-    private String type;
     @ApiModelProperty("物料号")
     private String materialCode;
     @ApiModelProperty("盘号")
@@ -34,6 +30,4 @@ public class Material extends BaseEntity {
     private String store;
     @ApiModelProperty("存储BIN位")
     private String bin;
-    @ApiModelProperty("版本号")
-    private Integer version;
 }

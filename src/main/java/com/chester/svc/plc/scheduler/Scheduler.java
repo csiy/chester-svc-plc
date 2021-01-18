@@ -1,17 +1,10 @@
 package com.chester.svc.plc.scheduler;
 
-import com.chester.cloud.support.mongodb.AccessUtils;
-import com.chester.svc.plc.mongodb.model.Job;
 import com.chester.svc.plc.mongodb.model.Machine;
-import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.mongodb.model.Mission;
-import com.chester.svc.plc.mongodb.repository.JobRepository;
 import com.chester.svc.plc.mongodb.repository.MachineRepository;
-import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
 import com.chester.svc.plc.mqtt.MqttSender;
-import com.chester.svc.sys.mongodb.repository.UserRepository;
-import com.chester.svc.sys.web.model.res.ResUser;
 import com.chester.util.coll.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -20,7 +13,9 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -32,60 +27,39 @@ public class Scheduler {
     @Resource
     private MissionRepository missionRepository;
     @Resource
-    private MaterialRepository materialRepository;
-    @Resource
-    private JobRepository jobRepository;
-    @Resource
-    private UserRepository userRepository;
-    @Resource
     private MqttSender mqttSender;
 
-    //每分钟执行计划单转化任务
-    @Scheduled(fixedRate = 5000)
+    //执行计划单转化任务
+    @Scheduled(fixedRate = 1000)
     public void schedulerTransform() {
-        List<Mission> list = missionRepository.findUnTransformMission();
-        if(!Lists.isEmpty(list)){
-            List<Job> jobs = Lists.map(list,v->{
-                Job job = new Job();
-                Material material = materialRepository.getMaterial(v.getMaterialCode(),v.getAoCode());
-                ResUser resUser = userRepository.randomUser();
-                job.setJobId(v.getMissionId());
-                job.setMaterial(material);
-                job.setMaterialId(material.getMaterialId());
-                job.setMission(v);
-                job.setMachineId("");
-                job.setVersion(1);
-                job.setJobStatus(0);
-                job.setIsFinish(false);
-                if(resUser!=null){
-                    job.setWorkId(resUser.getUserId());
-                    job.setWorkName(resUser.getName());
+        List<Mission> missions = missionRepository.findAllUnSchedule();
+        List<Machine> machines = machineRepository.findLinked();
+        if(!Lists.isEmpty(missions)&&!Lists.isEmpty(machines)){
+            Map<String,List<Machine>> diskMap = new HashMap<>();
+            Lists.each(machines,v-> Lists.each(v.getDisks(), j->{
+                List<Machine> list = diskMap.computeIfAbsent(j.getName(), k -> new ArrayList<>());
+                list.add(v);
+            }));
+            diskMap.forEach((v,k)->{
+                if(v!=null&&!Lists.isEmpty(k)){
+                    List<Mission> list = Lists.filter(missions,j->j.getDisk().equals(v));
+                    List<List<Mission>> averageList = averageAssign(list,k.size());
+                    for(int i=0;i<averageList.size();i++){
+                        Machine machine = k.get(i);
+                        for(int j=0;j<averageList.get(i).size();j++){
+                            missionRepository.updateMission(Lists.map(averageList.get(i),Mission::getMissionId),machine.getMachineId());
+                        }
+                    }
                 }
-                job.setErrorMessages(new ArrayList<>());
-                job.setIsError(false);
-                AccessUtils.prepareEntityBeforeInstall(job, 1L, "系统");
-                return job;
             });
-            List<Job> successJob = Lists.filter(jobs,v->v.getMaterial()!=null);
-            List<String> errorIds = Lists.map(Lists.filter(jobs,v->v.getMaterial()==null),v->v.getMission().getMissionId());
-            List<String> successIds = Lists.map(successJob,v->v.getMission().getMissionId());
-            if(!Lists.isEmpty(errorIds)){
-                missionRepository.transformError(errorIds);
-            }
-            if(!Lists.isEmpty(successIds)){
-                missionRepository.transformSuccess(successIds);
-                jobRepository.addJobs(successJob);
-            }
         }
     }
 
     //每10秒执行超时处理
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedRate = 1000)
     public void lostConnect(){
         List<Machine> list = machineRepository.findUnLinked();
-        Lists.each(list,v->{
-            machineRepository.unLinked(v.getMachineId());
-        });
+        Lists.each(list,v-> machineRepository.unLinked(v.getMachineId()));
     }
 
     //每10秒执行超时处理
@@ -93,5 +67,34 @@ public class Scheduler {
     public void testConnect(){
         mqttSender.sendBeat();
     }
+
+    //每10秒执行超时处理
+    @Scheduled(fixedRate = 5000)
+    public void linked(){
+        machineRepository.linked("M00001");
+    }
+
+    /**
+     * 将一个list均分成n个list,主要通过偏移量来实现的
+     */
+    public static <T> List<List<T>> averageAssign(List<T> source, int n) {
+        List<List<T>> result = new ArrayList<>();
+        int remaider = source.size() % n;  //(先计算出余数)
+        int number = source.size() / n;  //然后是商
+        int offset = 0;//偏移量
+        for (int i = 0; i < n; i++) {
+            List<T> value;
+            if (remaider > 0) {
+                value = source.subList(i * number + offset, (i + 1) * number + offset + 1);
+                remaider--;
+                offset++;
+            } else {
+                value = source.subList(i * number + offset, (i + 1) * number + offset);
+            }
+            result.add(value);
+        }
+        return result;
+    }
+
 
 }

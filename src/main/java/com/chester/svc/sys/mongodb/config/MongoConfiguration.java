@@ -23,4 +23,9 @@ public class MongoConfiguration {
         return new MongoInt64IdGenerator(db, MongoCollections.role);
     }
 
+    @Bean
+    public MongoInt64IdGenerator sortGenerator(MongoDatabase db) {
+        return new MongoInt64IdGenerator(db, MongoCollections.sort);
+    }
+
 }

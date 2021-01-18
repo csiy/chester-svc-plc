@@ -1,6 +1,8 @@
 package com.chester.svc.plc.mqtt.payload;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +19,8 @@ public class DiscPayload extends Payload{
     }
 
     @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class SetDiscList{
         private Integer discNo;
         private Integer totalOneB;

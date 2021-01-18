@@ -59,12 +59,11 @@ public class MqttReceiver {
             subscribe(key,info->{
                 machineRepository.linked(clientName);
                 try{
+                    String machineId = clientName;
                     ReceiverPayload receiverPayload = JSON.parse(info, ReceiverPayload.class);
                     if(receiverPayload.getMsgType().equals("taskStatus")){
-                        log.info("任务状态：{}",JSON.stringify(receiverPayload));
-                        machineRepository.updateMission(receiverPayload.getMissionId(),receiverPayload.getMissionStatus());
+                        machineRepository.updateMission(machineId,receiverPayload.getMissionId(),receiverPayload.getDiscNo(),receiverPayload.getMissionStatus());
                     }else if(receiverPayload.getMsgType().equals("reply")){
-                        log.info("操作状态：{}",JSON.stringify(receiverPayload));
                         if(receiverPayload.getOperation().equals("open")&&receiverPayload.getOperationResult().equals("success")){
                             //machineRepository.updateRunStateConfirm(clientName,true);
                         }else if(receiverPayload.getOperation().equals("close")&&receiverPayload.getOperationResult().equals("success")){

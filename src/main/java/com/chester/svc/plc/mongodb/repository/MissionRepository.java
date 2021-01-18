@@ -1,9 +1,10 @@
 package com.chester.svc.plc.mongodb.repository;
 
 import com.chester.cloud.support.mongodb.AccessUtils;
+import com.chester.data.mongo.MongoInt64IdGenerator;
 import com.chester.data.mongo.MongoPageQuery;
 import com.chester.svc.plc.mongodb.config.Constant;
-import com.chester.svc.plc.mongodb.model.Logs;
+import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.mongodb.model.Mission;
 import com.chester.svc.plc.mongodb.config.MongoCollections;
 import com.chester.svc.plc.web.model.req.ReqPageMission;
@@ -16,7 +17,6 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
-import com.mongodb.client.result.UpdateResult;
 import org.bson.conversions.Bson;
 import org.springframework.stereotype.Repository;
 
@@ -37,106 +37,39 @@ public class MissionRepository {
     @Resource
     private SerialRepository serialRepository;
     @Resource
-    private LogsRepository logsRepository;
-    private static final Logs.LogsType LOG_TYPE = Logs.LogsType.TASK;
+    private MongoInt64IdGenerator sortGenerator;
 
     @PostConstruct
     public void afterPropertiesSet() {
         this.coll = db.getCollection(MongoCollections.mission, Mission.class);
-        this.coll.createIndex(Indexes.ascending("dateTime"));
-        this.coll.createIndex(Indexes.hashed("inputTime"));
+        this.coll.createIndex(Indexes.ascending(Constant.date));
+        this.coll.createIndex(Indexes.ascending(Constant.machineId,Constant.sort));
+
     }
 
-    public void addMission(Mission mission,Long createdBy){
-        beforeAddMission(mission,createdBy);
+    public void addMission(Mission mission, Long createdBy) {
+        beforeAddMission(mission, createdBy);
         mission.setLineNumber(1);
         mission.setBatchNumber(serialRepository.batchNumber());
-        mission.setInputTime(getDate(new Date()));
+        mission.setDate(getDate(new Date()));
         this.coll.insertOne(mission);
     }
 
-    public void importMission(List<Mission> missions,Long createdBy){
+    public void importMission(List<Mission> missions, Long createdBy) {
         String inputTime = getDate(new Date());
         Integer batchNumber = serialRepository.batchNumber();
-        for(int i = 0;i<missions.size();i++){
+        for (int i = 0; i < missions.size(); i++) {
             Mission mission = missions.get(i);
-            beforeAddMission(mission,createdBy);
-            mission.setInputTime(inputTime);
-            mission.setLineNumber(i+1);
+            beforeAddMission(mission, createdBy);
+            mission.setDate(inputTime);
+            mission.setLineNumber(i + 1);
             mission.setBatchNumber(batchNumber);
         }
         this.coll.insertMany(missions);
     }
 
-    private String getDate(Date date){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        return dateFormat.format(date);
-    }
-
-    private Mission beforeAddMission(Mission mission,Long createdBy){
-        AccessUtils.prepareEntityBeforeInstall(mission, createdBy, userRepository.getUserName(createdBy));
-        mission.setSerialNumber(serialRepository.serialNumber());
-        mission.setVersion(1);
-        mission.setMissionId(getMissionId(mission));
-        mission.setIsFinish(false);
-        mission.setJobStatus(0);
-        mission.setTransform(1);
-        if(mission.getDateTime()==null){
-            mission.setDateTime(new Date());
-        }
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
-        mission.setDate(getDate(mission.getDateTime()));
-        mission.setTime(timeFormat.format(mission.getDateTime()));
-        return mission;
-    }
-
-    private String getMissionId(Mission mission){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-        StringBuilder builder = new StringBuilder();
-        builder.append(sdf.format(mission.getCreatedOn()));
-        builder.append(mission.getSerialNumber());
-        return builder.toString();
-    }
-
-    public void deleteMission(String missionId,Integer version, Long updatedBy){
-        Bson filter = Filters.and(
-                Filters.eq(Constant._id, missionId),
-                Filters.eq(Constant.version, version)
-        );
-        Mission before = this.coll.find(Filters.eq(Constant._id, missionId)).first();
-        UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set(Constant.isDeleted, true),
-                Updates.inc(Constant.version,1)
-        ));
-        if(result.getModifiedCount()==0){
-            throw new IllegalArgumentException("找不到数据或者数据已被修改");
-        }
-        Mission after = this.coll.find(Filters.eq(Constant._id, missionId)).first();
-        logsRepository.addLogs(LOG_TYPE,"删除",before,after);
-    }
-
-    public void updateMission(Mission mission, Long updatedBy){
-        Bson filter = Filters.and(
-                Filters.eq(Constant._id, mission.getMissionId()),
-                Filters.eq(Constant.isDeleted, false),
-                Filters.eq(Constant.version, mission.getVersion()),
-                Filters.ne("transform",2));
-        Mission before = this.coll.find(Filters.eq(Constant._id, mission.getMissionId())).first();
-        UpdateResult result = this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set("materialCode", mission.getMaterialCode()),
-                Updates.set("aoCode", mission.getAoCode()),
-                Updates.set("count", mission.getCount()),
-                Updates.set("date", mission.getDate()),
-                Updates.set("time", mission.getTime()),
-                Updates.set("dateTime", mission.getDateTime()),
-                Updates.set("transform", 1),
-                Updates.inc(Constant.version,1)
-        ));
-        if(result.getModifiedCount()==0){
-            throw new IllegalArgumentException("找不到数据或者数据已被修改");
-        }
-        Mission after = this.coll.find(Filters.eq(Constant._id, mission.getMissionId())).first();
-        logsRepository.addLogs(LOG_TYPE,"修改",before,after);
+    public Mission getMission(String missionId) {
+        return this.coll.find(Filters.eq(Constant._id, missionId)).first();
     }
 
     public PageResult<Mission> missionPageResult(ReqPageMission query, Pagination pagination) {
@@ -148,48 +81,125 @@ public class MissionRepository {
         if (query.getAoCode() != null) {
             filter = Filters.and(Filters.eq(Constant.aoCode, query.getAoCode()), filter);
         }
-        if (query.getTransform() != null) {
-            filter = Filters.and(Filters.eq("transform", query.getTransform()), filter);
+        if (query.getStatus() != null) {
+            filter = Filters.and(Filters.eq(Constant.status, query.getStatus()), filter);
         }
-        if (query.getJobStatus() != null){
-            filter = Filters.and(Filters.eq("jobStatus", query.getJobStatus()), filter);
-        }
-        if (query.getDate() != null){
-            filter = Filters.and(Filters.eq("date", query.getDate()), filter);
+        if (query.getDate() != null) {
+            filter = Filters.and(Filters.eq(Constant.date, query.getDate()), filter);
         }
         return MongoPageQuery.builder(coll, Mission.class).sort(sort).page(pagination).filter(filter).execute();
     }
 
-    public List<Mission> findUnTransformMission(){
-        Bson sort = Sorts.ascending("dateTime");
+    public PageResult<Mission> findMissionByMachineIdAndDisk(String machineId, String disk, Pagination pagination) {
+        Bson sort = Sorts.ascending(Constant.sort);
         Bson filter = Filters.and(
-                Filters.lt("dateTime", new Date()),
-                Filters.eq(Constant.isDeleted, false),
-                Filters.eq("transform",1)
-                );
-        return this.coll.find(filter).limit(50).sort(sort).into(new ArrayList<>());
+                Filters.eq(Constant.machineId, machineId),
+                Filters.eq(Constant.disk, disk),
+                Filters.eq(Constant.isDeleted, Boolean.FALSE)
+        );
+        return MongoPageQuery.builder(coll, Mission.class).sort(sort).page(pagination).filter(filter).execute();
     }
 
-    public void transformSuccess(List<String> missionIds){
-        Bson filter = Filters.and(Filters.in(Constant._id, missionIds), Filters.eq("transform",1));
-        this.coll.updateMany(filter, AccessUtils.prepareUpdates(1L, "系统",
-                Updates.set("transform", 2),
-                Updates.inc(Constant.version,1)
-        ));
+    public PageResult<Mission> unScheduler(Pagination pagination) {
+        Bson sort = Sorts.ascending(Constant.sort);
+        Bson filter = Filters.and(
+                Filters.eq(Constant.machineId, Constant.empty),
+                Filters.eq(Constant.isDeleted, Boolean.FALSE)
+        );
+        return MongoPageQuery.builder(coll, Mission.class).sort(sort).page(pagination).filter(filter).execute();
     }
-    public void transformError(List<String> missionIds){
-        Bson filter = Filters.and(Filters.in(Constant._id, missionIds), Filters.eq("transform",1));
-        this.coll.updateMany(filter, AccessUtils.prepareUpdates(1L, "系统",
-                Updates.set("transform", 3),
-                Updates.inc(Constant.version,1)
+
+    public void deleteMission(String missionId, Long updatedBy) {
+        Bson filter = Filters.eq(Constant._id, missionId);
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
+                Updates.set(Constant.isDeleted, true)
         ));
     }
 
-    public void updateMission(String missionId,Integer missionStatus){
+    public void updateMission(Mission mission, Long updatedBy) {
+        Bson filter = Filters.and(
+                Filters.eq(Constant._id, mission.getMissionId()),
+                Filters.eq(Constant.isDeleted, Boolean.FALSE));
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
+                Updates.set(Constant.materialCode, mission.getMaterialCode()),
+                Updates.set(Constant.aoCode, mission.getAoCode()),
+                Updates.set(Constant.count, mission.getCount()),
+                Updates.set(Constant.disk, mission.getCount()),
+                Updates.set(Constant.quantity, mission.getQuantity()),
+                Updates.set(Constant.position, mission.getPosition()),
+                Updates.set(Constant.replace, mission.getReplace()),
+                Updates.set(Constant.original, mission.getOriginal()),
+                Updates.set(Constant.store, mission.getStore()),
+                Updates.set(Constant.bin, mission.getBin()),
+                Updates.set(Constant.machineId, Constant.empty),
+                Updates.set(Constant.status, 0)
+        ));
+    }
+
+    public void updateMission(List<String> missionIds,String machineId) {
+        this.coll.updateOne(Filters.in(Constant._id, missionIds), AccessUtils.prepareUpdates(1L, "系统",
+                Updates.set(Constant.machineId, machineId)
+        ));
+    }
+
+    public void updateMission(String machineId) {
+        Bson filter = Filters.and(
+                Filters.eq(Constant.status,0),
+                Filters.eq(Constant.machineId, machineId),
+                Filters.eq(Constant.isDeleted, Boolean.FALSE));
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(1L, "系统",
+                Updates.set(Constant.machineId, Constant.empty)
+        ));
+    }
+
+    public void updateMission(String missionId, Integer status) {
         this.coll.updateOne(Filters.eq(Constant._id, missionId), AccessUtils.prepareUpdates(1L, "系统",
-                Updates.set("jobStatus",missionStatus),
-                Updates.set("isFinish",missionStatus==1)
+                Updates.set(Constant.status, status)
         ));
     }
 
+    public Mission getNext(String machineId, String disk) {
+        Bson sort = Sorts.ascending(Constant.sort);
+        Bson filter = Filters.and(
+                Filters.eq(Constant.status,0),
+                Filters.eq(Constant.machineId, machineId),
+                Filters.eq(Constant.isDeleted, Boolean.FALSE),
+                Filters.eq(Constant.disk, disk));
+        return this.coll.find(filter).sort(sort).first();
+    }
+
+    public void sort(String mission1,String mission2){
+        Mission _mission1 = getMission(mission1);
+        Mission _mission2 = getMission(mission2);
+        this.coll.updateOne(Filters.eq(Constant._id, mission1),Updates.set(Constant.sort, _mission2.getSort()));
+        this.coll.updateOne(Filters.eq(Constant._id, mission2),Updates.set(Constant.sort, _mission1.getSort()));
+    }
+
+    public List<Mission> findAllUnSchedule(){
+        Bson filter = Filters.and(
+                Filters.eq(Constant.status,0),
+                Filters.eq(Constant.machineId, Constant.empty),
+                Filters.eq(Constant.isDeleted, Boolean.FALSE));
+        return this.coll.find(filter).into(new ArrayList<>());
+    }
+
+    private String getDate(Date date) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        return dateFormat.format(date);
+    }
+
+    private void beforeAddMission(Mission mission, Long createdBy) {
+        AccessUtils.prepareEntityBeforeInstall(mission, createdBy, userRepository.getUserName(createdBy));
+        mission.setSerialNumber(serialRepository.serialNumber());
+        mission.setMissionId(getMissionId(mission));
+        mission.setMachineId(Constant.empty);
+        mission.setSort(sortGenerator.generate());
+        mission.setStatus(0);
+    }
+
+    private String getMissionId(Mission mission) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        return sdf.format(mission.getCreatedOn()) +
+                String.format("%06d",mission.getSerialNumber());
+    }
 }

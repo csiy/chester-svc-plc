@@ -4,4 +4,5 @@ public interface MongoCollections {
     String user = "user.user";
     String menu = "user.menu";
     String role = "user.role";
+    String sort = "sort.sort";
 }
