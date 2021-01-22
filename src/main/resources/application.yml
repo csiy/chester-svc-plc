@@ -1,14 +1,6 @@
-management:
-  endpoint:
-    health:
-      show-details: ALWAYS
-  endpoints:
-    web:
-      exposure:
-        include: '*'
 spring:
   rabbitmq:
-    host: rabbitmq
+    host: localhost
     port: 5672
     username: chester
     password: 123456
@@ -20,11 +12,11 @@ spring:
       retry:
         enabled: true
   redis:
-    host: redis
+    host: localhost
     password: chester@123456
   data:
     mongodb:
-      uri: mongodb://root:123456@mongodb:27017/chester?authSource=admin
+      uri: mongodb://localhost:27017/chester?authSource=admin
 
 logging:
   path: log/
@@ -36,7 +28,6 @@ chester:
     - {menuId: 'sys-user', path: '/sys/users', name: '用户管理',icon: 'mdi-home-account',url: '/sys/users',sort: 1,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
     - {menuId: 'sys-menu', path: '/sys/menus', name: '菜单管理',icon: 'mdi-menu',url: '/sys/menus',sort: 2,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
     - {menuId: 'sys-role', path: '/sys/roles', name: '角色管理',icon: 'mdi-file-account-outline',url: '/sys/roles',sort: 3,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
-    - {menuId: 'sys-rule', path: '/sys/rules', name: '路由管理',icon: 'mdi-widgets-outline',url: '/sys/rules',sort: 4,type: 'drawer',roles: ['admin'],modify: false,parentIds: ['sys-root']}
     - {menuId: 'plc-root-data', path: '/plc/data', name: '主数据管理',icon: 'mdi-alpha-r-circle-outline',url: '/plc/data',sort: 1,type: 'drawer',roles: ['admin','operator']}
     - {menuId: 'plc-machine', path: '/plc/machines', name: '设备管理',icon: 'mdi-apache-kafka',url: '/data/machines',sort: 1,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-data']}
     - {menuId: 'plc-material', path: '/plc/materials', name: '物料维护',icon: 'mdi-database-refresh',url: '/data/materials',sort: 3,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-data']}
