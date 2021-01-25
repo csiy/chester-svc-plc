@@ -1,0 +1,9 @@
+language: java
+jdk:
+  - oraclejdk8
+cache:
+  directories:
+    - $HOME/.m2
+script:
+  - ./mvnw clean install -B
+  - ./mvnw clean com.google.cloud.tools:jib-maven-plugin:1.8.0:build
