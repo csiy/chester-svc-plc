@@ -40,6 +40,7 @@ public class MachineController {
     @PutMapping("/set/{machineId}/{discNo}")
     @Roles(value = "admin,operator", remark = "设置任务")
     public void setMachine(@PathVariable("machineId") String machineId,@PathVariable("discNo") Integer discNo){
+        machineRepository.stopMachine(machineId,discNo);
         machineRepository.setNext(machineId,discNo);
     }
 
