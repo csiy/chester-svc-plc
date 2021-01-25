@@ -16,7 +16,7 @@ spring:
     password: chester@123456
   data:
     mongodb:
-      uri: mongodb://mongodb:27017/chester?authSource=admin
+      uri: mongodb://root:123456@mongodb:27017/chester?authSource=admin
 
 logging:
   path: log/
