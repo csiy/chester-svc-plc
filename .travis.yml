@@ -6,6 +6,6 @@ cache:
   directories:
     - $HOME/.m2
 before_install:
-  - sudo mv settings.xml /usr/local/maven-3.6.3/settings.xml
+  - sudo mv settings.xml /usr/local/maven-3.6.3/conf/settings.xml
 script:
   - mvn clean compile jib:build
