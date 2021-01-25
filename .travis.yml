@@ -17,7 +17,7 @@ before_install:
 script:
   - mvn clean compile jib:build
 after_success:
-  - ssh $machine_name@$machine_ip
+  - ssh root@39.99.130.5
   - cd /root
   - docker-compose pull chester-svc-plc
   - docker-compose up -d
