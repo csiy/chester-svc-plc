@@ -4,5 +4,7 @@ jdk:
 cache:
   directories:
     - $HOME/.m2
+before_install:
+  - mvn --settings ./settings.xml install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
 script:
   - mvn --settings ./settings.xml clean compile jib:build
