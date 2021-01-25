@@ -1,6 +1,6 @@
 spring:
   rabbitmq:
-    host: localhost
+    host: rabbitmq
     port: 5672
     username: chester
     password: 123456
@@ -12,11 +12,11 @@ spring:
       retry:
         enabled: true
   redis:
-    host: localhost
+    host: redis
     password: chester@123456
   data:
     mongodb:
-      uri: mongodb://localhost:27017/chester?authSource=admin
+      uri: mongodb://mongodb:27017/chester?authSource=admin
 
 logging:
   path: log/
