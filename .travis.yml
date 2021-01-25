@@ -16,8 +16,3 @@ before_install:
   - sudo mv settings.xml /usr/local/maven-3.6.3/conf/settings.xml
 script:
   - mvn clean compile jib:build
-after_success:
-  - ssh root@39.99.130.5
-  - cd /root
-  - docker-compose pull chester-svc-plc
-  - docker-compose up -d
