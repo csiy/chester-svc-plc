@@ -37,21 +37,15 @@ public class MachineController {
         return machineRepository.findAllMachines();
     }
 
-    @PutMapping("/set/{machineId}/{discNo}")
-    @Roles(value = "admin,operator", remark = "设置任务")
-    public void setMachine(@PathVariable("machineId") String machineId,@PathVariable("discNo") Integer discNo){
-        machineRepository.setNext(machineId,discNo);
-    }
-
     @PutMapping("/start/{machineId}/{discNo}")
-    @Roles(value = "admin,operator", remark = "开始")
+    @Roles(value = "admin,operator", remark = "开始任务")
     public void startMachine(@PathVariable("machineId") String machineId,@PathVariable("discNo")Integer discNo){
         machineRepository.runMachine(machineId,discNo);
     }
 
     @PutMapping("/stop/{machineId}/{discNo}")
-    @Roles(value = "admin,operator", remark = "停止")
+    @Roles(value = "admin,operator", remark = "停止任务")
     public void stopMachine(@PathVariable("machineId") String machineId,@PathVariable("discNo")Integer discNo){
-        machineRepository.stopMachine(machineId,discNo);
+        machineRepository.stopMachine(machineId,discNo,false);
     }
 }

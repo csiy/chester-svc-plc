@@ -65,11 +65,9 @@ public class MqttReceiver {
                         machineRepository.updateMission(machineId,receiverPayload.getMissionId(),receiverPayload.getDiscNo(),receiverPayload.getMissionStatus());
                     }else if(receiverPayload.getMsgType().equals("reply")){
                         if(receiverPayload.getOperation().equals("open")&&receiverPayload.getOperationResult().equals("success")){
-                            //machineRepository.updateRunStateConfirm(clientName,true);
+                            machineRepository.onRunMachine(clientName,receiverPayload.getRecvTTL());
                         }else if(receiverPayload.getOperation().equals("close")&&receiverPayload.getOperationResult().equals("success")){
-                            //machineRepository.updateRunStateConfirm(clientName,false);
-                        }else if(receiverPayload.getOperation().equals("setDisc")&&receiverPayload.getOperationResult().equals("success")){
-                            //machineRepository.updateSetMissionConfirm(clientName);
+                            machineRepository.onStopMachine(clientName,receiverPayload.getRecvTTL());
                         }
                     }
                 }catch (Exception e){

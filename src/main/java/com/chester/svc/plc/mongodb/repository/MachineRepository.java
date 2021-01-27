@@ -7,12 +7,11 @@ import com.chester.svc.plc.mongodb.model.Machine;
 import com.chester.svc.plc.mongodb.config.MongoCollections;
 import com.chester.svc.plc.mongodb.model.Mission;
 import com.chester.svc.plc.mqtt.MqttSender;
-import com.chester.svc.plc.mqtt.payload.DiscPayload;
 import com.chester.svc.plc.mqtt.payload.SwitchPayload;
 import com.chester.svc.plc.web.model.req.ReqPageMachine;
 import com.chester.svc.sys.mongodb.repository.UserRepository;
 import com.chester.util.coll.Lists;
-import com.chester.util.json.JSON;
+import com.chester.util.lang.Booleans;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import com.mongodb.client.MongoCollection;
@@ -29,7 +28,9 @@ import org.springframework.util.Assert;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Repository
@@ -112,7 +113,7 @@ public class MachineRepository {
         return this.coll.find(filter).into(new ArrayList<>());
     }
 
-    public List<Machine> findUnLinked(){
+    public List<Machine> findUnLinked() {
         Bson filter = Filters.and(
                 Filters.eq(Constant.isDeleted, Boolean.FALSE),
                 Filters.lt(Constant.lostThreshold, System.currentTimeMillis()),
@@ -148,43 +149,61 @@ public class MachineRepository {
         }
         missionRepository.updateMission(missionId, status);
         if (status == 2) {
-            stopMachine(machineId, discNo);
+            stopMachine(machineId, discNo, true);
             Thread.sleep(3000);
-            if (setNext(machineId, discNo)) {
-                Thread.sleep(3000);
-                runMachine(machineId, discNo);
-            }
+            runMachine(machineId, discNo);
         } else if (status == 3) {
-            stopMachine(machineId, discNo);
+            stopMachine(machineId, discNo, false);
         }
     }
 
-    public Boolean setNext(String machineId, Integer discNo) {
+    private static final Map<String, SwitchPayload> openMap = new HashMap<>();
+
+    private static final Map<String, SwitchPayload> closeMap = new HashMap<>();
+
+    private static final Map<String, Boolean> autoMap = new HashMap<>();
+
+    public void stopMachine(String machineId, Integer discNo, Boolean autoNext) {
+        List<Machine.Disk> disks = getMachine(machineId).getDisks();
+        SwitchPayload close = SwitchPayload.close(disks.get(discNo).getMissionId(), discNo);
+        closeMap.put(close.getTtl(), close);
+        autoMap.put(close.getTtl(), autoNext);
+        mqttSender.sendMessage(machineId, close);
+    }
+
+    public Boolean runMachine(String machineId, Integer discNo) {
         List<Machine.Disk> disks = getMachine(machineId).getDisks();
         String disc = disks.get(discNo).getName();
         Mission next = missionRepository.getNext(machineId, disc);
         if (next != null) {
-            disks.get(discNo).setMissionId(next.getMissionId());
-            updateMachineDisk(machineId, disks);
-            setDish(machineId, discNo, next.getQuantity(), next.getCount());
+
+            SwitchPayload open = SwitchPayload.open(next.getMissionId(), next.getQuantity(), next.getCount(), discNo);
+            openMap.put(open.getTtl(), open);
+            mqttSender.sendMessage(machineId, open);
             return true;
         }
         return false;
     }
 
-    public void runMachine(String machineId, Integer discNo) {
-        mqttSender.sendMessage(machineId, new SwitchPayload(Constant.open, discNo));
+    public void onStopMachine(String machineId, String ttl) {
+        SwitchPayload close = closeMap.remove(ttl);
+        if (close != null) {
+            Machine machine = getMachine(machineId);
+            machine.getDisks().get(close.getDiscNo()).setMissionId(null);
+            updateMachineDisk(machineId, machine.getDisks());
+            Boolean auto = autoMap.remove(ttl);
+            if(Booleans.isTrue(auto)){
+                runMachine(machineId,close.getDiscNo());
+            }
+        }
     }
 
-    public void stopMachine(String machineId, Integer discNo) {
-        List<Machine.Disk> disks = getMachine(machineId).getDisks();
-        disks.get(discNo).setMissionId(null);
-        updateMachineDisk(machineId, disks);
-        mqttSender.sendMessage(machineId, new SwitchPayload(Constant.close, discNo));
-    }
-
-    private void setDish(String machineId, Integer discNo, Integer quantity, Integer count) {
-        DiscPayload.SetDiscList setDiscList = new DiscPayload.SetDiscList(discNo, quantity, count);
-        mqttSender.sendMessage(machineId, new DiscPayload(machineId, setDiscList));
+    public void onRunMachine(String machineId, String ttl) {
+        SwitchPayload open = openMap.remove(ttl);
+        if (open != null) {
+            Machine machine = getMachine(machineId);
+            machine.getDisks().get(open.getDiscNo()).setMissionId(open.getMissionId());
+            updateMachineDisk(machineId, machine.getDisks());
+        }
     }
 }
