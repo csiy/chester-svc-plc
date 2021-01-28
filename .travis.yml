@@ -11,13 +11,8 @@ cache:
   directories:
     - "$HOME/.m2"
 before_install:
-  - openssl aes-256-cbc -K $encrypted_9b2d7e19d83c_key -iv $encrypted_9b2d7e19d83c_iv -in id_rsa.enc -out ~/.ssh/id_rsa -d
-  - chmod 600 ~/.ssh/id_rsa
+  - sudo openssl aes-256-cbc -K $encrypted_9b2d7e19d83c_key -iv $encrypted_9b2d7e19d83c_iv -in id_rsa.enc -out /home/travis/.ssh/id_rsa -d
+  - sudo chmod 600 /home/travis/.ssh/id_rsa
   - sudo mv settings.xml /usr/local/maven-3.6.3/conf/settings.xml
 script:
   - mvn clean compile jib:build
-after_success:
-  - ssh $machine_name@$machine_ip
-  - cd /root
-  - docker-compose pull chester-svc-plc
-  - docker-compose up -d
