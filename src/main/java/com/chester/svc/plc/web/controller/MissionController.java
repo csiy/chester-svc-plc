@@ -13,6 +13,9 @@ import com.chester.svc.plc.web.model.req.ReqVerifyMaterial;
 import com.chester.svc.plc.web.model.res.ResVerifyMaterial;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +23,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
+@Api(tags="任务")
 @RestController
 @RequestMapping("/plc/missions")
 public class MissionController {
@@ -30,6 +34,7 @@ public class MissionController {
     private MaterialRepository materialRepository;
 
     @PostMapping
+    @ApiOperation("添加任务")
     @Roles(value = "admin,operator", remark = "添加任务")
     public void addMission(@RequestBody Mission mission) {
         Material material = materialRepository.getMaterial(mission.getMaterialCode(), mission.getAoCode());
@@ -39,6 +44,7 @@ public class MissionController {
     }
 
     @PostMapping("/import")
+    @ApiOperation("导入任务")
     @Roles(value = "admin,operator", remark = "导入任务")
     public void importMission(@RequestBody ReqImportMission importMission) {
         for (int i = 0; i < importMission.getMissions().size(); i++) {
@@ -51,6 +57,7 @@ public class MissionController {
     }
 
     @PostMapping("/verify")
+    @ApiOperation("校验任务")
     @Roles(value = "admin,operator", remark = "校验任务")
     public List<ResVerifyMaterial> verifyMaterial(@RequestBody ReqVerifyMaterial verifyMaterial) {
         List<ResVerifyMaterial> result = new ArrayList<>();
@@ -69,6 +76,7 @@ public class MissionController {
     }
 
     @PutMapping
+    @ApiOperation("修改任务")
     @Roles(value = "admin,operator", remark = "修改任务")
     public void putMission(@RequestBody Mission mission) {
         Material material = materialRepository.getMaterial(mission.getMaterialCode(), mission.getAoCode());
@@ -78,17 +86,20 @@ public class MissionController {
     }
 
     @GetMapping("/{missionId}")
+    @ApiOperation("查找任务")
     @Roles(value = "admin,operator", remark = "查找任务")
     public Mission getMission(@PathVariable("missionId") String missionId){
         return missionRepository.getMission(missionId);
     }
 
     @GetMapping
+    @ApiOperation("查找任务列表")
     @Roles(value = "admin,operator", remark = "查找任务列表")
     public PageResult<Mission> findMission(ReqPageMission query, Pagination page) {
         return missionRepository.missionPageResult(query, page);
     }
 
+    @ApiOperation("查找已排程任务")
     @GetMapping("/{machineId}/{disk}")
     @Roles(value = "admin,operator", remark = "查找已排程任务")
     public PageResult<Mission> findMissionByMachineIdAndDisk(
@@ -98,6 +109,7 @@ public class MissionController {
         return missionRepository.findMissionByMachineIdAndDisk(machineId, disk, page);
     }
 
+    @ApiOperation("查找未排程任务")
     @GetMapping("/unScheduler")
     @Roles(value = "admin,operator", remark = "查找未排程任务")
     public PageResult<Mission> unScheduler(Pagination page) {
@@ -107,11 +119,13 @@ public class MissionController {
 
 
     @DeleteMapping("/{missionId}")
+    @ApiOperation("删除任务")
     @Roles(value = "admin,operator", remark = "删除任务")
     public void deleteMission(@PathVariable("missionId") String missionId) {
         missionRepository.deleteMission(missionId, UserTokenHolder.getUserId());
     }
 
+    @ApiOperation("打印任务")
     @PostMapping("/print/{missionId}")
     public void print(@PathVariable("missionId") String missionId){
         missionRepository.print(missionId);

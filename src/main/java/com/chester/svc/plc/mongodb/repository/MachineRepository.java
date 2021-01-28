@@ -150,6 +150,7 @@ public class MachineRepository {
         missionRepository.updateMission(missionId, status);
         if (status == 2) {
             stopMachine(machineId, discNo, true);
+            missionRepository.print(missionId);
         } else if (status == 3) {
             stopMachine(machineId, discNo, false);
         }

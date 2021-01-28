@@ -6,10 +6,12 @@ import com.chester.svc.sys.mongodb.model.Role;
 import com.chester.svc.sys.mongodb.repository.RoleRepository;
 import com.chester.svc.sys.web.model.res.ResRole;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 import java.util.List;
 
+@ApiIgnore
 @RestController
 @RequestMapping("/sys/roles")
 public class RoleController {

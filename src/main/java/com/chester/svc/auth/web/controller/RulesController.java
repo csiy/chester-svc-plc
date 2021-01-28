@@ -11,10 +11,12 @@ import com.chester.svc.auth.web.model.res.ResRule;
 import com.chester.util.coll.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 import java.util.List;
 
+@ApiIgnore
 @RestController
 @Slf4j
 @RequestMapping("/sys/rules")

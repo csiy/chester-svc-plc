@@ -11,10 +11,12 @@ import com.chester.util.tree.ListTreeSource;
 import com.chester.util.tree.TreeBuilder;
 import com.chester.util.tree.TreeNode;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 import java.util.List;
 
+@ApiIgnore
 @RestController
 @RequestMapping("/sys/menus")
 public class MenuController {

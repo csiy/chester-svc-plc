@@ -11,9 +11,11 @@ import com.chester.svc.sys.web.model.res.ResUser;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 
+@ApiIgnore
 @RestController
 @RequestMapping("/sys/users")
 public class UserController {
