@@ -3,6 +3,7 @@ package com.chester.svc.plc.mongodb.repository;
 import com.chester.cloud.support.mongodb.AccessUtils;
 import com.chester.data.mongo.MongoInt64IdGenerator;
 import com.chester.data.mongo.MongoPageQuery;
+import com.chester.svc.http.HttpClientUtils;
 import com.chester.svc.plc.mongodb.config.Constant;
 import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.mongodb.model.Mission;
@@ -18,10 +19,12 @@ import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 import org.bson.conversions.Bson;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,6 +41,8 @@ public class MissionRepository {
     private SerialRepository serialRepository;
     @Resource
     private MongoInt64IdGenerator sortGenerator;
+    @Value("${printUrl}")
+    private String printUrl;
 
     @PostConstruct
     public void afterPropertiesSet() {
@@ -181,6 +186,15 @@ public class MissionRepository {
                 Filters.eq(Constant.machineId, Constant.empty),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE));
         return this.coll.find(filter).into(new ArrayList<>());
+    }
+
+    public void print(String missionId){
+        Mission mission = getMission(missionId);
+        try {
+            HttpClientUtils.doPost(printUrl,mission);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private String getDate(Date date) {

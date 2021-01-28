@@ -150,8 +150,6 @@ public class MachineRepository {
         missionRepository.updateMission(missionId, status);
         if (status == 2) {
             stopMachine(machineId, discNo, true);
-            Thread.sleep(3000);
-            runMachine(machineId, discNo);
         } else if (status == 3) {
             stopMachine(machineId, discNo, false);
         }
@@ -176,7 +174,6 @@ public class MachineRepository {
         String disc = disks.get(discNo).getName();
         Mission next = missionRepository.getNext(machineId, disc);
         if (next != null) {
-
             SwitchPayload open = SwitchPayload.open(next.getMissionId(), next.getQuantity(), next.getCount(), discNo);
             openMap.put(open.getTtl(), open);
             mqttSender.sendMessage(machineId, open);

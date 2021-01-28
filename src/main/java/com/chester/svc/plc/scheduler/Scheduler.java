@@ -68,12 +68,6 @@ public class Scheduler {
         mqttSender.sendBeat();
     }
 
-    //每10秒执行超时处理
-    @Scheduled(fixedRate = 5000)
-    public void linked(){
-        machineRepository.linked("M00001");
-    }
-
     /**
      * 将一个list均分成n个list,主要通过偏移量来实现的
      */

@@ -112,4 +112,9 @@ public class MissionController {
         missionRepository.deleteMission(missionId, UserTokenHolder.getUserId());
     }
 
+    @PostMapping("/print/{missionId}")
+    public void print(@PathVariable("missionId") String missionId){
+        missionRepository.print(missionId);
+    }
+
 }
