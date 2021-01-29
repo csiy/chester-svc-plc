@@ -10,10 +10,12 @@ import com.chester.util.page.Pagination;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 
 @Api(tags="物料")
+@ApiIgnore
 @RestController
 @RequestMapping("/plc/materials")
 public class MaterialController {

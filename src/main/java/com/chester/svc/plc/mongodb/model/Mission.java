@@ -52,9 +52,9 @@ public class Mission extends BaseEntity {
     @ApiModelProperty("波次号")
     private String waveNo;
     @ApiModelProperty("包装袋尺寸")
-    private Integer size;
+    private Integer size = 1;
     @ApiModelProperty("速率")
-    private Integer speed;
+    private Integer speed = 1;
 
 
     public void initMaterial(Material material){

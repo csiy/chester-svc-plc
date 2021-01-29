@@ -10,11 +10,13 @@ import com.chester.util.page.Pagination;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 import java.util.List;
 
 @Api(tags="机器")
+@ApiIgnore
 @RestController
 @RequestMapping("/plc/machines")
 public class MachineController {

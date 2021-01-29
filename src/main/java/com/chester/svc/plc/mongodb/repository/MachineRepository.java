@@ -175,7 +175,7 @@ public class MachineRepository {
         String disc = disks.get(discNo).getName();
         Mission next = missionRepository.getNext(machineId, disc);
         if (next != null) {
-            SwitchPayload open = SwitchPayload.open(next.getMissionId(), next.getQuantity(), next.getCount(), discNo);
+            SwitchPayload open = SwitchPayload.open(next.getMissionId(), next.getQuantity(), next.getCount(), discNo,next.getSize(),next.getSpeed());
             openMap.put(open.getTtl(), open);
             mqttSender.sendMessage(machineId, open);
             return true;

@@ -14,16 +14,17 @@ import com.chester.svc.plc.web.model.res.ResVerifyMaterial;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
 @Api(tags="任务")
+@ApiIgnore
 @RestController
 @RequestMapping("/plc/missions")
 public class MissionController {
