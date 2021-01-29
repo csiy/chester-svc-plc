@@ -22,7 +22,6 @@ public  class IdleConnectionMonitorThread extends Thread {
             while (!shutdown) {
                 synchronized (this) {
                     wait(5000);
-                    log.info("【定时清除过期连接开始...】");
                     // 关闭超时的连接
                     connMgr.closeExpiredConnections();
                     // 关闭空闲时间大于30s的连接
