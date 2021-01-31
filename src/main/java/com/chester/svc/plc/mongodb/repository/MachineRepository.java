@@ -51,7 +51,6 @@ public class MachineRepository {
     @PostConstruct
     public void afterPropertiesSet() {
         this.coll = db.getCollection(MongoCollections.machine, Machine.class);
-        addMachine("M00001");
     }
 
     public void addMachine(String clientName) {
