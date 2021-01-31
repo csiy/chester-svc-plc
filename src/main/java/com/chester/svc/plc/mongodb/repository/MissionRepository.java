@@ -145,7 +145,7 @@ public class MissionRepository {
                 Filters.eq(Constant._id, mission.getMissionId()),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE));
         this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set(Constant.disk, mission.getCount()),
+                Updates.set(Constant.disk, mission.getCount())
         ));
     }
 
