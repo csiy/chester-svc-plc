@@ -91,6 +91,13 @@ public class MissionController {
         missionRepository.updateMission(mission, UserTokenHolder.getUserId());
     }
 
+    @PutMapping("/disk")
+    @ApiOperation("修改任务盘")
+    @Roles(value = "admin,operator", remark = "修改任务盘")
+    public void updateMissionDisk(@RequestBody Mission mission){
+        missionRepository.updateDisk(mission, UserTokenHolder.getUserId());
+    }
+
     @GetMapping("/{missionId}")
     @ApiOperation("查找任务")
     @Roles(value = "admin,operator", remark = "查找任务")

@@ -42,8 +42,6 @@ public class MissionRepository {
     private SerialRepository serialRepository;
     @Resource
     private MongoInt64IdGenerator sortGenerator;
-    @Value("${printUrl}")
-    private String printUrl;
 
     @PostConstruct
     public void afterPropertiesSet() {
@@ -139,6 +137,15 @@ public class MissionRepository {
                 Updates.set(Constant.bin, mission.getBin()),
                 Updates.set(Constant.machineId, Constant.empty),
                 Updates.set(Constant.status, 0)
+        ));
+    }
+
+    public void updateDisk(Mission mission, Long updatedBy) {
+        Bson filter = Filters.and(
+                Filters.eq(Constant._id, mission.getMissionId()),
+                Filters.eq(Constant.isDeleted, Boolean.FALSE));
+        this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
+                Updates.set(Constant.disk, mission.getCount()),
         ));
     }
 
