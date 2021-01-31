@@ -128,7 +128,7 @@ public class MissionRepository {
                 Updates.set(Constant.materialCode, mission.getMaterialCode()),
                 Updates.set(Constant.aoCode, mission.getAoCode()),
                 Updates.set(Constant.count, mission.getCount()),
-                Updates.set(Constant.disk, mission.getCount()),
+                Updates.set(Constant.disk, mission.getDisk()),
                 Updates.set(Constant.quantity, mission.getQuantity()),
                 Updates.set(Constant.position, mission.getPosition()),
                 Updates.set(Constant.replace, mission.getReplace()),
@@ -145,7 +145,7 @@ public class MissionRepository {
                 Filters.eq(Constant._id, mission.getMissionId()),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE));
         this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set(Constant.disk, mission.getCount())
+                Updates.set(Constant.disk, mission.getDisk())
         ));
     }
 
