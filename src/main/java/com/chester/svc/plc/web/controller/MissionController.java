@@ -2,8 +2,10 @@ package com.chester.svc.plc.web.controller;
 
 import com.chester.auth.client.annotation.Roles;
 import com.chester.auth.client.core.UserTokenHolder;
+import com.chester.svc.plc.mongodb.model.Machine;
 import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.mongodb.model.Mission;
+import com.chester.svc.plc.mongodb.repository.MachineRepository;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
 import com.chester.svc.plc.web.model.req.ReqImportMission;
@@ -16,6 +18,7 @@ import com.chester.util.page.Pagination;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import springfox.documentation.annotations.ApiIgnore;
 
@@ -33,6 +36,8 @@ public class MissionController {
     private MissionRepository missionRepository;
     @Resource
     private MaterialRepository materialRepository;
+    @Resource
+    private MachineRepository machineRepository;
 
     @PostMapping
     @ApiOperation("添加任务")
@@ -129,7 +134,11 @@ public class MissionController {
     @ApiOperation("打印任务")
     @PostMapping("/print/{missionId}")
     public void print(@PathVariable("missionId") String missionId){
-        missionRepository.print(missionId);
+        Mission mission = missionRepository.getMission(missionId);
+        Assert.notNull(mission,"任务不存在");
+        Machine machine = machineRepository.getMachine(mission.getMachineId());
+        Assert.isTrue(StringUtils.hasLength(machine.getAddress()),"回调地址为设置");
+        missionRepository.print(machine.getAddress(),mission);
     }
 
 }

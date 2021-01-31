@@ -18,6 +18,7 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
+import org.apache.commons.lang.StringUtils;
 import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -188,10 +189,16 @@ public class MissionRepository {
         return this.coll.find(filter).into(new ArrayList<>());
     }
 
-    public void print(String missionId){
-        Mission mission = getMission(missionId);
+    public Mission getMissionByWave(String waveNo){
+        return this.coll.find(Filters.eq(Constant.waveNo, waveNo)
+        ).first();
+    }
+
+    public void print(String url,Mission mission){
         try {
-            HttpClientUtils.doPost(printUrl,mission);
+            if(StringUtils.isNotBlank(url)&&mission!=null){
+                HttpClientUtils.doPost(url,mission);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

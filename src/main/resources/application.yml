@@ -47,4 +47,3 @@ chester:
     - {menuId: 'plc-root-task', path: '/plc/task', name: '生产管理',icon: 'mdi-alpha-r-circle-outline',url: '/plc/task',sort: 1,type: 'drawer',roles: ['admin','operator']}
     - {menuId: 'plc-mission', path: '/plc/missions', name: '任务管理',icon: 'mdi-screw-machine-flat-top',url: '/task/missions',sort: 2,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-task']}
     - {menuId: 'plc-job', path: '/plc/jobs', name: '排程管理',icon: 'mdi-database-refresh',url: '/task/jobs',sort: 4,type: 'drawer',roles: ['admin','operator'],parentIds: ['plc-root-task']}
-printUrl: http://localhost:9999

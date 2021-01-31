@@ -1,17 +1,17 @@
 package com.chester.svc.plc.web.controller;
 
+import com.chester.svc.plc.mongodb.model.Machine;
 import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.mongodb.model.Mission;
 import com.chester.svc.plc.mongodb.model.WM;
+import com.chester.svc.plc.mongodb.repository.MachineRepository;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -24,6 +24,8 @@ public class WMSController {
     private MissionRepository missionRepository;
     @Resource
     private MaterialRepository materialRepository;
+    @Resource
+    private MachineRepository machineRepository;
 
     @PostMapping
     @ApiOperation("导入任务")
@@ -39,5 +41,21 @@ public class WMSController {
         mission.setWaveNo(wms.getWaveNo());
         missionRepository.addMission(mission, 10000L);
         return true;
+    }
+
+    @ApiOperation("打印任务")
+    @PostMapping("/print/{waveNo}")
+    public void print(@PathVariable("waveNo") String waveNo){
+        Mission mission = missionRepository.getMissionByWave(waveNo);
+        Assert.notNull(mission,"任务不存在");
+        Machine machine = machineRepository.getMachine(mission.getMachineId());
+        Assert.isTrue(StringUtils.hasLength(machine.getAddress()),"回调地址为设置");
+        missionRepository.print(machine.getAddress(),mission);
+    }
+
+    @ApiOperation("获取任务")
+    @PostMapping("/mission/{waveNo}")
+    public Mission mission(@PathVariable("waveNo") String waveNo){
+        return missionRepository.getMissionByWave(waveNo);
     }
 }

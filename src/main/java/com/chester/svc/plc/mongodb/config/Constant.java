@@ -11,6 +11,7 @@ public interface Constant {
     String disk = "disk";
     String sort = "sort";
     String materialCode = "materialCode";
+    String waveNo = "waveNo";
     String aoCode = "aoCode";
     String linkState = "linkState";
     String disks = "disks";
