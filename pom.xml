@@ -42,5 +42,35 @@
 			<version>2.9.2</version>
 		</dependency>
 	</dependencies>
-
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>1.8.0</version>
+				<configuration>
+					<from>
+						<image>openjdk:8-jdk-alpine</image>
+					</from>
+					<to>
+						<image>registry.cn-zhangjiakou.aliyuncs.com/chester_csy/${project.artifactId}</image>
+						<auth>
+							<username>18657120293</username>
+							<password>tom36634938@qq</password>
+						</auth>
+					</to>
+					<container>
+						<jvmFlags>
+							<jvmFlag>-XX:+UnlockExperimentalVMOptions</jvmFlag>
+							<jvmFlag>-XX:+UseCGroupMemoryLimitForHeap</jvmFlag>
+							<jvmFlag>-Djava.security.egd=file:/dev/./urandom</jvmFlag>
+							<jvmFlag>-Duser.timezone=Asia/Shanghai</jvmFlag>
+						</jvmFlags>
+						<creationTime>${git.commit.time}</creationTime>
+					</container>
+					<allowInsecureRegistries>true</allowInsecureRegistries>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
