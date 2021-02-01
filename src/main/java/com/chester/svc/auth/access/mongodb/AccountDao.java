@@ -17,7 +17,7 @@ public class AccountDao {
     private MongoCollection<Account> coll;
 
     public AccountDao(MongoDatabase db) {
-        this.coll = db.getCollection("user.user", Account.class);
+        this.coll = db.getCollection("user.user2", Account.class);
     }
 
     public Account getAccountByPhoneOrId(String username) {
