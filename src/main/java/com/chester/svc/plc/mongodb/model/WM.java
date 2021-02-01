@@ -7,7 +7,7 @@ import lombok.Data;
 @Data()
 @ApiModel("WM外部接口导入")
 public class WM {
-    @ApiModelProperty("波次号")
+    @ApiModelProperty("分配ID")
     private String waveNo;
     @ApiModelProperty("物料号")
     private String materialCode;
@@ -19,4 +19,6 @@ public class WM {
     private Integer size;
     @ApiModelProperty("速率")
     private Integer speed;
+    @ApiModelProperty("检字号")
+    private String verify;
 }

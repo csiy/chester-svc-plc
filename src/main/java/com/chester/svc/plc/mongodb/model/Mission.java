@@ -49,12 +49,14 @@ public class Mission extends BaseEntity {
     private Long sort;
     @ApiModelProperty("当前工单 任务状态 0未执行 1进行中 2任务完成 3任务异常终止")
     private Integer status;
-    @ApiModelProperty("波次号")
+    @ApiModelProperty("分配ID")
     private String waveNo;
     @ApiModelProperty("包装袋尺寸")
     private Integer size = 1;
     @ApiModelProperty("速率")
     private Integer speed = 1;
+    @ApiModelProperty("检字号")
+    private String verify;
 
 
     public void initMaterial(Material material){
