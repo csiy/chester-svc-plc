@@ -39,6 +39,7 @@ public class WMSController {
         mission.setSize(wms.getSize());
         mission.setSpeed(wms.getSpeed());
         mission.setWaveNo(wms.getWaveNo());
+        mission.setVerify(wms.getVerify());
         missionRepository.addMission(mission, 10000L);
         return true;
     }
