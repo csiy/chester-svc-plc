@@ -50,7 +50,7 @@ public class WMSController {
         Mission mission = missionRepository.getMissionByWave(waveNo);
         Assert.notNull(mission,"任务不存在");
         Machine machine = machineRepository.getMachine(mission.getMachineId());
-        Assert.isTrue(StringUtils.hasLength(machine.getAddress()),"回调地址为设置");
+        Assert.isTrue(StringUtils.hasLength(machine.getAddress()),"回调地址未设置");
         missionRepository.print(machine.getAddress(),mission);
     }
 
