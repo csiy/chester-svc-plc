@@ -40,7 +40,7 @@ public class WMSController {
             Assert.notNull(wms.getSpeed(), "请输入速率");
             Assert.notNull(material, "物料号或AO工序号不存在");
         }catch (Exception e){
-            return new Result<>(500,e.getLocalizedMessage());
+            return Result.error(e.getLocalizedMessage());
         }
 
         Mission mission = new Mission();
@@ -52,7 +52,7 @@ public class WMSController {
         mission.setWaveNo(wms.getWaveNo());
         mission.setVerify(wms.getVerify());
         missionRepository.addMission(mission, 10000L);
-        return new Result<>("导入成功");
+        return Result.success("导入成功");
     }
 
     @ApiOperation("打印任务")
@@ -63,7 +63,7 @@ public class WMSController {
 
     @ApiOperation("获取任务")
     @PostMapping("/mission/{waveNo}")
-    public Mission mission(@PathVariable("waveNo") String waveNo){
-        return missionRepository.getMissionByWave(waveNo);
+    public Result<Mission> mission(@PathVariable("waveNo") String waveNo){
+        return Result.success(missionRepository.getMissionByWave(waveNo));
     }
 }
