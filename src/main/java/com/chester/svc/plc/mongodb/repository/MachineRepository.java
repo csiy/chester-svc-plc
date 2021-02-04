@@ -149,7 +149,7 @@ public class MachineRepository {
         missionRepository.updateMission(missionId, status);
         if (status == 2) {
             stopMachine(machineId, discNo, true);
-            missionRepository.print(getMachine(machineId).getAddress(),missionRepository.getMission(missionId));
+            missionRepository.print(missionRepository.getMission(missionId).getWaveNo());
         } else if (status == 3) {
             stopMachine(machineId, discNo, false);
         }

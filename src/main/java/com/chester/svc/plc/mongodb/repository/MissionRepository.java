@@ -10,6 +10,7 @@ import com.chester.svc.plc.mongodb.model.Mission;
 import com.chester.svc.plc.mongodb.config.MongoCollections;
 import com.chester.svc.plc.web.model.req.ReqPageMission;
 import com.chester.svc.sys.mongodb.repository.UserRepository;
+import com.chester.util.json.JSON;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
 import com.mongodb.client.MongoCollection;
@@ -19,6 +20,8 @@ import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -27,9 +30,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Repository
 public class MissionRepository {
@@ -47,7 +52,7 @@ public class MissionRepository {
     public void afterPropertiesSet() {
         this.coll = db.getCollection(MongoCollections.mission, Mission.class);
         this.coll.createIndex(Indexes.ascending(Constant.date));
-        this.coll.createIndex(Indexes.ascending(Constant.machineId,Constant.sort));
+        this.coll.createIndex(Indexes.ascending(Constant.machineId, Constant.sort));
 
     }
 
@@ -149,7 +154,7 @@ public class MissionRepository {
         ));
     }
 
-    public void updateMission(List<String> missionIds,String machineId) {
+    public void updateMission(List<String> missionIds, String machineId) {
         this.coll.updateOne(Filters.in(Constant._id, missionIds), AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set(Constant.machineId, machineId)
         ));
@@ -157,7 +162,7 @@ public class MissionRepository {
 
     public void updateMission(String machineId) {
         Bson filter = Filters.and(
-                Filters.eq(Constant.status,0),
+                Filters.eq(Constant.status, 0),
                 Filters.eq(Constant.machineId, machineId),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE));
         this.coll.updateOne(filter, AccessUtils.prepareUpdates(1L, "系统",
@@ -174,40 +179,58 @@ public class MissionRepository {
     public Mission getNext(String machineId, String disk) {
         Bson sort = Sorts.ascending(Constant.sort);
         Bson filter = Filters.and(
-                Filters.eq(Constant.status,0),
+                Filters.eq(Constant.status, 0),
                 Filters.eq(Constant.machineId, machineId),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE),
                 Filters.eq(Constant.disk, disk));
         return this.coll.find(filter).sort(sort).first();
     }
 
-    public void sort(String mission1,String mission2){
+    public void sort(String mission1, String mission2) {
         Mission _mission1 = getMission(mission1);
         Mission _mission2 = getMission(mission2);
-        this.coll.updateOne(Filters.eq(Constant._id, mission1),Updates.set(Constant.sort, _mission2.getSort()));
-        this.coll.updateOne(Filters.eq(Constant._id, mission2),Updates.set(Constant.sort, _mission1.getSort()));
+        this.coll.updateOne(Filters.eq(Constant._id, mission1), Updates.set(Constant.sort, _mission2.getSort()));
+        this.coll.updateOne(Filters.eq(Constant._id, mission2), Updates.set(Constant.sort, _mission1.getSort()));
     }
 
-    public List<Mission> findAllUnSchedule(){
+    public List<Mission> findAllUnSchedule() {
         Bson filter = Filters.and(
-                Filters.eq(Constant.status,0),
+                Filters.eq(Constant.status, 0),
                 Filters.eq(Constant.machineId, Constant.empty),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE));
         return this.coll.find(filter).into(new ArrayList<>());
     }
 
-    public Mission getMissionByWave(String waveNo){
+    public Mission getMissionByWave(String waveNo) {
         return this.coll.find(Filters.eq(Constant.waveNo, waveNo)
         ).first();
     }
 
-    public void print(String url,Mission mission){
-        try {
-            if(StringUtils.isNotBlank(url)&&mission!=null){
-                HttpClientUtils.doPost(url,mission);
+    public void print(String... ids) {
+        if (ids != null && ids.length > 0) {
+            List<NameValuePair> params = new ArrayList<>();
+            Map<String, Object> data = new HashMap<>();
+            List<Map<String, String>> header = new ArrayList<>();
+            for (String id : ids) {
+                if(id!=null){
+                    Map<String, String> idMap = new HashMap<>();
+                    idMap.put("ALLOCATIONDETAILSID", id);
+                    header.add(idMap);
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            if (header.size() > 0) {
+                data.put("xmldata", header);
+                params.add(new BasicNameValuePair("method", "PRINT"));
+                params.add(new BasicNameValuePair("client_customerid", "ZHZH"));
+                params.add(new BasicNameValuePair("client_db", "FLUXWMSDB"));
+                params.add(new BasicNameValuePair("messageid", "PRINT"));
+                params.add(new BasicNameValuePair("apptoken", "80AC1A3F-F949-492C-A024-7044B28C8025"));
+                params.add(new BasicNameValuePair("appkey", "test"));
+                params.add(new BasicNameValuePair("sign", "FLUX"));
+                params.add(new BasicNameValuePair("timestamp", LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss"))));
+                params.add(new BasicNameValuePair("data", JSON.stringify(data)));
+                HttpClientUtils.postWithParamsForString("http://10.8.5.195:19192/datahub/FluxWmsJsonApi/", params);
+            }
         }
     }
 
@@ -228,6 +251,6 @@ public class MissionRepository {
     private String getMissionId(Mission mission) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         return sdf.format(mission.getCreatedOn()) +
-                String.format("%06d",mission.getSerialNumber());
+                String.format("%06d", mission.getSerialNumber());
     }
 }

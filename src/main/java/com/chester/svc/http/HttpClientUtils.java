@@ -5,19 +5,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.Consts;
-import org.apache.http.HttpHeaders;
+import org.apache.http.*;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -171,5 +173,23 @@ public class HttpClientUtils {
         String response = httpClient.execute(request, handler);
         log.info("请求耗时【{}】, 接口返回信息【{}】", System.currentTimeMillis() - startPoint, response);
         return response;
+    }
+
+    public static String postWithParamsForString(String url, List<NameValuePair> params){
+        HttpPost httpPost =  new HttpPost(url);
+        String s = "";
+        try {
+            httpPost.setEntity(new UrlEncodedFormEntity(params,"UTF-8"));
+            httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
+            HttpResponse response = httpClient.execute(httpPost);
+            int statusCode = response.getStatusLine().getStatusCode();
+            if(statusCode==200){
+                HttpEntity entity = response.getEntity();
+                s = EntityUtils.toString(entity);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return s;
     }
 }

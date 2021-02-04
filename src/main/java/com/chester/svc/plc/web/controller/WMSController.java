@@ -7,6 +7,8 @@ import com.chester.svc.plc.mongodb.model.WM;
 import com.chester.svc.plc.mongodb.repository.MachineRepository;
 import com.chester.svc.plc.mongodb.repository.MaterialRepository;
 import com.chester.svc.plc.mongodb.repository.MissionRepository;
+import com.chester.svc.plc.web.model.req.Print;
+import com.chester.svc.plc.web.model.res.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.Assert;
@@ -29,9 +31,18 @@ public class WMSController {
 
     @PostMapping
     @ApiOperation("导入任务")
-    public Boolean add(@RequestBody WM wms) {
+    public Result<String> add(@RequestBody WM wms) {
         Material material = materialRepository.getMaterial(wms.getMaterialCode(), wms.getAoCode());
-        Assert.notNull(material, "物料号或AO工序号不存在");
+        try{
+            Assert.notNull(wms.getWaveNo(), "请输入分配ID");
+            Assert.notNull(wms.getVerify(), "请输入检字号");
+            Assert.notNull(wms.getSize(), "请输入包装袋尺寸");
+            Assert.notNull(wms.getSpeed(), "请输入速率");
+            Assert.notNull(material, "物料号或AO工序号不存在");
+        }catch (Exception e){
+            return new Result<>(500,e.getLocalizedMessage());
+        }
+
         Mission mission = new Mission();
         mission.setLineNumber(1);
         mission.setCount(wms.getCount());
@@ -41,17 +52,13 @@ public class WMSController {
         mission.setWaveNo(wms.getWaveNo());
         mission.setVerify(wms.getVerify());
         missionRepository.addMission(mission, 10000L);
-        return true;
+        return new Result<>("导入成功");
     }
 
     @ApiOperation("打印任务")
-    @PostMapping("/print/{waveNo}")
-    public void print(@PathVariable("waveNo") String waveNo){
-        Mission mission = missionRepository.getMissionByWave(waveNo);
-        Assert.notNull(mission,"任务不存在");
-        Machine machine = machineRepository.getMachine(mission.getMachineId());
-        Assert.isTrue(StringUtils.hasLength(machine.getAddress()),"回调地址未设置");
-        missionRepository.print(machine.getAddress(),mission);
+    @PostMapping("/print")
+    public void print(@RequestBody Print print){
+        missionRepository.print(print.getIds().toArray(new String[]{}));
     }
 
     @ApiOperation("获取任务")
