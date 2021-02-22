@@ -19,10 +19,12 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.bson.conversions.Bson;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -36,6 +38,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Slf4j
 @Repository
 public class MissionRepository {
     @Resource
@@ -206,6 +209,8 @@ public class MissionRepository {
         ).first();
     }
 
+    public static final String url = "http://183.234.148.212:19192/datahub/FluxWmsJsonApi/";
+
     public void print(String... ids) {
         if (ids != null && ids.length > 0) {
             List<NameValuePair> params = new ArrayList<>();
@@ -219,17 +224,20 @@ public class MissionRepository {
                 }
             }
             if (header.size() > 0) {
-                data.put("xmldata", header);
-                params.add(new BasicNameValuePair("method", "PRINT"));
-                params.add(new BasicNameValuePair("client_customerid", "ZHZH"));
+                Map<String, Object> _header = new HashMap<>();
+                _header.put("header",header);
+                data.put("xmldata", _header);
+                params.add(new BasicNameValuePair("method", "putPRINTData"));
+                params.add(new BasicNameValuePair("client_customerid", "FLUXWMSASSJSON"));
                 params.add(new BasicNameValuePair("client_db", "FLUXWMSDB"));
                 params.add(new BasicNameValuePair("messageid", "PRINT"));
                 params.add(new BasicNameValuePair("apptoken", "80AC1A3F-F949-492C-A024-7044B28C8025"));
-                params.add(new BasicNameValuePair("appkey", "test"));
-                params.add(new BasicNameValuePair("sign", "FLUX"));
+                params.add(new BasicNameValuePair("appkey", "FLUX"));
+                params.add(new BasicNameValuePair("sign", "NGRMMZG2MGFIOGJIOGIZZJLMZWU5MWE5NGU5MJGZNTI="));
                 params.add(new BasicNameValuePair("timestamp", LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss"))));
                 params.add(new BasicNameValuePair("data", JSON.stringify(data)));
-                HttpClientUtils.postWithParamsForString("http://10.8.5.195:19192/datahub/FluxWmsJsonApi/", params);
+                log.info("print url :{} , params:{}",url,JSON.serialize(params));
+                HttpClientUtils.postWithParamsForString(url, params);
             }
         }
     }
