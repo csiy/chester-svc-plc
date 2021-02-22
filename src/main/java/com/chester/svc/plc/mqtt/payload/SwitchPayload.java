@@ -10,7 +10,8 @@ public class SwitchPayload extends Payload{
     private Integer totalB;
     private String key;
     private Integer discNo;
-    private Integer size;
+    private Integer height;
+    private Integer width;
     private Integer speed;
     public SwitchPayload(String key,Integer discNo){
         super("switch");
@@ -18,12 +19,13 @@ public class SwitchPayload extends Payload{
         this.discNo = discNo;
     }
 
-    public static SwitchPayload open(String missionId,Integer totalOneB,Integer totalB,Integer discNo,Integer size,Integer speed){
+    public static SwitchPayload open(String missionId,Integer totalOneB,Integer totalB,Integer discNo,Integer height,Integer width,Integer speed){
         SwitchPayload payload = new SwitchPayload(Constant.open,discNo);
         payload.setTotalB(totalB);
         payload.setTotalOneB(totalOneB);
         payload.setMissionId(missionId);
-        payload.setSize(size);
+        payload.setHeight(height);
+        payload.setWidth(width);
         payload.setSpeed(speed);
         return payload;
     }
