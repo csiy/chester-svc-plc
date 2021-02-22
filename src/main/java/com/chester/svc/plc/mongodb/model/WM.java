@@ -15,12 +15,14 @@ public class WM {
     private String aoCode;
     @ApiModelProperty("包装数量")
     private Integer count;
-    @ApiModelProperty("包装袋尺寸 高 cm")
+    @ApiModelProperty("包装袋尺寸 高 mm")
     private Integer height;
-    @ApiModelProperty("包装袋尺寸 宽 cm")
-    private Integer width;
-    @ApiModelProperty("速率")
-    private Integer speed;
+    @ApiModelProperty("包装袋尺寸 宽 mm")
+    private Integer width = 110;
+    @ApiModelProperty("高速震动量")
+    private Integer highSpeed;
+    @ApiModelProperty("低速震动量")
+    private Integer lowSpeed;
     @ApiModelProperty("检字号")
     private String verify;
 }
