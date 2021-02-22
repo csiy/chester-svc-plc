@@ -51,8 +51,10 @@ public class Mission extends BaseEntity {
     private Integer status;
     @ApiModelProperty("分配ID")
     private String waveNo;
-    @ApiModelProperty("包装袋尺寸")
-    private Integer size = 1;
+    @ApiModelProperty("包装袋尺寸 高 cm")
+    private Integer height = 100;
+    @ApiModelProperty("包装袋尺寸 宽 cm")
+    private Integer width = 50;
     @ApiModelProperty("速率")
     private Integer speed = 1;
     @ApiModelProperty("检字号")

@@ -36,7 +36,8 @@ public class WMSController {
         try{
             Assert.notNull(wms.getWaveNo(), "请输入分配ID");
             Assert.notNull(wms.getVerify(), "请输入检字号");
-            Assert.notNull(wms.getSize(), "请输入包装袋尺寸");
+            Assert.notNull(wms.getHeight(), "请输入包装袋尺寸");
+            Assert.notNull(wms.getWidth(), "请输入包装袋尺寸");
             Assert.notNull(wms.getSpeed(), "请输入速率");
             Assert.notNull(material, "物料号或AO工序号不存在");
         }catch (Exception e){
@@ -47,7 +48,8 @@ public class WMSController {
         mission.setLineNumber(1);
         mission.setCount(wms.getCount());
         mission.initMaterial(material);
-        mission.setSize(wms.getSize());
+        mission.setHeight(wms.getHeight());
+        mission.setWidth(wms.getWidth());
         mission.setSpeed(wms.getSpeed());
         mission.setWaveNo(wms.getWaveNo());
         mission.setVerify(wms.getVerify());
