@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.Charsets;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.*;
 import org.apache.http.client.ResponseHandler;
@@ -19,6 +20,7 @@ import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -179,7 +181,7 @@ public class HttpClientUtils {
         HttpPost httpPost =  new HttpPost(url);
         String s = "";
         try {
-            httpPost.setEntity(new UrlEncodedFormEntity(params,"UTF-8"));
+            httpPost.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
             httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
             HttpResponse response = httpClient.execute(httpPost);
             int statusCode = response.getStatusLine().getStatusCode();
