@@ -236,7 +236,7 @@ public class MissionRepository {
                 params.add(new BasicNameValuePair("sign", "NGRMMZG2MGFIOGJIOGIZZJLMZWU5MWE5NGU5MJGZNTI="));
                 params.add(new BasicNameValuePair("timestamp", LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss"))));
                 params.add(new BasicNameValuePair("data", JSON.stringify(data)));
-                log.info("print url :{} , params:{}",url,JSON.serialize(params));
+                log.info("print url :{} , params:{}",url,JSON.stringify(params));
                 HttpClientUtils.postWithParamsForString(url, params);
             }
         }
