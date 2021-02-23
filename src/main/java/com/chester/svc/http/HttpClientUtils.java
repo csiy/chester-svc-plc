@@ -36,7 +36,7 @@ import java.util.Map;
 @Slf4j
 public class HttpClientUtils {
 
-    private static CloseableHttpClient httpClient = SpringContextUtil.getBean("customCloseableHttpClient", CloseableHttpClient.class);
+    private static CloseableHttpClient httpClient = SpringContextUtil.getBean(CloseableHttpClient.class);
 
 
     /**
