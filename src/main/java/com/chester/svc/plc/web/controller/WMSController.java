@@ -38,8 +38,9 @@ public class WMSController {
             Assert.notNull(wms.getVerify(), "请输入检字号");
             Assert.notNull(wms.getHeight(), "请输入包装袋尺寸");
             Assert.notNull(wms.getWidth(), "请输入包装袋尺寸");
-            Assert.notNull(wms.getHighSpeed(), "请输入高速震动量");
-            Assert.notNull(wms.getLowSpeed(), "请输入低速震动量");
+            Assert.notNull(wms.getHighSpeed(), "请输入高速速率");
+            Assert.notNull(wms.getLowSpeed(), "请输入低速速率");
+            Assert.notNull(wms.getLowNumber(), "请输入低速震动量");
             Assert.notNull(material, "物料号或AO工序号不存在");
         }catch (Exception e){
             return Result.error(e.getLocalizedMessage());
@@ -51,6 +52,7 @@ public class WMSController {
         mission.initMaterial(material);
         mission.setHeight(wms.getHeight());
         mission.setWidth(wms.getWidth());
+        mission.setLowNumber(wms.getLowNumber());
         mission.setHighSpeed(wms.getHighSpeed());
         mission.setLowSpeed(wms.getLowSpeed());
         mission.setWaveNo(wms.getWaveNo());

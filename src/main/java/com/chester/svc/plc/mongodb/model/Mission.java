@@ -55,10 +55,12 @@ public class Mission extends BaseEntity {
     private Integer height = 240;
     @ApiModelProperty("包装袋尺寸 宽 mm")
     private Integer width = 110;
-    @ApiModelProperty("高速震动量")
+    @ApiModelProperty("高速速率")
     private Integer highSpeed;
-    @ApiModelProperty("低速震动量")
+    @ApiModelProperty("低速速率")
     private Integer lowSpeed;
+    @ApiModelProperty("低速量")
+    private Integer lowNumber;
     @ApiModelProperty("检字号")
     private String verify;
 
