@@ -122,6 +122,7 @@ public class MachineRepository {
     }
 
     public void linked(String machineId) {
+        log.info("linked : {}",machineId);
         this.coll.updateOne(Filters.eq(Constant._id, machineId), AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set(Constant.linkState, Boolean.TRUE),
                 Updates.set(Constant.lostThreshold, System.currentTimeMillis() + 1000 * 60)
