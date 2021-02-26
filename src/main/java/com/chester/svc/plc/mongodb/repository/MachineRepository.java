@@ -122,7 +122,6 @@ public class MachineRepository {
     }
 
     public void linked(String machineId) {
-        log.info("linked : {}",machineId);
         this.coll.updateOne(Filters.eq(Constant._id, machineId), AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set(Constant.linkState, Boolean.TRUE),
                 Updates.set(Constant.lostThreshold, System.currentTimeMillis() + 1000 * 60)
@@ -185,9 +184,11 @@ public class MachineRepository {
 
     public void onStopMachine(String machineId, String ttl) {
         SwitchPayload close = closeMap.remove(ttl);
+        log.info("on stop : {}",close);
         if (close != null) {
             Machine machine = getMachine(machineId);
             machine.getDisks().get(close.getDiscNo()-1).setMissionId(null);
+            log.info("on stop machine: {}",machine);
             updateMachineDisk(machineId, machine.getDisks());
             Boolean auto = autoMap.remove(ttl);
             if(Booleans.isTrue(auto)){
