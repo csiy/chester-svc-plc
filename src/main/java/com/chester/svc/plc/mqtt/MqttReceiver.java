@@ -61,6 +61,7 @@ public class MqttReceiver {
                 try{
                     String machineId = clientName;
                     ReceiverPayload receiverPayload = JSON.parse(info, ReceiverPayload.class);
+                    log.info("接收消息：{}",receiverPayload);
                     if(receiverPayload.getMsgType().equals("taskStatus")){
                         machineRepository.updateMission(machineId,receiverPayload.getMissionId(),receiverPayload.getDiscNo(),receiverPayload.getMissionStatus());
                     }else if(receiverPayload.getMsgType().equals("reply")){
