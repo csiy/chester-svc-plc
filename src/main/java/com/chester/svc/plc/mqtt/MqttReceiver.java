@@ -66,8 +66,10 @@ public class MqttReceiver {
                         machineRepository.updateMission(machineId,receiverPayload.getMissionId(),receiverPayload.getDiscNo(),receiverPayload.getMissionStatus());
                     }else if(receiverPayload.getMsgType().equals("reply")){
                         if(receiverPayload.getOperation().equals("open")&&receiverPayload.getOperationResult().equals("success")){
+                            log.info("{} 接收open消息：{}",clientName,receiverPayload);
                             machineRepository.onRunMachine(clientName,receiverPayload.getRecvTTL());
                         }else if(receiverPayload.getOperation().equals("close")&&receiverPayload.getOperationResult().equals("success")){
+                            log.info("{} 接收close消息：{}",clientName,receiverPayload);
                             machineRepository.onStopMachine(clientName,receiverPayload.getRecvTTL());
                         }
                     }
