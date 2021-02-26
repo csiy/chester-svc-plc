@@ -187,11 +187,11 @@ public class MachineRepository {
         SwitchPayload close = closeMap.remove(ttl);
         if (close != null) {
             Machine machine = getMachine(machineId);
-            machine.getDisks().get(close.getDiscNo()).setMissionId(null);
+            machine.getDisks().get(close.getDiscNo()-1).setMissionId(null);
             updateMachineDisk(machineId, machine.getDisks());
             Boolean auto = autoMap.remove(ttl);
             if(Booleans.isTrue(auto)){
-                runMachine(machineId,close.getDiscNo());
+                runMachine(machineId,close.getDiscNo()-1);
             }
         }
     }
@@ -200,7 +200,7 @@ public class MachineRepository {
         SwitchPayload open = openMap.remove(ttl);
         if (open != null) {
             Machine machine = getMachine(machineId);
-            machine.getDisks().get(open.getDiscNo()).setMissionId(open.getMissionId());
+            machine.getDisks().get(open.getDiscNo()-1).setMissionId(open.getMissionId());
             updateMachineDisk(machineId, machine.getDisks());
         }
     }
