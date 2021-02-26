@@ -139,6 +139,7 @@ public class MachineRepository {
     }
 
     public void updateMission(String machineId, String missionId, Integer discNo, Integer status) throws InterruptedException {
+        log.info("更新任务状态：machineId:{},missionId:{},discNo:{},status:{}",machineId,missionId,discNo,status);
         if (status == 2) {
             String key = "m:f:" + missionId + ":n" + discNo;
             String finishMission = stringRedisTemplate.opsForValue().getAndSet(key, missionId);
@@ -184,15 +185,14 @@ public class MachineRepository {
 
     public void onStopMachine(String machineId, String ttl) {
         SwitchPayload close = closeMap.remove(ttl);
-        log.info("on stop : {}",close);
         if (close != null) {
             Machine machine = getMachine(machineId);
             machine.getDisks().get(close.getDiscNo()).setMissionId(null);
-            log.info("on stop machine: {}",machine);
             updateMachineDisk(machineId, machine.getDisks());
             Boolean auto = autoMap.remove(ttl);
+            log.info("on stop auto: {}",auto);
             if(Booleans.isTrue(auto)){
-                runMachine(machineId,close.getDiscNo()-1);
+                runMachine(machineId,close.getDiscNo());
             }
         }
     }
@@ -201,7 +201,7 @@ public class MachineRepository {
         SwitchPayload open = openMap.remove(ttl);
         if (open != null) {
             Machine machine = getMachine(machineId);
-            machine.getDisks().get(open.getDiscNo()-1).setMissionId(open.getMissionId());
+            machine.getDisks().get(open.getDiscNo()).setMissionId(open.getMissionId());
             updateMachineDisk(machineId, machine.getDisks());
         }
     }

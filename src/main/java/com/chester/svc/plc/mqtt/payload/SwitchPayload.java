@@ -34,7 +34,7 @@ public class SwitchPayload extends Payload{
     }
 
     public static SwitchPayload open(Mission next,Integer discNo){
-        SwitchPayload payload = new SwitchPayload(Constant.open,discNo+1);
+        SwitchPayload payload = new SwitchPayload(Constant.open,discNo);
         payload.setTotalB(next.getCount());
         payload.setTotalOneB(next.getQuantity());
         payload.setMissionId(next.getMissionId());
