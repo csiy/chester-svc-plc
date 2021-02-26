@@ -47,7 +47,7 @@ public class SwitchPayload extends Payload{
     }
 
     public static SwitchPayload close(String missionId,Integer discNo){
-        SwitchPayload payload = new SwitchPayload(Constant.open,discNo);
+        SwitchPayload payload = new SwitchPayload(Constant.close,discNo);
         payload.setMissionId(missionId);
         return payload;
     }
