@@ -187,7 +187,7 @@ public class MachineRepository {
         log.info("on stop : {}",close);
         if (close != null) {
             Machine machine = getMachine(machineId);
-            machine.getDisks().get(close.getDiscNo()-1).setMissionId(null);
+            machine.getDisks().get(close.getDiscNo()).setMissionId(null);
             log.info("on stop machine: {}",machine);
             updateMachineDisk(machineId, machine.getDisks());
             Boolean auto = autoMap.remove(ttl);
