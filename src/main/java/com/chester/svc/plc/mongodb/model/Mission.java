@@ -47,7 +47,7 @@ public class Mission extends BaseEntity {
     private String machineId;
     @ApiModelProperty("排序")
     private Long sort;
-    @ApiModelProperty("当前工单 任务状态 0未执行 1进行中 2任务完成 3任务异常终止")
+    @ApiModelProperty("当前工单 任务状态 0未执行 1进行中 2任务完成 3任务异常终止 4手动停止")
     private Integer status;
     @ApiModelProperty("分配ID")
     private String waveNo;

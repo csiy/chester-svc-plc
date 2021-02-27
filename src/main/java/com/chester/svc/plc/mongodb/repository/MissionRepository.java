@@ -107,7 +107,8 @@ public class MissionRepository {
         Bson filter = Filters.and(
                 Filters.eq(Constant.machineId, machineId),
                 Filters.eq(Constant.disk, disk),
-                Filters.eq(Constant.isDeleted, Boolean.FALSE)
+                Filters.eq(Constant.isDeleted, Boolean.FALSE),
+                Filters.eq(Constant.status,0)
         );
         return MongoPageQuery.builder(coll, Mission.class).sort(sort).page(pagination).filter(filter).execute();
     }

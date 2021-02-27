@@ -4,6 +4,7 @@ import com.chester.auth.client.annotation.Roles;
 import com.chester.auth.client.core.UserTokenHolder;
 import com.chester.svc.plc.mongodb.model.Machine;
 import com.chester.svc.plc.mongodb.repository.MachineRepository;
+import com.chester.svc.plc.mongodb.repository.MissionRepository;
 import com.chester.svc.plc.web.model.req.ReqPageMachine;
 import com.chester.util.page.PageResult;
 import com.chester.util.page.Pagination;
@@ -23,6 +24,9 @@ public class MachineController {
 
     @Resource
     private MachineRepository machineRepository;
+
+    @Resource
+    private MissionRepository missionRepository;
 
     @PutMapping
     @ApiOperation("修改设备")
@@ -57,5 +61,7 @@ public class MachineController {
     @Roles(value = "admin,operator", remark = "停止任务")
     public void stopMachine(@PathVariable("machineId") String machineId,@PathVariable("discNo")Integer discNo){
         machineRepository.stopMachine(machineId,discNo,false);
+        List<Machine.Disk> disks = machineRepository.getMachine(machineId).getDisks();
+        missionRepository.updateMission(disks.get(discNo).getMissionId(), 4);
     }
 }
