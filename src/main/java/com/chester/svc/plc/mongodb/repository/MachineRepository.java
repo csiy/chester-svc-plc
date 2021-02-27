@@ -139,6 +139,16 @@ public class MachineRepository {
     }
 
     public void updateMission(String machineId, String missionId, Integer discNo, Integer status) throws InterruptedException {
+        Machine machine = getMachine(machineId);
+        Mission mission = missionRepository.getMission(missionId);
+        if(machine!=null&&!Lists.isEmpty(machine.getDisks())&&mission!=null){
+            for(int i=0;i<machine.getDisks().size();i++){
+                if(machine.getDisks().get(i).getName().equals(mission.getDisk())){
+                    discNo = i;
+                }
+
+            }
+        }
         log.info("更新任务状态：machineId:{},missionId:{},discNo:{},status:{}",machineId,missionId,discNo,status);
         if (status == 2) {
             String key = "m:f:" + missionId + ":n" + discNo;
