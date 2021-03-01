@@ -13,7 +13,7 @@ spring:
     # 与服务端保持连接的最大时间（毫秒）
     socket-timeout: 20000
   rabbitmq:
-    host: rabbitmq
+    host: localhost
     port: 5672
     username: chester
     password: 123456
@@ -29,7 +29,7 @@ spring:
     password: chester@123456
   data:
     mongodb:
-      uri: mongodb://root:123456@mongodb:27017/chester?authSource=admin
+      uri: mongodb://root:123456@localhost:27017/chester?authSource=admin
 
 logging:
   path: log/
