@@ -169,7 +169,7 @@ public class MissionRepository {
                 Filters.eq(Constant.status, 0),
                 Filters.eq(Constant.machineId, machineId),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE));
-        this.coll.updateOne(filter, AccessUtils.prepareUpdates(1L, "系统",
+        this.coll.updateMany(filter, AccessUtils.prepareUpdates(1L, "系统",
                 Updates.set(Constant.machineId, Constant.empty)
         ));
     }
