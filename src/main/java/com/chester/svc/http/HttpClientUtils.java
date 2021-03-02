@@ -189,8 +189,8 @@ public class HttpClientUtils {
                 HttpEntity entity = response.getEntity();
                 s = EntityUtils.toString(entity);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            log.info("发送失败");
         }
         return s;
     }
