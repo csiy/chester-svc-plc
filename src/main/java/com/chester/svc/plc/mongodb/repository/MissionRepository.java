@@ -26,6 +26,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
@@ -50,6 +51,8 @@ public class MissionRepository {
     private SerialRepository serialRepository;
     @Resource
     private MongoInt64IdGenerator sortGenerator;
+    @Resource
+    private HttpClientUtils httpClientUtils;
 
     @PostConstruct
     public void afterPropertiesSet() {
@@ -238,7 +241,7 @@ public class MissionRepository {
                 params.add(new BasicNameValuePair("timestamp", LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss"))));
                 params.add(new BasicNameValuePair("data", JSON.stringify(data)));
                 log.info("print url :{} , params:{}",url,JSON.stringify(params));
-                HttpClientUtils.postWithParamsForString(url, params);
+                httpClientUtils.postWithParamsForString(url, params);
             }
         }
     }
