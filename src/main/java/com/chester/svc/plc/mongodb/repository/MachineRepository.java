@@ -180,7 +180,7 @@ public class MachineRepository {
         mqttSender.sendMessage(machineId, close);
     }
 
-    public Boolean runMachine(String machineId, Integer discNo) {
+    public Mission runMachine(String machineId, Integer discNo) {
         List<Machine.Disk> disks = getMachine(machineId).getDisks();
         String disc = disks.get(discNo).getName();
         Mission next = missionRepository.getNext(machineId, disc);
@@ -188,9 +188,8 @@ public class MachineRepository {
             SwitchPayload open = SwitchPayload.open(next, discNo);
             openMap.put(open.getTtl(), open);
             mqttSender.sendMessage(machineId, open);
-            return true;
         }
-        return false;
+        return next;
     }
 
     public void onStopMachine(String machineId, String ttl) {
@@ -202,7 +201,8 @@ public class MachineRepository {
             Boolean auto = autoMap.remove(ttl);
             log.info("on stop auto: {}",auto);
             if(Booleans.isTrue(auto)){
-                runMachine(machineId,close.getDiscNo());
+                Mission mission = runMachine(machineId,close.getDiscNo());
+                log.info("auto run: {}",mission);
             }
         }
     }

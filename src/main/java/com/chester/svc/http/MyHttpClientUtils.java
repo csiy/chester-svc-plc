@@ -7,6 +7,7 @@ import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -26,16 +27,14 @@ import java.util.List;
  */
 @Slf4j
 @Component
-public class HttpClientUtils implements ClientUtil {
-
-    @Resource
-    private CloseableHttpClient httpClient;
+public class MyHttpClientUtils {
 
     @Async
     public String postWithParamsForString(String url, List<NameValuePair> params) {
         HttpPost httpPost = new HttpPost(url);
         String s = "";
         try {
+            CloseableHttpClient httpClient = SpringContextUtil.getBean(CloseableHttpClient.class);
             httpPost.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
             httpPost.setHeader("Content-type", "application/x-www-form-urlencoded");
             HttpResponse response = httpClient.execute(httpPost);

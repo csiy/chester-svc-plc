@@ -3,9 +3,8 @@ package com.chester.svc.plc.mongodb.repository;
 import com.chester.cloud.support.mongodb.AccessUtils;
 import com.chester.data.mongo.MongoInt64IdGenerator;
 import com.chester.data.mongo.MongoPageQuery;
-import com.chester.svc.http.HttpClientUtils;
+import com.chester.svc.http.MyHttpClientUtils;
 import com.chester.svc.plc.mongodb.config.Constant;
-import com.chester.svc.plc.mongodb.model.Material;
 import com.chester.svc.plc.mongodb.model.Mission;
 import com.chester.svc.plc.mongodb.config.MongoCollections;
 import com.chester.svc.plc.web.model.req.ReqPageMission;
@@ -52,7 +51,7 @@ public class MissionRepository {
     @Resource
     private MongoInt64IdGenerator sortGenerator;
     @Resource
-    private HttpClientUtils httpClientUtils;
+    private MyHttpClientUtils myHttpClientUtils;
 
     @PostConstruct
     public void afterPropertiesSet() {
@@ -241,7 +240,7 @@ public class MissionRepository {
                 params.add(new BasicNameValuePair("timestamp", LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss"))));
                 params.add(new BasicNameValuePair("data", JSON.stringify(data)));
                 log.info("print url :{} , params:{}",url,JSON.stringify(params));
-                httpClientUtils.postWithParamsForString(url, params);
+                myHttpClientUtils.postWithParamsForString(url, params);
             }
         }
     }
