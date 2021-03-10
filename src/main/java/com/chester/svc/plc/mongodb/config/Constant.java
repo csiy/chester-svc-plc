@@ -22,10 +22,10 @@ public interface Constant {
     String count = "count";
     String status = "status";
     String date = "date";
-    String quantity = "date";
-    String position = "date";
-    String replace = "date";
-    String original = "date";
-    String store = "date";
-    String bin = "date";
+    String quantity = "quantity";
+    String position = "position";
+    String replace = "replace";
+    String original = "original";
+    String store = "store";
+    String bin = "bin";
 }
