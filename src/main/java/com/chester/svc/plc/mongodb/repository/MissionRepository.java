@@ -51,11 +51,6 @@ public class MissionRepository {
         this.coll = db.getCollection(MongoCollections.mission, Mission.class);
         this.coll.createIndex(Indexes.ascending(Constant.date));
         this.coll.createIndex(Indexes.ascending(Constant.machineId, Constant.sort));
-        this.coll.updateMany(Filters.eq(Constant.isDeleted, false), AccessUtils.prepareUpdates(1L, "系统",
-                Updates.set("highSpeed", 140),
-                Updates.set("lowSpeed", 125)
-        ));
-
     }
 
     public void addMission(Mission mission, Long createdBy) {
@@ -209,7 +204,7 @@ public class MissionRepository {
         ).first();
     }
 
-    public static final String url = "http://183.234.148.212:19192/datahub/FluxWmsJsonApi/";
+    public static final String url = "http://192.168.1.82:19192/datahub/FluxWmsJsonApi/";
 
     public void print(String... ids) {
         if (ids != null && ids.length > 0) {
