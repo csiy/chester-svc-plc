@@ -5,8 +5,8 @@ import com.chester.data.mongo.MongoInt64IdGenerator;
 import com.chester.data.mongo.MongoPageQuery;
 import com.chester.svc.http.MyHttpClientUtils;
 import com.chester.svc.plc.mongodb.config.Constant;
-import com.chester.svc.plc.mongodb.model.Mission;
 import com.chester.svc.plc.mongodb.config.MongoCollections;
+import com.chester.svc.plc.mongodb.model.Mission;
 import com.chester.svc.plc.web.model.req.ReqPageMission;
 import com.chester.svc.sys.mongodb.repository.UserRepository;
 import com.chester.util.json.JSON;
@@ -19,22 +19,15 @@ import com.mongodb.client.model.Indexes;
 import com.mongodb.client.model.Sorts;
 import com.mongodb.client.model.Updates;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.bson.conversions.Bson;
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -58,6 +51,10 @@ public class MissionRepository {
         this.coll = db.getCollection(MongoCollections.mission, Mission.class);
         this.coll.createIndex(Indexes.ascending(Constant.date));
         this.coll.createIndex(Indexes.ascending(Constant.machineId, Constant.sort));
+        this.coll.updateMany(Filters.eq(Constant.isDeleted, false), AccessUtils.prepareUpdates(1L, "系统",
+                Updates.set("highSpeed", 140),
+                Updates.set("lowSpeed", 125)
+        ));
 
     }
 
@@ -110,7 +107,7 @@ public class MissionRepository {
                 Filters.eq(Constant.machineId, machineId),
                 Filters.eq(Constant.disk, disk),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE),
-                Filters.eq(Constant.status,0)
+                Filters.eq(Constant.status, 0)
         );
         return MongoPageQuery.builder(coll, Mission.class).sort(sort).page(pagination).filter(filter).execute();
     }
@@ -220,7 +217,7 @@ public class MissionRepository {
             Map<String, Object> data = new HashMap<>();
             List<Map<String, String>> header = new ArrayList<>();
             for (String id : ids) {
-                if(id!=null){
+                if (id != null) {
                     Map<String, String> idMap = new HashMap<>();
                     idMap.put("ALLOCATIONDETAILSID", id);
                     header.add(idMap);
@@ -228,7 +225,7 @@ public class MissionRepository {
             }
             if (header.size() > 0) {
                 Map<String, Object> _header = new HashMap<>();
-                _header.put("header",header);
+                _header.put("header", header);
                 data.put("xmldata", _header);
                 params.add(new BasicNameValuePair("method", "putPRINTData"));
                 params.add(new BasicNameValuePair("client_customerid", "FLUXWMSASSJSON"));
@@ -239,7 +236,7 @@ public class MissionRepository {
                 params.add(new BasicNameValuePair("sign", "NGRMMZG2MGFIOGJIOGIZZJLMZWU5MWE5NGU5MJGZNTI="));
                 params.add(new BasicNameValuePair("timestamp", LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss"))));
                 params.add(new BasicNameValuePair("data", JSON.stringify(data)));
-                log.info("print url :{} , params:{}",url,JSON.stringify(params));
+                log.info("print url :{} , params:{}", url, JSON.stringify(params));
                 myHttpClientUtils.postWithParamsForString(url, params);
             }
         }
