@@ -208,8 +208,8 @@ public class MissionRepository {
         ).first();
     }
 
-    public static final String url = "http://183.234.148.212:19192/datahub/FluxWmsJsonApi/";
-    //public static final String url = "http://192.168.1.82:19192/datahub/FluxWmsJsonApi/";
+    //public static final String url = "http://183.234.148.212:19192/datahub/FluxWmsJsonApi/";
+    public static final String url = "http://192.168.1.82:19192/datahub/FluxWmsJsonApi/";
 
     public void print(String... ids) {
         if (ids != null && ids.length > 0) {

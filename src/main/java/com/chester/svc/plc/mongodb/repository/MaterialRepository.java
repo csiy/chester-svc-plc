@@ -56,10 +56,7 @@ public class MaterialRepository {
     }
 
     public void updateMaterial(Material material, Long updatedBy) {
-        Bson filter = Filters.and(
-                Filters.eq(Constant._id, material.getMaterialId()),
-                Filters.eq(Constant.isDeleted, Boolean.FALSE)
-        );
+        Bson filter = Filters.eq(Constant._id, material.getMaterialId());
         this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
                 Updates.set(Constant.materialCode, material.getMaterialCode()),
                 Updates.set(Constant.disk, material.getDisk()),
@@ -69,7 +66,8 @@ public class MaterialRepository {
                 Updates.set(Constant.replace, material.getReplace()),
                 Updates.set(Constant.original, material.getOriginal()),
                 Updates.set(Constant.store, material.getStore()),
-                Updates.set(Constant.bin, material.getBin())
+                Updates.set(Constant.bin, material.getBin()),
+                Updates.set(Constant.isDeleted, Boolean.FALSE)
         ));
     }
 
