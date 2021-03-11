@@ -139,7 +139,9 @@ public class MissionRepository {
                 Updates.set(Constant.store, mission.getStore()),
                 Updates.set(Constant.bin, mission.getBin()),
                 Updates.set(Constant.machineId, Constant.empty),
-                Updates.set(Constant.status, 0)
+                Updates.set(Constant.status, 0),
+                Updates.set(Constant.highSpeed, mission.getHighSpeed()),
+                Updates.set(Constant.lowSpeed, mission.getLowSpeed())
         ));
     }
 
@@ -148,7 +150,9 @@ public class MissionRepository {
                 Filters.eq(Constant._id, mission.getMissionId()),
                 Filters.eq(Constant.isDeleted, Boolean.FALSE));
         this.coll.updateOne(filter, AccessUtils.prepareUpdates(updatedBy, userRepository.getUserName(updatedBy),
-                Updates.set(Constant.disk, mission.getDisk())
+                Updates.set(Constant.disk, mission.getDisk()),
+                Updates.set(Constant.highSpeed, mission.getHighSpeed()),
+                Updates.set(Constant.lowSpeed, mission.getLowSpeed())
         ));
     }
 
@@ -204,7 +208,8 @@ public class MissionRepository {
         ).first();
     }
 
-    public static final String url = "http://192.168.1.82:19192/datahub/FluxWmsJsonApi/";
+    public static final String url = "http://183.234.148.212:19192/datahub/FluxWmsJsonApi/";
+    //public static final String url = "http://192.168.1.82:19192/datahub/FluxWmsJsonApi/";
 
     public void print(String... ids) {
         if (ids != null && ids.length > 0) {

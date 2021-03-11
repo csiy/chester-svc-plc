@@ -1,6 +1,7 @@
 package com.chester.svc.plc.mongodb.config;
 
 import com.mongodb.client.model.Updates;
+import io.swagger.annotations.ApiModelProperty;
 
 public interface Constant {
     String _id = "_id";
@@ -28,4 +29,6 @@ public interface Constant {
     String original = "original";
     String store = "store";
     String bin = "bin";
+    String highSpeed = "highSpeed";
+    String lowSpeed = "lowSpeed";
 }
