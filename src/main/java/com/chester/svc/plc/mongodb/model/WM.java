@@ -15,6 +15,8 @@ public class WM {
     private String aoCode;
     @ApiModelProperty("包装数量 包数")
     private Integer count;
+    @ApiModelProperty("定额数量 每包数量")
+    private Integer quantity;
     @ApiModelProperty("包装袋尺寸 高 mm")
     private Integer height;
     @ApiModelProperty("包装袋尺寸 宽 mm")

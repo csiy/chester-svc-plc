@@ -57,6 +57,9 @@ public class WMSController {
         mission.setLowSpeed(wms.getLowSpeed());
         mission.setWaveNo(wms.getWaveNo());
         mission.setVerify(wms.getVerify());
+        if(wms.getQuantity()!=null){
+            mission.setQuantity(wms.getQuantity());
+        }
         missionRepository.addMission(mission, 10000L);
         return Result.success("导入成功");
     }
