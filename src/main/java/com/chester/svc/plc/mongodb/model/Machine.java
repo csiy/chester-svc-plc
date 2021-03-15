@@ -23,6 +23,8 @@ public class Machine extends BaseEntity {
     private Boolean linkState;
     @ApiModelProperty("链接超时时间")
     private Long lostThreshold;
+    @ApiModelProperty("机器当前物料物料号")
+    private String materialCode;
     @Data
     @ApiModel("盘号")
     public static class Disk{

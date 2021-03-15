@@ -182,13 +182,22 @@ public class MachineRepository {
 
     public Mission runMachine(String machineId, Integer discNo) {
         List<Machine.Disk> disks = getMachine(machineId).getDisks();
+        Assert.isTrue(disks!=null&&disks.size()>0,"机械盘不存在");
         String disc = disks.get(discNo).getName();
         Mission next = missionRepository.getNext(machineId, disc);
-        if (next != null) {
-            SwitchPayload open = SwitchPayload.open(next, discNo);
-            openMap.put(open.getTtl(), open);
-            mqttSender.sendMessage(machineId, open);
+        Assert.notNull(next,"任务不存在");
+        for(Machine.Disk disk : disks){
+            String missionId = disk.getMissionId();
+            if(missionId!=null){
+                Mission mission = missionRepository.getMission(missionId);
+                if(mission!=null&&mission.getMaterialCode()!=null&&!mission.getMaterialCode().equals(next.getMaterialCode())){
+                    throw new IllegalArgumentException("不同物料号不能同时在一台机器上运行任务");
+                }
+            }
         }
+        SwitchPayload open = SwitchPayload.open(next, discNo);
+        openMap.put(open.getTtl(), open);
+        mqttSender.sendMessage(machineId, open);
         return next;
     }
 
@@ -201,8 +210,12 @@ public class MachineRepository {
             Boolean auto = autoMap.remove(ttl);
             log.info("on stop auto: {}",auto);
             if(Booleans.isTrue(auto)){
-                Mission mission = runMachine(machineId,close.getDiscNo());
-                log.info("auto run: {}",mission);
+                try{
+                    Mission mission = runMachine(machineId,close.getDiscNo());
+                    log.info("auto run: {}",mission);
+                }catch (Exception e){
+                    log.info("auto run error: {}",e.getLocalizedMessage());
+                }
             }
         }
     }
